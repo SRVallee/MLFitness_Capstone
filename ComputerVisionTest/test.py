@@ -6,7 +6,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
 
 # For static images:
-IMAGE_FILES = ["images/pushup.jpg"]
+IMAGE_FILES = ["ComputerVisionTest/images/pushup.jpg"]
 BG_COLOR = (192, 192, 192) # gray
 with mp_holistic.Holistic(
     static_image_mode=True,
@@ -19,12 +19,12 @@ with mp_holistic.Holistic(
     # Convert the BGR image to RGB before processing.
     results = holistic.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
-    if results.pose_landmarks:
-      print(
-          f'Nose coordinates: ('
-          f'{results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].x * image_width}, '
-          f'{results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].y * image_height})'
-      )
+    # if results.pose_landmarks:
+    #   print(
+    #       f'Nose coordinates: ('
+    #       f'{results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].x * image_width}, '
+    #       f'{results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].y * image_height})'
+    #   )
 
     annotated_image = image.copy()
     # Draw segmentation on the image.
@@ -54,7 +54,7 @@ with mp_holistic.Holistic(
         results.pose_world_landmarks, mp_holistic.POSE_CONNECTIONS)
 
 # For webcam input:
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("ComputerVisionTest/videos/pushup.mp4")
 with mp_holistic.Holistic(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5) as holistic:
@@ -63,7 +63,7 @@ with mp_holistic.Holistic(
     if not success:
       print("Ignoring empty camera frame.")
       # If loading a video, use 'break' instead of 'continue'.
-      continue
+      break
 
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
