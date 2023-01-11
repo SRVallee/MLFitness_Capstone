@@ -2,11 +2,12 @@ import time
 
 import cv2
 import mediapipe as mp
-
+import sys
+import numpy as np
 #this is just the class to find and create the pose
 class poseDetector():
 
-    def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=False, smoothseg=True,
+    def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
                  detectionCon=0.5, trackCon=0.5):
 
         self.mode = mode
@@ -25,16 +26,21 @@ class poseDetector():
     #a pose is just the human body using lines and dots
     #dots are landmarks
     def findPose(self, img, draw = True):
-
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.pose.process(imgRGB)
+        #attempting to draw segmentation on image.
+        annotated_img = img.copy()
+        condition = np.stack((self.results.segmentation_mask,) * 3, axis =-1)> 0.1
+        bg_img = np.zeros(img.shape, dtype = np.uint8)
+        bg_img[:] = (192,192,192)
+        annotated_img = np.where(condition,annotated_img, bg_img)
         #print(results.pose_landmarks) print all landmarks aka points every frame
 
         if self.results.pose_landmarks:
             if draw:
                 #landmarks are for the dots on the body there are 32 dots and self.mpPose.POSE_CONNECTIONS connects the dots
-                self.mpDraw.draw_landmarks(img, self.results.pose_landmarks, self.mpPose.POSE_CONNECTIONS) 
-        return img
+                self.mpDraw.draw_landmarks(annotated_img, self.results.pose_landmarks, self.mpPose.POSE_CONNECTIONS) 
+        return annotated_img
 
     #this will be used to get each position of each landmark and label them
     def findPosition(self,img, draw=True):
@@ -51,7 +57,9 @@ class poseDetector():
         return lmList
 
 def main():
-    cap = cv2.VideoCapture('motioncapture/SquatV1angle.mp4')  # the video
+    #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
+    cap = cv2.VideoCapture(0)
+    #cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1angle.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     while True:
@@ -71,7 +79,7 @@ def main():
         fps = 1 / (cTime - pTime)
         pTime = cTime
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-        resize = cv2.resize(img, (int(height-300), int(width-300)))
+        resize = cv2.resize(img, (int(height), int(width)))
         cv2.imshow("Image", resize)
         cv2.waitKey(1)  # millisecond delays
 
