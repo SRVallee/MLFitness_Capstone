@@ -30,7 +30,7 @@ with mp_pose.Pose(
     )
 
     print(results.pose_landmarks.landmark[11].x)
-    print(KeyframeExtraction.getAngle(results, 0, "x"))
+    print(KeyframeExtraction.getAngle(results, 14, "x"))
     annotated_image = image.copy()
     # Draw segmentation on the image.
     # To improve segmentation around boundaries, consider applying a joint
