@@ -13,9 +13,16 @@ sequence, we can obtain 55 rotation information
 curves and 3 motion trajectory curves. Then the
 motion sequence is expressed as a set of curves
 M = L1, ...Li, ...Lm, where i represents the ith
-curve and m is 58.
+curve and m is 58. In our case is less
 '''
 
+jointsToMeasure = [ #adding them as I make them available
+    (0,"x"), (0, "y"),
+    (11,"x"), (11, "y"),
+    (12,"x"), (12, "y"),
+    (13,"x"), (13, "y"),
+    (14,"x"), (14, "y"),
+    ] 
 
 def rSquared():
     return
@@ -141,7 +148,7 @@ def getAngle(keyPoints, joint, axis):
             return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
 
     
-    elif joint == 13:
+    elif joint == 14:
         if axis == "x":
             #12 14 and wrist (16)
             a = getDistance(keyPoints.pose_landmarks.landmark[14], keyPoints.pose_landmarks.landmark[16])
@@ -167,6 +174,15 @@ def getAngle(keyPoints, joint, axis):
                 return 0
 
             return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
+    #TODO
+    #wrists
+    #thumbs
+    #hips
+    #torso
+    #knees
+    #feet
+    #overall relative to the axis...  maybe
+
             
     return
 
