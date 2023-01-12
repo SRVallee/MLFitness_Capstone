@@ -30,6 +30,7 @@ class poseDetector():
         self.results = self.pose.process(imgRGB)
         #attempting to draw segmentation on image.
         annotated_img = img.copy()
+        # this is the condition on making it either grey or not
         condition = np.stack((self.results.segmentation_mask,) * 3, axis =-1)> 0.1
         bg_img = np.zeros(img.shape, dtype = np.uint8)
         bg_img[:] = (192,192,192)
