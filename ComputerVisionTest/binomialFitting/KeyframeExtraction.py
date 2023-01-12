@@ -42,7 +42,42 @@ def getAngle(keyPoints, joint, axis):
             h = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[11])
             a = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[12])
             return math.degrees(math.cos((a/2)/h))
+        
+        elif axis == "y":
+            #a shoulder (11) an ear(7) and the nose(0)
+            h = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[7])
+            a = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[11])
+            return math.degrees(math.cos((a/2)/h))
 
+        #the way I did it z affects both triangles x and y, but we are measuring for change; It doesn't matter.
+
+    elif joint == 11: #right shoulder
+        if axis == "x": #basically the angle of the left shoulder with the right elbow (same triangle)
+            #shoulders and right elbow(13)
+            h = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[12])
+            a = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[13])
+            return math.degrees(math.cos((a/2)/h))
+
+        elif axis == "y":
+            #angle between torso shoulder and elbow
+            h = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[13])
+            a = getDistance(keyPoints.pose_landmarks.landmark[23], keyPoints.pose_landmarks.landmark[11])
+            return math.degrees(math.cos((a/2)/h))
+
+            #no z axis, this will be the x of the elbow
+
+    elif joint == 12: #right shoulder
+        if axis == "x": #basically the angle of the right shoulder with the left elbow (same triangle)
+            #shoulders and left elbow(13)
+            h = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[11])
+            a = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[14])
+            return math.degrees(math.cos((a/2)/h))
+
+        elif axis == "y":
+            #angle between torso shoulder and elbow
+            h = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[14])
+            a = getDistance(keyPoints.pose_landmarks.landmark[24], keyPoints.pose_landmarks.landmark[12])
+            return math.degrees(math.cos((a/2)/h))
             
     return
 
