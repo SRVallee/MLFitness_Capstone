@@ -4,6 +4,7 @@ import cv2
 import mediapipe as mp
 import sys
 import numpy as np
+import matplotlib as plt
 #this is just the class to find and create the pose
 class poseDetector():
 
@@ -41,6 +42,7 @@ class poseDetector():
             if draw:
                 #landmarks are for the dots on the body there are 32 dots and self.mpPose.POSE_CONNECTIONS connects the dots
                 self.mpDraw.draw_landmarks(annotated_img, self.results.pose_landmarks, self.mpPose.POSE_CONNECTIONS) 
+                #self.mpDraw.draw_landmarks(annotated_img,self.results.pose_world_landmarks,self.mpPose.POSE_CONNECTIONS)
         return annotated_img
 
     #this will be used to get each position of each landmark and label them
@@ -59,10 +61,13 @@ class poseDetector():
 
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
-    cap = cv2.VideoCapture(0)
-    #cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1angle.mp4')  # the video sys.path[0] is the current path of the file
+    #cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1angle.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
+    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    data = np.empty((3,32,length))
+    frame_num = 0
     while True:
         #this sees if it can read the frame that it is given
         success, img = cap.read()
@@ -70,8 +75,6 @@ def main():
         # 1 = width, 2 = number of chnnels for image
         height = img.shape[0]
         width = img.shape[1]
-        print(height, width)
-        
         img = detector.findPose(img)
         lmList = detector.findPosition(img)
         #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
