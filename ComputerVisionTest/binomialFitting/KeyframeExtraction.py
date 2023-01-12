@@ -38,46 +38,135 @@ def getAngle(keyPoints, joint, axis):
     if joint == 0: #nose / neck angle
         if axis == "x":
             #11 and 12 shoulders with nose
-            #only one is needed, I chose left shoulder (11)
-            h = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[11])
-            a = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[12])
-            return math.degrees(math.cos((a/2)/h))
+            a = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[11])
+            b = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[12])
+            c = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[12])
+
+            #arcCos((a^2 + b^2 - c^2)/2ab) = C
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
+            
         
         elif axis == "y":
             #a shoulder (11) an ear(7) and the nose(0)
-            h = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[7])
-            a = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[11])
-            return math.degrees(math.cos((a/2)/h))
+            a = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[7])
+            b = getDistance(keyPoints.pose_landmarks.landmark[0], keyPoints.pose_landmarks.landmark[11])
+            c = getDistance(keyPoints.pose_landmarks.landmark[7], keyPoints.pose_landmarks.landmark[11])
+
+            if b != a+c:
+                return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
 
         #the way I did it z affects both triangles x and y, but we are measuring for change; It doesn't matter.
 
     elif joint == 11: #right shoulder
-        if axis == "x": #basically the angle of the left shoulder with the right elbow (same triangle)
+        if axis == "x": 
             #shoulders and right elbow(13)
-            h = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[12])
-            a = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[13])
-            return math.degrees(math.cos((a/2)/h))
+            a = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[12])
+            b = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[13])
+            c = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[13])
+
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
 
         elif axis == "y":
             #angle between torso shoulder and elbow
-            h = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[13])
-            a = getDistance(keyPoints.pose_landmarks.landmark[23], keyPoints.pose_landmarks.landmark[11])
-            return math.degrees(math.cos((a/2)/h))
+            a = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[13])
+            b = getDistance(keyPoints.pose_landmarks.landmark[23], keyPoints.pose_landmarks.landmark[11])
+            c = getDistance(keyPoints.pose_landmarks.landmark[23], keyPoints.pose_landmarks.landmark[13])
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
 
             #no z axis, this will be the x of the elbow
 
-    elif joint == 12: #right shoulder
-        if axis == "x": #basically the angle of the right shoulder with the left elbow (same triangle)
-            #shoulders and left elbow(13)
-            h = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[11])
-            a = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[14])
-            return math.degrees(math.cos((a/2)/h))
+    elif joint == 12: #left shoulder
+        if axis == "x": 
+            #shoulders and left elbow(14)
+            a = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[12])
+            b = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[14])
+            c = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[14])
+
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
 
         elif axis == "y":
             #angle between torso shoulder and elbow
-            h = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[14])
-            a = getDistance(keyPoints.pose_landmarks.landmark[24], keyPoints.pose_landmarks.landmark[12])
-            return math.degrees(math.cos((a/2)/h))
+            a = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[14])
+            b = getDistance(keyPoints.pose_landmarks.landmark[24], keyPoints.pose_landmarks.landmark[12])
+            c = getDistance(keyPoints.pose_landmarks.landmark[24], keyPoints.pose_landmarks.landmark[12])
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
+
+            #no z axis, this will be the x of the elbow
+
+    elif joint == 13:
+        if axis == "x":
+            #11 13 and wrist (15)
+            a = getDistance(keyPoints.pose_landmarks.landmark[13], keyPoints.pose_landmarks.landmark[15])
+            b = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[13])
+            c = getDistance(keyPoints.pose_landmarks.landmark[11], keyPoints.pose_landmarks.landmark[15])
+            
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
+        
+        if axis == "y":
+            #23 13 and wrist (15)
+            a = getDistance(keyPoints.pose_landmarks.landmark[13], keyPoints.pose_landmarks.landmark[15])
+            b = getDistance(keyPoints.pose_landmarks.landmark[23], keyPoints.pose_landmarks.landmark[13])
+            c = getDistance(keyPoints.pose_landmarks.landmark[23], keyPoints.pose_landmarks.landmark[15])
+            
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
+
+    
+    elif joint == 13:
+        if axis == "x":
+            #12 14 and wrist (16)
+            a = getDistance(keyPoints.pose_landmarks.landmark[14], keyPoints.pose_landmarks.landmark[16])
+            b = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[14])
+            c = getDistance(keyPoints.pose_landmarks.landmark[12], keyPoints.pose_landmarks.landmark[16])
+            
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
+        
+        if axis == "y":
+            #24 14 and wrist (16)
+            a = getDistance(keyPoints.pose_landmarks.landmark[14], keyPoints.pose_landmarks.landmark[16])
+            b = getDistance(keyPoints.pose_landmarks.landmark[24], keyPoints.pose_landmarks.landmark[14])
+            c = getDistance(keyPoints.pose_landmarks.landmark[24], keyPoints.pose_landmarks.landmark[16])
+            
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))
             
     return
 
