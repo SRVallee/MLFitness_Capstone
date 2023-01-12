@@ -7,40 +7,6 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
 
 USE_CAM = True
-
-KEYPOINT_DICT = {
-    11 : 'left_shoulder',
-    12 : 'right_shoulder',
-    13 : 'left_elbow',
-    14 : 'right_elbow',
-    15 : 'left_wrist',
-    16 : 'right_wrist',
-    17 : 'left_pinky',
-    18 : 'right_pinky',
-    19 : 'left_index',
-    20 : 'right_index',
-    21 : 'left_thumb',
-    22 : 'right_thumb',
-    23 : 'left_hip',
-    24 : 'right_hip',
-    25 : 'left_knee',
-    26 : 'right_knee',
-    27 : 'left_ankle',
-    28 : 'right_ankle', 
-    29 : 'left_heel', 
-    30 : 'right_heel', 
-    31 : 'left_foot_index',
-    32 : 'right_foot_index'
-}
-
-def string_landmarks(landmarks):
-  outStr = ''
-  dict = {}
-  for i in range(11,32):
-    dict[i]
-    landmarks.landmark[i]
-    
-
 # For static images:
 # IMAGE_FILES = ["ComputerVisionTest/images/pushup.jpg"]
 # BG_COLOR = (192, 192, 192) # gray
