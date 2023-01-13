@@ -251,33 +251,45 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
                 keyPoints.pose_landmarks.landmark[30])
 
 
-    elif not joint: #Overall relative to the camera
+    elif not joint: #Overall rotation relative to the camera
         if axis == "x":
-            return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[12],
-                keyPoints.pose_landmarks.landmark[24], 
-                keyPoints.pose_landmarks.landmark[26])
-                
-        elif axis == "y":
-            return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[12],
-                keyPoints.pose_landmarks.landmark[24], 
-                keyPoints.pose_landmarks.landmark[26])
-
-        elif axis == "z":
-            getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[23],
-                keyPoints.pose_landmarks.landmark[24], 
-                keyPoints.pose_landmarks.landmark[24]+1)
-            a = getDistance(joint1, joint2)
-            b = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y, landMark2.z])
-            c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y, landMark2.z])
+            landmark1 = keyPoints.pose_landmarks.landmark[23]
+            landmark2 = keyPoints.pose_landmarks.landmark[24], 
+            a = getDistance(landmark1, landmark2)
+            b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x + 1, landMark2.y, landMark2.z])
+            c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x + 1, landMark2.y, landMark2.z])
             if c == a+b:
                 return 180
             elif c == 0:
                 return 0
 
-    return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
+            return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
+                
+        elif axis == "y":
+            landmark1 = keyPoints.pose_landmarks.landmark[11]
+            landmark2 = keyPoints.pose_landmarks.landmark[23], 
+            a = getDistance(landmark1, landmark2)
+            b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x, landMark2.y + 1, landMark2.z])
+            c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y + 1, landMark2.z])
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
+
+        elif axis == "z":
+            landmark1 = keyPoints.pose_landmarks.landmark[11]
+            landmark2 = keyPoints.pose_landmarks.landmark[23], 
+            a = getDistance(landmark1, landmark2)
+            b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x, landMark2.y, landMark2.z + 1])
+            c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y, landMark2.z + 1])
+            if c == a+b:
+                return 180
+            elif c == 0:
+                return 0
+
+            return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
 
 def getDistance(landMark1, landMark2):
 
