@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MLFitness_Capstone</string>
+    <string name="open">Open Navigation Drawer</string>
+    <string name="close">Close Navigation Drawer</string>
+    
+    <string-array name="roles">
+        <item>Trainer</item>
+        <item>Trainee</item>
+    </string-array>
+</resources>
