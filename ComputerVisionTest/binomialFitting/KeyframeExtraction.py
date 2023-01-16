@@ -17,19 +17,21 @@ curve and m is 58. In our case is less
 '''
 
 jointsToMeasure = [ #adding them as I make them available
-    (0,"x"), (0, "y"),
-    (11,"x"), (11, "y"),
-    (12,"x"), (12, "y"),
-    (13,"x"), (13, "y"),
-    (14,"x"), (14, "y"),
-    (15, "x"), 
-    (16, "x"),
-    (21,"x"), (21, "y"),
-    (22,"x"), (22, "y"),
-    (23, "y"),
-    (24, "y"),
-    (25,"x"), (25, "y"), (25, "z"),
-    (26,"x"), (26, "y"), (26, "z")
+    [0,11,12], [7,12,11],              #nose/neck angle  x, y
+    [12,11,13], [23,11,13],            #right shoulder
+    [11,12,14], [24,12,14],            #left shoulder
+    [11,13,15], [23,13,15],            #right elbow
+    [12,14,16], [24,14,16],            #left elbow
+    [13,14,19],                        #right wrist 
+    [14,16,20],                        #left wrist
+    [13,15,21], [17,15,21],            #right thumb
+    [14,16,22], [18,16,22],            #left thumb
+    [11,23,24],                        #right hip
+    [12,24,23],                        #left hip
+    [23,25,27], [11,23,25], [24,23,25],#right knee
+    [24,26,28], [12,24,26], [23,24,26],#left knee
+    [25,27,31], [25,27,29],            #right foot
+    [26,28,32], [26,28,30]             #right foot
     ] 
 
 def rSquared():
@@ -238,7 +240,7 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
                 keyPoints.pose_landmarks.landmark[27], 
                 keyPoints.pose_landmarks.landmark[29])
 
-    elif joint == 26: #left foot
+    elif joint == 28: #left foot
         if axis == "x":
             return getAnglesFromSides(
                 keyPoints.pose_landmarks.landmark[24],
@@ -290,6 +292,51 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
                 return 0
 
             return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
+
+#get all angles
+def getAllAngles(keypoints):
+    anglesInFrame = []
+    for joint in jointsToMeasure:
+        anglesInFrame.append(getAnglesFromSides(
+            keyPoints.pose_landmarks.landmark[joint[0]],
+            keyPoints.pose_landmarks.landmark[joint[1]], 
+            keyPoints.pose_landmarks.landmark[joint[2]]))
+    
+    
+    landmark1 = keyPoints.pose_landmarks.landmark[23]
+    landmark2 = keyPoints.pose_landmarks.landmark[24], 
+    a = getDistance(landmark1, landmark2)
+    b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x + 1, landMark2.y, landMark2.z])
+    c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x + 1, landMark2.y, landMark2.z])
+    if c == a+b:
+        anglesInFrame.append(180)
+    elif c == 0:
+        anglesInFrame.append(0)
+    else:
+        anglesInFrame.append(math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))))
+            
+    landmark1 = keyPoints.pose_landmarks.landmark[11]
+    landmark2 = keyPoints.pose_landmarks.landmark[23], 
+    a = getDistance(landmark1, landmark2)
+    b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x, landMark2.y + 1, landMark2.z])
+    c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y + 1, landMark2.z])
+    if c == a+b:
+        anglesInFrame.append(180)
+    elif c == 0:
+        anglesInFrame.append(0)
+    else:
+        anglesInFrame.append(math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))))
+
+    b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x, landMark2.y, landMark2.z + 1])
+    c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y, landMark2.z + 1])
+    if c == a+b:
+        anglesInFrame.append(180)
+    elif c == 0:
+        anglesInFrame.append(0)
+    else:
+        anglesInFrame.append(math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))))
+
+    return anglesInFrame
 
 def getDistance(landMark1, landMark2):
 
