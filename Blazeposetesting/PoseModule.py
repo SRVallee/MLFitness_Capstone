@@ -4,12 +4,12 @@ import cv2
 import mediapipe as mp
 import sys
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 #this is just the class to find and create the pose
 class poseDetector():
 
     def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
-                 detectionCon=0.5, trackCon=0.5):
+                 detectionCon=0.7, trackCon=0.7):
 
         self.mode = mode
         self.modcomp = modcomp
@@ -42,7 +42,7 @@ class poseDetector():
             if draw:
                 #landmarks are for the dots on the body there are 32 dots and self.mpPose.POSE_CONNECTIONS connects the dots
                 self.mpDraw.draw_landmarks(annotated_img, self.results.pose_landmarks, self.mpPose.POSE_CONNECTIONS) 
-                #self.mpDraw.draw_landmarks(annotated_img,self.results.pose_world_landmarks,self.mpPose.POSE_CONNECTIONS)
+                #self.mpDraw.plot_landmarks(self.results.pose_world_landmarks,self.mpPose.POSE_CONNECTIONS)
         return annotated_img
 
     #this will be used to get each position of each landmark and label them
@@ -52,23 +52,33 @@ class poseDetector():
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
                 h, w, c = img.shape # we need this because
                 #print(id, lm)
-                cx, cy = int(lm.x * w), int(lm.y * h) #this gives the pixel point of the landmarks
-                lmList.append([id,cx,cy])
+                cx, cy, cc = int(lm.x * w), int(lm.y * h), int(lm.z) #this gives the pixel point of the landmarks
+                lmList.append([id,cx,cy,cc])
                 #if found checks if can draw it if can draw
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
+                    cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         return lmList
+    
+    def threeDimendionalplot(self,img):
+        ax = plt.axes(projection = "3d")
+        ax.scatter(3,5,7)
+        plt.pause(0.001)
+        return plt
+        
 
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
     #cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1angle.mp4')  # the video sys.path[0] is the current path of the file
+    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1side.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     data = np.empty((3,32,length))
     frame_num = 0
-    while True:
+    success = True
+    
+    while success:
         #this sees if it can read the frame that it is given
         success, img = cap.read()
         # img.shape is a list of the dimensions of the frame 0 = height
@@ -78,14 +88,17 @@ def main():
         img = detector.findPose(img)
         lmList = detector.findPosition(img)
         #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
-        #print(lmList)
+        print(lmList)
+        #plotting= detector.threeDimendionalplot(img)
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         resize = cv2.resize(img, (int(height), int(width)))
+        print(success)
         cv2.imshow("Image", resize)
         cv2.waitKey(1)  # millisecond delays
+    return
 
 if __name__ == "__main__":
     main()
