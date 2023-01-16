@@ -57,7 +57,7 @@ class poseDetector():
                 #if found checks if can draw it if can draw
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
-                    cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+                    #cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         return lmList
     
     def threeDimendionalplot(self,img):
@@ -65,7 +65,20 @@ class poseDetector():
         ax.scatter(3,5,7)
         plt.pause(0.001)
         return plt
-        
+    
+    def findWorldPosition(self,img, draw=True):
+        lmList =[] #landmark list
+        if self.results.pose_landmarks:
+            for id, lm in enumerate(self.results.pose_world_landmarks.landmark):
+                h, w, c = img.shape # we need this because
+                #print(id, lm)
+                cx, cy, cc = int(lm.x * w), int(lm.y * h), int(lm.z) #this gives the pixel point of the landmarks
+                lmList.append([id,cx,cy,cc])
+                #if found checks if can draw it if can draw
+                if draw:
+                    cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
+                    #cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+        return lmList
 
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
@@ -81,21 +94,40 @@ def main():
     while success:
         #this sees if it can read the frame that it is given
         success, img = cap.read()
+        constant_height = 500
         # img.shape is a list of the dimensions of the frame 0 = height
         # 1 = width, 2 = number of chnnels for image
         height = img.shape[0]
         width = img.shape[1]
+        height_percentage = float(constant_height/int(height))
+        modded_width = int(float(width)*height_percentage)
         img = detector.findPose(img)
         lmList = detector.findPosition(img)
+        world_lmList = detector.findWorldPosition(img)
+        for i in range(len(lmList)):
+            if lmList[i][0] == 12:
+                x1 = int(lmList[i][1])
+                y1 = int(lmList[i][2])
+                pt1 = (x1,y1)
+            elif lmList[i][0] == 24:
+                x2 = int(lmList[i][1])
+                y2 = int(lmList[i][2])
+                pt2 = (x2 ,y2)
+        cv2.line(img,pt1,pt2,(139,0,0),2)
+        slope = ((y2-y1)*(x2-x1))
+        y_inter = (y1-(slope*x1)) 
+        print(f"slope: {slope}, y_inter: {y_inter}, x1: {x1}, y1: {y1}, x2: {x2}, y2: {y2}")
         #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
-        print(lmList)
+        #print(lmList)
+        #the landmarks i want for side are 12 and 24 to get line and slope
         #plotting= detector.threeDimendionalplot(img)
+        #print(world_lmList)
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-        resize = cv2.resize(img, (int(height), int(width)))
-        print(success)
+        #resize is width than height
+        resize = cv2.resize(img, (modded_width, constant_height))
         cv2.imshow("Image", resize)
         cv2.waitKey(1)  # millisecond delays
     return
