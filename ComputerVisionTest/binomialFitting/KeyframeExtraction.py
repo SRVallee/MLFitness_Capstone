@@ -298,13 +298,13 @@ def getAllAngles(keypoints):
     anglesInFrame = []
     for joint in jointsToMeasure:
         anglesInFrame.append(getAnglesFromSides(
-            keyPoints.pose_landmarks.landmark[joint[0]],
-            keyPoints.pose_landmarks.landmark[joint[1]], 
-            keyPoints.pose_landmarks.landmark[joint[2]]))
+            keyPoints.pose_world_landmarks.landmark[joint[0]],
+            keyPoints.pose_world_landmarks.landmark[joint[1]], 
+            keyPoints.pose_world_landmarks.landmark[joint[2]]))
     
     
-    landmark1 = keyPoints.pose_landmarks.landmark[23]
-    landmark2 = keyPoints.pose_landmarks.landmark[24], 
+    landmark1 = keyPoints.pose_world_landmarks.landmark[23]
+    landmark2 = keyPoints.pose_world_landmarks.landmark[24], 
     a = getDistance(landmark1, landmark2)
     b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x + 1, landMark2.y, landMark2.z])
     c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x + 1, landMark2.y, landMark2.z])
@@ -315,8 +315,8 @@ def getAllAngles(keypoints):
     else:
         anglesInFrame.append(math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))))
             
-    landmark1 = keyPoints.pose_landmarks.landmark[11]
-    landmark2 = keyPoints.pose_landmarks.landmark[23], 
+    landmark1 = keyPoints.pose_world_landmarks.landmark[11]
+    landmark2 = keyPoints.pose_world_landmarks.landmark[23], 
     a = getDistance(landmark1, landmark2)
     b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x, landMark2.y + 1, landMark2.z])
     c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y + 1, landMark2.z])
