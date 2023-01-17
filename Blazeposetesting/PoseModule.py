@@ -141,10 +141,10 @@ class poseDetector():
         slope = 0
         if noseX -earX != 0:
             slope = (noseY - earY)/(noseX - earX)
-            y_int = int(earY - (slope*earX))
+            y_int = int(cur_y - (slope*cur_x))
             if cur_y > height:
                 cur_y = height
-            confidence = self.results.segmentation_mask[earY][earX]
+            confidence = self.results.segmentation_mask[cur_y][cur_x]
             while confidence >0.1:
                 cur_x = cur_x - 1
                 cur_y = int((slope*cur_x) + y_int)
@@ -191,6 +191,9 @@ def main():
                 y2 = int(lmList[i][2])
                 visibilty2 = int(lmList[i][4])
                 pt2 = (x2 ,y2)
+            elif lmList[i][0] == 8:
+                earX = lmList[i][1]
+                earY = lmList[i][2]
         cv2.line(img,pt1,pt2,(139,0,0),2)
         
         #this is due to if the line is completely verical
@@ -235,6 +238,8 @@ def main():
         head_x, noseX, noseY, head_slope, y_int = detector.face_track(img,lmList)
         head_y = int((head_slope*head_x)+ y_int)
         cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
+        cv2.circle(annotated_img, (head_x, head_y), 5, (0,0,255), cv2.FILLED)
+        cv2.circle(annotated_img, (earX, earY), 5, (0,0,255), cv2.FILLED)
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
