@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 class poseDetector():
 
     def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
-                 detectionCon=0.7, trackCon=0.7):
+                 detectionCon=0.5, trackCon=0.5):
 
         self.mode = mode
         self.modcomp = modcomp
@@ -48,8 +48,8 @@ class poseDetector():
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
                 h, w, c = img.shape # we need this because
                 #print(id, lm)
-                cx, cy, cc = int(lm.x * w), int(lm.y * h), int(lm.z) #this gives the pixel point of the landmarks
-                lmList.append([id,cx,cy,cc])
+                cx, cy, cc, cv = int(lm.x * w), int(lm.y * h), int(lm.z), int(lm.visibility) #this gives the pixel point of the landmarks
+                lmList.append([id,cx,cy,cc,cv])
                 #if found checks if can draw it if can draw
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
@@ -106,18 +106,56 @@ class poseDetector():
             for id, lm in enumerate(self.results.pose_world_landmarks.landmark):
                 h, w, c = img.shape # we need this because
                 #print(id, lm)
-                cx, cy, cc = int(lm.x * w), int(lm.y * h), int(lm.z) #this gives the pixel point of the landmarks
-                lmList.append([id,cx,cy,cc])
+                cx, cy, cc, cv = int(lm.x * w), int(lm.y * h), int(lm.z), int(lm.visibility) #this gives the pixel point of the landmarks
+                lmList.append([id,cx,cy,cc,cv])
                 #if found checks if can draw it if can draw
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
                     #cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         return lmList
+    
+    def checkback(self,img,backplt1,backplt2):
+        x1, y1 = backplt1
+        x2, y2 = backplt2
+        if x2-x1 != 0:
+            slope= (y2-y1)/(x2-x1)
+            y_int = (y1-(slope*x1))
+            for i in range(min(x1,x2),max(x1,x2)-2):
+                cur_y = int(slope*i + y_int)
+                confidence = self.results.segmentation_mask[cur_y][i]
+                if(confidence > 0.1):
+                    return False
+        return True
+    
+    def face_track(self,img,lmList):
+        height = img.shape[0]
+        for i in range(len(lmList)):
+            if lmList[i][0] == 0:
+                noseX = lmList[i][1]
+                noseY = lmList[i][2]
+            elif lmList[i][0] == 8:
+                earX = lmList[i][1]
+                earY = lmList[i][2]
+        cur_x = earX
+        cur_y = earY
+        slope = 0
+        if noseX -earX != 0:
+            slope = (noseY - earY)/(noseX - earX)
+            y_int = int(earY - (slope*earX))
+            if cur_y > height:
+                cur_y = height
+            confidence = self.results.segmentation_mask[earY][earX]
+            while confidence >0.1:
+                cur_x = cur_x - 1
+                cur_y = int((slope*cur_x) + y_int)
+                if cur_y < height:
+                    confidence = self.results.segmentation_mask[cur_y][cur_x]
+        return cur_x, noseX, noseY, int(slope), y_int
 
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
-    cap = cv2.VideoCapture(0)
-    #cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1side.mp4')  # the video sys.path[0] is the current path of the file
+    #cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1side.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -146,46 +184,62 @@ def main():
             if lmList[i][0] == 12:
                 x1 = int(lmList[i][1])
                 y1 = int(lmList[i][2])
+                visibilty = int(lmList[i][4])
                 pt1 = (x1,y1)
             elif lmList[i][0] == 24:
                 x2 = int(lmList[i][1])
                 y2 = int(lmList[i][2])
+                visibilty2 = int(lmList[i][4])
                 pt2 = (x2 ,y2)
         cv2.line(img,pt1,pt2,(139,0,0),2)
+        
+        #this is due to if the line is completely verical
         if x2-x1 != 0:
             slope = ((y2-y1)/(x2-x1))
+            
         y_inter = (y1-(slope*x1)) 
         print(f"slope: {slope}, y_inter: {y_inter}, x1: {x1}, y1: {y1}, x2: {x2}, y2: {y2}")
-        #this is the annotated iumage with the segmentation mask it is needed as a copy
-        #of the ifrst image so that they are 2 seperate images so that all the colours will not
+        #this is the annotated image with the segmentation mask it is needed as a copy
+        #of the first image so that they are 2 seperate images so that all the colours will not
         #be the same
         annotated_img = detector.seg_mask(img)
-        #create empty matrix
+        
+        #also for case for completely vertical
         if slope != 0:
             perp_slope = (-1)/slope
         perp_y_inter = int(y1-(perp_slope*x1)) 
-        
+        #shoulder
         cv2.line(annotated_img,pt1,(0,perp_y_inter),(0,128,0),6)
         perp_y_inter_bottom = int(y2-(perp_slope*x2))
+        #hip out
         cv2.line(annotated_img,pt2,(0,perp_y_inter_bottom),(0,128,0),6)
         if y2 >img.shape[0]:
             y2 = img.shape[0]-1
+        
         backx, backx2 = detector.backLine(img,x1,y1,x2,y2,perp_slope,perp_y_inter,perp_y_inter_bottom)
         print(f"back point1: {backx}, back point2: {backx2}")
         backplt1 = backx-10, int(perp_slope*(backx-10)+perp_y_inter)
         backplt2 = backx2-10, int(perp_slope*(backx2-10)+perp_y_inter_bottom)
-        cv2.line(annotated_img,backplt1,backplt2,(0,128,0),3)
+        arch= detector.checkback(img,backplt1,backplt2)
+        print(arch)
+        
+        if arch == True:
+            cv2.line(annotated_img,backplt1,backplt2,(0,128,0),6)
+        else:
+            cv2.line(annotated_img,backplt1,backplt2,(0,0,128),6)
         #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
-        #print(lmList)
+        print(lmList)
         #the landmarks i want for side are 12 and 24 to get line and slope
         #plotting= detector.threeDimendionalplot(img)
         #print(world_lmList)
+        head_x, noseX, noseY, head_slope, y_int = detector.face_track(img,lmList)
+        head_y = int((head_slope*head_x)+ y_int)
+        cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         #resize is width than height
-        
         resize = cv2.resize(annotated_img, (modded_width, constant_height))
         cv2.imshow("Image", resize)
         cv2.waitKey(1)  # millisecond delays
