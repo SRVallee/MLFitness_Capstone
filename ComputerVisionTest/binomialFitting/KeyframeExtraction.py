@@ -2,6 +2,7 @@
 #The method was taaken from this paper: http://eprints.bournemouth.ac.uk/35006/1/KeyFrame%2BExtraction%2Bfor%2BHuman%2BMotion%2BCapture.pdf
 
 import math
+import statistics
 
 '''
 the curve Li is used
@@ -34,21 +35,20 @@ jointsToMeasure = [ #adding them as I make them available
     [26,28,32], [26,28,30]             #right foot
     ] 
 
-def rSquared():
-    return
+def getSSE(data, f, startX):
+    sse = 0
 
-def getSST():
-    return
+    for i in range(len(data)):
+        e = data[i] - (f[0]*(i+startX) + f[1])
+        sse += e*e
+    return sse
 
-def getSSR():
-    return
-
-#L1, L2, ... Lm 
-'''we take time as the independent variable and the
-motion information of each dimension of human
-joints as dependent variables'''
-def plotGraph():
-    return
+def getSSR(data):
+    mean = statistics.mean(data)
+    ssr = 0
+    for i in data:
+        ssr += (i - mean)*(i - mean)
+    return ssr
 
 #give the joint and axis
 def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's done
@@ -56,17 +56,17 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
         if axis == "x":
             #11 and 12 shoulders with nose
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[0],
-                keyPoints.pose_landmarks.landmark[11], 
-                keyPoints.pose_landmarks.landmark[12])
+                keyPoints.pose_world_landmarks.landmark[0],
+                keyPoints.pose_world_landmarks.landmark[11], 
+                keyPoints.pose_world_landmarks.landmark[12])
             
         
         elif axis == "y":
             #a shoulder (11) an ear(7) and the nose(0)
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[7],
-                keyPoints.pose_landmarks.landmark[12], 
-                keyPoints.pose_landmarks.landmark[11])
+                keyPoints.pose_world_landmarks.landmark[7],
+                keyPoints.pose_world_landmarks.landmark[12], 
+                keyPoints.pose_world_landmarks.landmark[11])
 
         #the way I did it z affects both triangles x and y, but we are measuring for change; It doesn't matter.
 
@@ -74,16 +74,16 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
         if axis == "x": 
             #shoulders and right elbow(13)
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[12],
-                keyPoints.pose_landmarks.landmark[11], 
-                keyPoints.pose_landmarks.landmark[13])
+                keyPoints.pose_world_landmarks.landmark[12],
+                keyPoints.pose_world_landmarks.landmark[11], 
+                keyPoints.pose_world_landmarks.landmark[13])
 
         elif axis == "y":
             #angle between torso shoulder and elbow
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[23],
-                keyPoints.pose_landmarks.landmark[11], 
-                keyPoints.pose_landmarks.landmark[13])
+                keyPoints.pose_world_landmarks.landmark[23],
+                keyPoints.pose_world_landmarks.landmark[11], 
+                keyPoints.pose_world_landmarks.landmark[13])
 
             #no z axis, this will be the x of the elbow
 
@@ -91,16 +91,16 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
         if axis == "x": 
             #shoulders and left elbow(14)
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[11],
-                keyPoints.pose_landmarks.landmark[12], 
-                keyPoints.pose_landmarks.landmark[14])
+                keyPoints.pose_world_landmarks.landmark[11],
+                keyPoints.pose_world_landmarks.landmark[12], 
+                keyPoints.pose_world_landmarks.landmark[14])
 
         elif axis == "y":
             #angle between torso shoulder and elbow
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[24],
-                keyPoints.pose_landmarks.landmark[14], 
-                keyPoints.pose_landmarks.landmark[12])
+                keyPoints.pose_world_landmarks.landmark[24],
+                keyPoints.pose_world_landmarks.landmark[14], 
+                keyPoints.pose_world_landmarks.landmark[12])
 
             #no z axis, this will be the x of the elbow
 
@@ -108,156 +108,156 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
         if axis == "x":
             #11 13 and wrist (15)
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[11],
-                keyPoints.pose_landmarks.landmark[13], 
-                keyPoints.pose_landmarks.landmark[15])
+                keyPoints.pose_world_landmarks.landmark[11],
+                keyPoints.pose_world_landmarks.landmark[13], 
+                keyPoints.pose_world_landmarks.landmark[15])
         
         if axis == "y":
             #23 13 and wrist (15)
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[23],
-                keyPoints.pose_landmarks.landmark[13], 
-                keyPoints.pose_landmarks.landmark[15])
+                keyPoints.pose_world_landmarks.landmark[23],
+                keyPoints.pose_world_landmarks.landmark[13], 
+                keyPoints.pose_world_landmarks.landmark[15])
 
     
     elif joint == 14: #left elbow
         if axis == "x":
             #12 14 and wrist (16)
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[12],
-                keyPoints.pose_landmarks.landmark[14], 
-                keyPoints.pose_landmarks.landmark[16])
+                keyPoints.pose_world_landmarks.landmark[12],
+                keyPoints.pose_world_landmarks.landmark[14], 
+                keyPoints.pose_world_landmarks.landmark[16])
         
         if axis == "y":
             #24 14 and wrist (16)
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[24],
-                keyPoints.pose_landmarks.landmark[14], 
-                keyPoints.pose_landmarks.landmark[16])
+                keyPoints.pose_world_landmarks.landmark[24],
+                keyPoints.pose_world_landmarks.landmark[14], 
+                keyPoints.pose_world_landmarks.landmark[16])
     #wrists
     elif joint == 15: #right wrist
         if axis == "x":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[13],
-                keyPoints.pose_landmarks.landmark[15], 
-                keyPoints.pose_landmarks.landmark[19])
+                keyPoints.pose_world_landmarks.landmark[13],
+                keyPoints.pose_world_landmarks.landmark[15], 
+                keyPoints.pose_world_landmarks.landmark[19])
         
     elif joint == 16: #left wrist
         if axis == "x":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[14],
-                keyPoints.pose_landmarks.landmark[16], 
-                keyPoints.pose_landmarks.landmark[20])
+                keyPoints.pose_world_landmarks.landmark[14],
+                keyPoints.pose_world_landmarks.landmark[16], 
+                keyPoints.pose_world_landmarks.landmark[20])
     
     #thumbs
     elif joint == 22: #left thumb
         if axis == "x":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[14],
-                keyPoints.pose_landmarks.landmark[16], 
-                keyPoints.pose_landmarks.landmark[22])
+                keyPoints.pose_world_landmarks.landmark[14],
+                keyPoints.pose_world_landmarks.landmark[16], 
+                keyPoints.pose_world_landmarks.landmark[22])
             
         elif axis == "y":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[18],
-                keyPoints.pose_landmarks.landmark[16], 
-                keyPoints.pose_landmarks.landmark[22])
+                keyPoints.pose_world_landmarks.landmark[18],
+                keyPoints.pose_world_landmarks.landmark[16], 
+                keyPoints.pose_world_landmarks.landmark[22])
 
     elif joint == 21: #right thumb
         if axis == "x":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[13],
-                keyPoints.pose_landmarks.landmark[15], 
-                keyPoints.pose_landmarks.landmark[21])
+                keyPoints.pose_world_landmarks.landmark[13],
+                keyPoints.pose_world_landmarks.landmark[15], 
+                keyPoints.pose_world_landmarks.landmark[21])
         elif axis == "y":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[17],
-                keyPoints.pose_landmarks.landmark[15], 
-                keyPoints.pose_landmarks.landmark[21])
+                keyPoints.pose_world_landmarks.landmark[17],
+                keyPoints.pose_world_landmarks.landmark[15], 
+                keyPoints.pose_world_landmarks.landmark[21])
     #hips 
     elif joint == 23: #right hip
         if axis == "y":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[11],
-                keyPoints.pose_landmarks.landmark[23], 
-                keyPoints.pose_landmarks.landmark[24])
+                keyPoints.pose_world_landmarks.landmark[11],
+                keyPoints.pose_world_landmarks.landmark[23], 
+                keyPoints.pose_world_landmarks.landmark[24])
 
     elif joint == 24: #left hip
         if axis == "y":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[12],
-                keyPoints.pose_landmarks.landmark[24], 
-                keyPoints.pose_landmarks.landmark[23])
+                keyPoints.pose_world_landmarks.landmark[12],
+                keyPoints.pose_world_landmarks.landmark[24], 
+                keyPoints.pose_world_landmarks.landmark[23])
     #knees
     elif joint == 25: #right knee
         if axis == "x":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[23],
-                keyPoints.pose_landmarks.landmark[25], 
-                keyPoints.pose_landmarks.landmark[27])
+                keyPoints.pose_world_landmarks.landmark[23],
+                keyPoints.pose_world_landmarks.landmark[25], 
+                keyPoints.pose_world_landmarks.landmark[27])
             
         elif axis == "y":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[11],
-                keyPoints.pose_landmarks.landmark[23], 
-                keyPoints.pose_landmarks.landmark[25])
+                keyPoints.pose_world_landmarks.landmark[11],
+                keyPoints.pose_world_landmarks.landmark[23], 
+                keyPoints.pose_world_landmarks.landmark[25])
         
         elif axis == "z":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[24],
-                keyPoints.pose_landmarks.landmark[23], 
-                keyPoints.pose_landmarks.landmark[25])
+                keyPoints.pose_world_landmarks.landmark[24],
+                keyPoints.pose_world_landmarks.landmark[23], 
+                keyPoints.pose_world_landmarks.landmark[25])
 
     elif joint == 26: #left knee
         if axis == "x":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[24],
-                keyPoints.pose_landmarks.landmark[26], 
-                keyPoints.pose_landmarks.landmark[28])
+                keyPoints.pose_world_landmarks.landmark[24],
+                keyPoints.pose_world_landmarks.landmark[26], 
+                keyPoints.pose_world_landmarks.landmark[28])
         elif axis == "y":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[12],
-                keyPoints.pose_landmarks.landmark[24], 
-                keyPoints.pose_landmarks.landmark[26])
+                keyPoints.pose_world_landmarks.landmark[12],
+                keyPoints.pose_world_landmarks.landmark[24], 
+                keyPoints.pose_world_landmarks.landmark[26])
 
         elif axis == "z":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[23],
-                keyPoints.pose_landmarks.landmark[24], 
-                keyPoints.pose_landmarks.landmark[26])
+                keyPoints.pose_world_landmarks.landmark[23],
+                keyPoints.pose_world_landmarks.landmark[24], 
+                keyPoints.pose_world_landmarks.landmark[26])
 
     #feet
     elif joint == 27: #right foot
         if axis == "x":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[25],
-                keyPoints.pose_landmarks.landmark[27], 
-                keyPoints.pose_landmarks.landmark[31])
+                keyPoints.pose_world_landmarks.landmark[25],
+                keyPoints.pose_world_landmarks.landmark[27], 
+                keyPoints.pose_world_landmarks.landmark[31])
             
         elif axis == "y":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[25],
-                keyPoints.pose_landmarks.landmark[27], 
-                keyPoints.pose_landmarks.landmark[29])
+                keyPoints.pose_world_landmarks.landmark[25],
+                keyPoints.pose_world_landmarks.landmark[27], 
+                keyPoints.pose_world_landmarks.landmark[29])
 
     elif joint == 28: #left foot
         if axis == "x":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[24],
-                keyPoints.pose_landmarks.landmark[28], 
-                keyPoints.pose_landmarks.landmark[32])
+                keyPoints.pose_world_landmarks.landmark[24],
+                keyPoints.pose_world_landmarks.landmark[28], 
+                keyPoints.pose_world_landmarks.landmark[32])
         elif axis == "y":
             return getAnglesFromSides(
-                keyPoints.pose_landmarks.landmark[24],
-                keyPoints.pose_landmarks.landmark[28], 
-                keyPoints.pose_landmarks.landmark[30])
+                keyPoints.pose_world_landmarks.landmark[24],
+                keyPoints.pose_world_landmarks.landmark[28], 
+                keyPoints.pose_world_landmarks.landmark[30])
 
 
     elif not joint: #Overall rotation relative to the camera
         if axis == "x":
-            landmark1 = keyPoints.pose_landmarks.landmark[23]
-            landmark2 = keyPoints.pose_landmarks.landmark[24], 
-            a = getDistance(landmark1, landmark2)
+            landMark1 = keyPoints.pose_world_landmarks.landmark[23]
+            landMark2 = keyPoints.pose_world_landmarks.landmark[24]
+            a = getDistance(landMark1, landMark2)
             b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x + 1, landMark2.y, landMark2.z])
             c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x + 1, landMark2.y, landMark2.z])
             if c == a+b:
@@ -268,9 +268,9 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
             return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
                 
         elif axis == "y":
-            landmark1 = keyPoints.pose_landmarks.landmark[11]
-            landmark2 = keyPoints.pose_landmarks.landmark[23], 
-            a = getDistance(landmark1, landmark2)
+            landMark1 = keyPoints.pose_world_landmarks.landmark[11]
+            landMark2 = keyPoints.pose_world_landmarks.landmark[23]
+            a = getDistance(landMark1, landMark2)
             b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x, landMark2.y + 1, landMark2.z])
             c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y + 1, landMark2.z])
             if c == a+b:
@@ -281,9 +281,9 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
             return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
 
         elif axis == "z":
-            landmark1 = keyPoints.pose_landmarks.landmark[11]
-            landmark2 = keyPoints.pose_landmarks.landmark[23], 
-            a = getDistance(landmark1, landmark2)
+            landMark1 = keyPoints.pose_world_landmarks.landmark[11]
+            landMark2 = keyPoints.pose_world_landmarks.landmark[23]
+            a = getDistance(landMark1, landMark2)
             b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x, landMark2.y, landMark2.z + 1])
             c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y, landMark2.z + 1])
             if c == a+b:
@@ -294,8 +294,9 @@ def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's d
             return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
 
 #get all angles
-def getAllAngles(keypoints):
+def getAllAngles(keyPoints):
     anglesInFrame = []
+
     for joint in jointsToMeasure:
         anglesInFrame.append(getAnglesFromSides(
             keyPoints.pose_world_landmarks.landmark[joint[0]],
@@ -303,9 +304,9 @@ def getAllAngles(keypoints):
             keyPoints.pose_world_landmarks.landmark[joint[2]]))
     
     
-    landmark1 = keyPoints.pose_world_landmarks.landmark[23]
-    landmark2 = keyPoints.pose_world_landmarks.landmark[24], 
-    a = getDistance(landmark1, landmark2)
+    landMark1 = keyPoints.pose_world_landmarks.landmark[23]
+    landMark2 = keyPoints.pose_world_landmarks.landmark[24]
+    a = getDistance(landMark1, landMark2)
     b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x + 1, landMark2.y, landMark2.z])
     c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x + 1, landMark2.y, landMark2.z])
     if c == a+b:
@@ -315,9 +316,9 @@ def getAllAngles(keypoints):
     else:
         anglesInFrame.append(math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b))))
             
-    landmark1 = keyPoints.pose_world_landmarks.landmark[11]
-    landmark2 = keyPoints.pose_world_landmarks.landmark[23], 
-    a = getDistance(landmark1, landmark2)
+    landMark1 = keyPoints.pose_world_landmarks.landmark[11]
+    landMark2 = keyPoints.pose_world_landmarks.landmark[23]
+    a = getDistance(landMark1, landMark2)
     b = math.dist([landMark2.x, landMark2.y, landMark2.z], [landMark2.x, landMark2.y + 1, landMark2.z])
     c = math.dist([landMark1.x, landMark1.y, landMark1.z], [landMark2.x, landMark2.y + 1, landMark2.z])
     if c == a+b:
@@ -353,3 +354,70 @@ def getAnglesFromSides(joint1,joint2,joint3): #takes angle at joint2
 
     return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
 
+def extractFrames(frames, rSquared):
+    allAngles = []
+    keyList = []
+    n = len(frames)
+    for frame in frames: #fills list with lists of angles
+        allAngles.append(getAllAngles(frame))
+    
+    simpleModel = simplifiedCurveModel(allAngles)
+    f = []
+    for i in range(len(simpleModel)):
+        f.append((0,simpleModel[i][0])) #start with slope 0 on f(x)
+    start = 0
+    tempEnd = 1
+    end = 0
+    count = 0
+    while start+1 != n:
+        while tempEnd < n:
+            count += 1
+            smallestR = getSmallestRSquared(simpleModel, f, start, tempEnd)
+            print(f"Smallest R squared: {smallestR}")
+            if smallestR >= rSquared:
+                print("continuing...")
+                #include tempEnd
+                end = tempEnd
+                tempEnd += 1
+                
+            else:
+                #save keyframe, change start, and get new binomials
+                print("saving...")
+                keyList.append((frames[end],end))
+                start = tempEnd
+                if start+1 != n:
+                    for i in range(len(simpleModel)):
+                        slope = (simpleModel[i][start+1] - simpleModel[i][start])#/1
+                        b = (simpleModel[i][start] - slope*start)
+                        f[i] = (slope,b)
+                    tempEnd += 1
+                
+                break
+        else:
+            break
+    print(f"looped: {count} times")
+    return keyList
+            
+
+def simplifiedCurveModel(angles):
+    m = [[] for i in range(len(angles[0]))]
+
+    for angleSet in angles:
+        for i in range(len(angleSet)):
+            m[i].append((angleSet[i]))
+    return m
+
+#gets smallest RSquared out of the angles
+def getSmallestRSquared(simpleModel, f, start, end):
+    smallest = 1
+    for i in range(len(simpleModel)):
+        curve = simpleModel[i]
+        sse = getSSE(curve[start:end+1], f[i], start)
+        ssr = getSSR(curve[start:end+1])
+        rSq = 1 - (sse/ssr)
+        
+
+        if rSq < smallest:
+            smallest = rSq
+        
+    return smallest

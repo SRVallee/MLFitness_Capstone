@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import binomialFitting.KeyframeExtraction as KeyframeExtraction
+import mp_drawing_modified
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
@@ -10,10 +11,10 @@ mp_pose = mp.solutions.pose
 IMAGE_FILES = ["ComputerVisionTest/images/pushup.jpg"]
 BG_COLOR = (192, 192, 192) # gray
 with mp_pose.Pose(
-    static_image_mode=True,
-    model_complexity=0,
+    static_image_mode=False,
+    model_complexity=2,
     enable_segmentation=True,
-    min_detection_confidence=0.1) as pose:
+    min_detection_confidence=0.5) as pose:
   for idx, file in enumerate(IMAGE_FILES):
     image = cv2.imread(file)
     image_height, image_width, _ = image.shape
@@ -29,8 +30,9 @@ with mp_pose.Pose(
         f'{results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z})'
     )
 
-    print(results.pose_landmarks.landmark[11].x)
+    print(results.pose_world_landmarks.landmark[11])
     print(KeyframeExtraction.getAngle(results, 14, "x"))
+    
     annotated_image = image.copy()
     # Draw segmentation on the image.
     # To improve segmentation around boundaries, consider applying a joint
@@ -47,11 +49,12 @@ with mp_pose.Pose(
         landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
     cv2.imwrite('/tmp/annotated_image' + str(idx) + '.png', annotated_image)
     # Plot pose world landmarks.
-    mp_drawing.plot_landmarks(
-        results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+    # mp_drawing.plot_landmarks(
+    #     results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
 
 # For webcam input:
 cap = cv2.VideoCapture("ComputerVisionTest/videos/pushup.mp4")
+allFrames = []
 with mp_pose.Pose(
     min_detection_confidence=0.1,
     min_tracking_confidence=0.1) as pose:
@@ -67,7 +70,7 @@ with mp_pose.Pose(
     image.flags.writeable = False
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = pose.process(image)
-
+    allFrames.append(results)
     # Draw the pose annotation on the image.
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -80,4 +83,19 @@ with mp_pose.Pose(
     cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
     if cv2.waitKey(5) & 0xFF == 27:
       break
+
+fps = cap.get(cv2.CAP_PROP_FPS)
 cap.release()
+print(f"frames: {len(allFrames)}")
+print(f"framerate: {fps}")
+rSquared = -5
+print(f"RSquared: {rSquared}")
+extracted = KeyframeExtraction.extractFrames(allFrames, rSquared)
+print(f"{len(extracted)} frames extracted")
+
+n = input("Frame to display: ")
+while n != "no":
+  
+  n = int(n)-1
+  mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+  n = input("Frame to display: ")
