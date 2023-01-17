@@ -7,4 +7,7 @@
         <item>Trainer</item>
         <item>Trainee</item>
     </string-array>
+
+    <string name="forgot_password"><u>Forgot Password?</u></string>
+
 </resources>

@@ -8,13 +8,17 @@
                     android:icon="@drawable/ic_baseline_home_24"
                     android:title="Home"
                     />
-                <item android:id="@+id/upload"
-                    android:icon="@drawable/ic_baseline_upload_24"
-                    android:title="Upload"
+                <item android:id="@+id/clientsList"
+                    android:icon="@drawable/ic_baseline_account_circle_24"
+                    android:title="Clients List"
                     />
-                <item android:id="@+id/message"
+                <item android:id="@+id/clientsMessage"
                     android:icon="@drawable/ic_baseline_message_24"
-                    android:title="Message"
+                    android:title="Client Messages"
+                    />
+                <item android:id="@+id/clientsSubmissions"
+                    android:icon="@drawable/ic_baseline_image_24"
+                    android:title="Client Submissions"
                     />
                 <item android:id="@+id/setting"
                     android:icon="@drawable/ic_baseline_settings_24"

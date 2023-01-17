@@ -6,103 +6,49 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    DrawerLayout drawerLayout;
-    NavigationView navigationView;
-    ActionBarDrawerToggle drawerToggle;
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        if(drawerToggle.onOptionsItemSelected(item)){
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+    //TEMP STUFF JUST TO TEST AND WORK ON BOTH ROLES UI
+    Button button1, button2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
-        drawerLayout.addDrawerListener(drawerToggle);
-        drawerToggle.syncState();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        button1 = (Button) findViewById(R.id.tempTraineeHomePage);
+        button1.setOnClickListener(MainActivity.this);
 
-                switch (item.getItemId()){
-                    case R.id.home:
-                    {
-                        Toast.makeText(MainActivity.this, "Home Selected", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    case R.id.upload:
-                    {
-                        Toast.makeText(MainActivity.this, "Upload Selected", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    case R.id.message:
-                    {
-                        Toast.makeText(MainActivity.this, "Message Selected", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    case R.id.setting:
-                    {
-                        Toast.makeText(MainActivity.this, "Setting Selected", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    case R.id.profile:
-                    {
-                        Toast.makeText(MainActivity.this, "Profile Selected", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-
-                    case R.id.logout:
-                    {
-                        Toast.makeText(MainActivity.this, "Logout Selected", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    case R.id.share:
-                    {
-                        Toast.makeText(MainActivity.this, "Share Selected", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    case R.id.rate:
-                    {
-                        Toast.makeText(MainActivity.this, "Rate Selected", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                }
-
-                return false;
-            }
-        });
-
+        button2 = (Button) findViewById(R.id.tempTrainerHomePage);
+        button2.setOnClickListener(MainActivity.this);
     }
 
     @Override
-    public void onBackPressed() {
+    public void onClick(View v) {
 
-        if(drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
+        Intent i;
+
+        switch (v.getId()) {
+            case R.id.tempTraineeHomePage:
+                i = new Intent(getApplicationContext(), TraineeHomePage.class);
+                startActivity(i);
+                break;
+            case R.id.tempTrainerHomePage:
+                i = new Intent(getApplicationContext(), TrainerHomePage.class);
+                startActivity(i);
+                break;
+
+            default:
+                break;
         }
-        else {
-
-            super.onBackPressed();
-        }
-
     }
 }

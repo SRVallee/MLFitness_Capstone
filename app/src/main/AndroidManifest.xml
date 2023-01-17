@@ -26,6 +26,33 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity
+            android:name=".TraineeHomePage" >
+        </activity>
+        <activity
+            android:name=".TraineeSettings" >
+        </activity>
+        <activity
+            android:name=".TraineeMessages" >
+        </activity>
+        <activity
+            android:name=".TraineeProfile" >
+        </activity>
+        <activity
+            android:name=".TraineeLogout" >
+        </activity>
+        <activity
+            android:name=".TraineeShare" >
+        </activity>
+        <activity
+            android:name=".TraineeRate" >
+        </activity>
+        <activity
+            android:name=".TraineeUpload" >
+        </activity>
+        <activity
+            android:name=".TrainerHomePage" >
+        </activity>
     </application>
 
 </manifest>
