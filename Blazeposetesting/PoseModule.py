@@ -142,6 +142,7 @@ class poseDetector():
         slope = 0
         if noseX -earX != 0:
             slope = (noseY - earY)/(noseX - earX)
+            print(f"face slope: {slope}")
             y_int = int(cur_y - (slope*cur_x))
             if cur_y > height:
                 cur_y = height
@@ -151,7 +152,11 @@ class poseDetector():
                 cur_y = int((slope*cur_x) + y_int)
                 if cur_y < height:
                     confidence = self.results.segmentation_mask[cur_y][cur_x]
-        return cur_x, noseX, noseY, int(slope), y_int
+            cur_x = cur_x - 5
+            cur_y = int((slope*cur_x) + y_int)
+            if cur_y < height:
+                confidence = self.results.segmentation_mask[cur_y][cur_x]
+        return cur_x, cur_y, noseX, noseY, int(slope)
 
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
@@ -224,23 +229,28 @@ def main():
         print(f"back point1: {backx}, back point2: {backx2}")
         backplt1 = backx-10, int(perp_slope*(backx-10)+perp_y_inter)
         backplt2 = backx2-10, int(perp_slope*(backx2-10)+perp_y_inter_bottom)
-        arch= detector.checkback(img,backplt1,backplt2)
-        print(arch)
+        # arch= detector.checkback(img,backplt1,backplt2)
+        # print(arch)
         
-        if arch == True:
-            cv2.line(annotated_img,backplt1,backplt2,(0,128,0),6)
-        else:
-            cv2.line(annotated_img,backplt1,backplt2,(0,0,128),6)
+        # if arch == True:
+        #     cv2.line(annotated_img,backplt1,backplt2,(0,128,0),6)
+        # else:
+        #     cv2.line(annotated_img,backplt1,backplt2,(0,0,128),6)
         #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
         print(lmList)
         #the landmarks i want for side are 12 and 24 to get line and slope
         #plotting= detector.threeDimendionalplot(img)
         #print(world_lmList)
-        head_x, noseX, noseY, head_slope, y_int = detector.face_track(img,lmList)
-        head_y = int((head_slope*head_x)+ y_int)
+        head_x, head_y ,noseX, noseY, head_slope= detector.face_track(img,lmList)
+
+
+        arch2= detector.checkback(img,(head_x,head_y),backplt2)
+        
         cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
-        cv2.circle(annotated_img, (head_x, head_y), 5, (0,0,255), cv2.FILLED)
-        cv2.circle(annotated_img, (earX, earY), 5, (0,0,255), cv2.FILLED)
+        if arch2 == True:
+            cv2.line(annotated_img,(head_x,head_y),backplt2,(0,128,0),6)
+        else:
+            cv2.line(annotated_img,(head_x,head_y),backplt2,(0,0,255),6)
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
