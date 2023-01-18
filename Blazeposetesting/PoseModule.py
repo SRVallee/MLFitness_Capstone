@@ -229,24 +229,31 @@ def main():
         print(f"back point1: {backx}, back point2: {backx2}")
         backplt1 = backx-10, int(perp_slope*(backx-10)+perp_y_inter)
         backplt2 = backx2-10, int(perp_slope*(backx2-10)+perp_y_inter_bottom)
+
+
         # arch= detector.checkback(img,backplt1,backplt2)
         # print(arch)
-        
+        #this is for the upper back to lower back checking back posture
         # if arch == True:
         #     cv2.line(annotated_img,backplt1,backplt2,(0,128,0),6)
         # else:
         #     cv2.line(annotated_img,backplt1,backplt2,(0,0,128),6)
+
+
         #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
         print(lmList)
         #the landmarks i want for side are 12 and 24 to get line and slope
         #plotting= detector.threeDimendionalplot(img)
         #print(world_lmList)
+
+        #this gets the points to draw the line to the back of the head
         head_x, head_y ,noseX, noseY, head_slope= detector.face_track(img,lmList)
-
-
         arch2= detector.checkback(img,(head_x,head_y),backplt2)
         
+        #this is to create the line from nose to back of head
         cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
+
+        #this is for from the back of head to hip checking for posture
         if arch2 == True:
             cv2.line(annotated_img,(head_x,head_y),backplt2,(0,128,0),6)
         else:
