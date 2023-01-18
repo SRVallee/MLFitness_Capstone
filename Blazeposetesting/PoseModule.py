@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 class poseDetector():
 
     def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
-                 detectionCon=0.5, trackCon=0.5):
+                 detectionCon=0.7, trackCon=0.7):
 
         self.mode = mode
         self.modcomp = modcomp
@@ -48,12 +48,12 @@ class poseDetector():
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
                 h, w, c = img.shape # we need this because
                 #print(id, lm)
-                cx, cy, cc, cv = int(lm.x * w), int(lm.y * h), int(lm.z), int(lm.visibility) #this gives the pixel point of the landmarks
+                cx, cy, cc, cv = int(lm.x * w), int(lm.y * h), float(lm.z), float(lm.visibility) #this gives the pixel point of the landmarks
                 lmList.append([id,cx,cy,cc,cv])
                 #if found checks if can draw it if can draw
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
-                    #cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+                    cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         return lmList
     
     def seg_mask(self,img,draw = True):
@@ -104,9 +104,10 @@ class poseDetector():
         lmList =[] #landmark list
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_world_landmarks.landmark):
-                h, w, c = img.shape # we need this because
+                h, w, c = img.shape # we need this to be able to get exact location 
+                #of point as a pixel on the screen
                 #print(id, lm)
-                cx, cy, cc, cv = int(lm.x * w), int(lm.y * h), int(lm.z), int(lm.visibility) #this gives the pixel point of the landmarks
+                cx, cy, cc, cv = int(lm.x * w), int(lm.y * h), int(lm.z), float(lm.visibility) #this gives the pixel point of the landmarks
                 lmList.append([id,cx,cy,cc,cv])
                 #if found checks if can draw it if can draw
                 if draw:
