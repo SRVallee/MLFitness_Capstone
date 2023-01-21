@@ -364,7 +364,7 @@ def extractFrames(frames, rSquared):
     simpleModel = simplifiedCurveModel(allAngles)
     f = []
     for i in range(len(simpleModel)):
-        f.append((0,simpleModel[i][0])) #start with slope 0 on f(x)
+        f.append((0,simpleModel[i][0])) #start with slope 0 on f(x) = 0x+b
     start = 0
     tempEnd = 1
     end = 0
@@ -379,6 +379,12 @@ def extractFrames(frames, rSquared):
                 #include tempEnd
                 end = tempEnd
                 tempEnd += 1
+                if tempEnd != n:
+                    for i in range(len(simpleModel)):
+                        slope = (simpleModel[i][start+1] - simpleModel[i][start])#/1
+                        b = (simpleModel[i][start] - slope*start)
+                        f[i] = (slope,b)
+                
                 
             else:
                 #save keyframe, change start, and get new binomials
@@ -419,5 +425,15 @@ def getSmallestRSquared(simpleModel, f, start, end):
 
         if rSq < smallest:
             smallest = rSq
+            print(f"smallest R at frame {i+1}")
         
     return smallest
+
+
+#Algorithm on detecting/learning workouts
+
+    #feed tracking data, number of reps and wether is correct.
+        
+        #find angle cicles
+
+            #for each joint, find changes in increase or decrease of angle 

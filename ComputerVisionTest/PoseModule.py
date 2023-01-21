@@ -92,6 +92,7 @@ rSquared = -5
 print(f"RSquared: {rSquared}")
 extracted = KeyframeExtraction.extractFrames(allFrames, rSquared)
 print(f"{len(extracted)} frames extracted")
+print(extracted)
 
 n = input("Frame to display: ")
 while n != "no":
