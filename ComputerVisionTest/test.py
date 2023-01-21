@@ -2,9 +2,11 @@ from asyncio.windows_events import NULL
 import numpy as np
 import cv2
 import mediapipe as mp
+import PoseUtilities as pu
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
+
 
 USE_CAM = True
 # For static images:
@@ -52,6 +54,7 @@ USE_CAM = True
 #         get_default_pose_landmarks_style())
 #     cv2.imwrite('/tmp/annotated_image' + str(idx) + '.png', annotated_image)
 #     # Plot pose world landmarks.
+#     print(results.pose_world_landmarks.landmark[11])
 #     mp_drawing.plot_landmarks(
 #         results.pose_world_landmarks, mp_holistic.POSE_CONNECTIONS)
 
@@ -65,7 +68,10 @@ f = open("landmarksLog.txt", 'w')
 with mp_holistic.Holistic(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5) as holistic:
+  
+  frameNum = 0
   while cap.isOpened():
+    frameNum += 1
     success, image = cap.read()
     if not success:
       print("Ignoring empty camera frame.")
@@ -82,10 +88,8 @@ with mp_holistic.Holistic(
     results = holistic.process(image)
     landmarks = results.pose_world_landmarks
     if landmarks:
-      print()
-      # f.write()
-      # f.write(landmarks.landmark[11])
-      # f.write('\n---------------------------------------------------------------------------------------------------------------------------\n\n')
+      # f.write('{' + str(frameNum) + ': ' + poseutil.frame_landmarks(landmarks) + '}\n')
+      print(np.degrees(pu.compute_body_angles(landmarks)))
 
     # Draw landmark annotation on the image.
     image.flags.writeable = True
