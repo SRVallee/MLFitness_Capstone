@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 class poseDetector():
 
     def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
-                 detectionCon=0.7, trackCon=0.7):
+                 detectionCon=0.5, trackCon=0.5):
 
         self.mode = mode
         self.modcomp = modcomp
@@ -53,7 +53,7 @@ class poseDetector():
                 #if found checks if can draw it if can draw
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
-                    cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+                    cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 2)
         return lmList
     
     def seg_mask(self,img,draw = True):
@@ -65,7 +65,7 @@ class poseDetector():
         annotated_img = np.where(condition,annotated_img, bg_img)
         return annotated_img
     
-    def threeDimendionalplot(self,img):
+    def threeDimensionalplot(self,img):
         ax = plt.axes(projection = "3d")
         ax.scatter(3,5,7)
         plt.pause(0.001)
@@ -101,19 +101,21 @@ class poseDetector():
         return cur_x, cur_x2
     
     def findWorldPosition(self,img, draw=True):
-        lmList =[] #landmark list
+        mod_lmList =[] #modded landmark list for actual pixels
+        unmod_list = [] #modded landmark list for real world estimitation
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_world_landmarks.landmark):
                 h, w, c = img.shape # we need this to be able to get exact location 
                 #of point as a pixel on the screen
                 #print(id, lm)
                 cx, cy, cc, cv = int(lm.x * w), int(lm.y * h), int(lm.z), float(lm.visibility) #this gives the pixel point of the landmarks
-                lmList.append([id,cx,cy,cc,cv])
+                mod_lmList.append([id,cx,cy,cc,cv])
+                unmod_list.append([id,lm.x,lm.y,lm.z])
                 #if found checks if can draw it if can draw
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
                     #cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-        return lmList
+        return mod_lmList, unmod_list
     
     def checkback(self,img,backplt1,backplt2):
         x1, y1 = backplt1
@@ -161,7 +163,7 @@ class poseDetector():
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
     #cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1side.mp4')  # the video sys.path[0] is the current path of the file
+    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV2angle.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -184,8 +186,12 @@ def main():
         height_percentage = float(constant_height/int(height))
         modded_width = int(float(width)*height_percentage)
         img = detector.findPose(img)
-        lmList = detector.findPosition(img)
-        world_lmList = detector.findWorldPosition(img)
+        #this is the annotated image with the segmentation mask it is needed as a copy
+        #of the first image so that they are 2 seperate images so that all the colours will not
+        #be the same
+        annotated_img = detector.seg_mask(img)
+        lmList = detector.findPosition(annotated_img)
+        world_mod_lmList, world_unmod_lmlist = detector.findWorldPosition(annotated_img)
         for i in range(len(lmList)):
             if lmList[i][0] == 12:
                 x1 = int(lmList[i][1])
@@ -208,10 +214,7 @@ def main():
             
         y_inter = (y1-(slope*x1)) 
         print(f"slope: {slope}, y_inter: {y_inter}, x1: {x1}, y1: {y1}, x2: {x2}, y2: {y2}")
-        #this is the annotated image with the segmentation mask it is needed as a copy
-        #of the first image so that they are 2 seperate images so that all the colours will not
-        #be the same
-        annotated_img = detector.seg_mask(img)
+        
         
         #also for case for completely vertical
         if slope != 0:
@@ -231,19 +234,19 @@ def main():
         backplt2 = backx2-10, int(perp_slope*(backx2-10)+perp_y_inter_bottom)
 
 
-        # arch= detector.checkback(img,backplt1,backplt2)
-        # print(arch)
+        arch= detector.checkback(img,backplt1,backplt2)
+        print(arch)
         #this is for the upper back to lower back checking back posture
-        # if arch == True:
-        #     cv2.line(annotated_img,backplt1,backplt2,(0,128,0),6)
-        # else:
-        #     cv2.line(annotated_img,backplt1,backplt2,(0,0,128),6)
+        if arch == True:
+            cv2.line(annotated_img,backplt1,backplt2,(0,128,0),6)
+        else:
+            cv2.line(annotated_img,backplt1,backplt2,(0,0,128),6)
 
 
         #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
         print(lmList)
         #the landmarks i want for side are 12 and 24 to get line and slope
-        #plotting= detector.threeDimendionalplot(img)
+        #plotting= detector.threeDimensionalplot(img)
         #print(world_lmList)
 
         #this gets the points to draw the line to the back of the head
@@ -259,6 +262,7 @@ def main():
         else:
             cv2.line(annotated_img,(head_x,head_y),backplt2,(0,0,255),6)
         cTime = time.time()
+        print(f"real world measurements: {world_unmod_lmlist}")
         fps = 1 / (cTime - pTime)
         pTime = cTime
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
