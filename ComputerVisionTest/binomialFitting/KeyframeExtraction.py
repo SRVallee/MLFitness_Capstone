@@ -385,8 +385,9 @@ def extractFrames(frames, rSquared):
     keyList = []
     n = len(frames)
     for frame in frames: #fills list with lists of angles
-        allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
-    
+        #allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
+        allAngles.append(getAllAngles(frame))
+
     simpleModel = simplifiedCurveModel(allAngles)
     f = []
     for i in range(len(simpleModel)):
@@ -398,7 +399,7 @@ def extractFrames(frames, rSquared):
     while start+1 != n:
         while tempEnd < n:
             count += 1
-            smallestR = getSmallestRSquared(simpleModel, f, start, tempEnd)
+            smallestR = getMeanRSquared(simpleModel, f, start, tempEnd)
             print(f"Smallest R squared: {smallestR}")
             if smallestR >= rSquared:
                 print("continuing...")
@@ -446,6 +447,8 @@ def getSmallestRSquared(simpleModel, f, start, end):
         sse = getSSE(curve[start:end+1], f[i], start)
         ssr = getSSR(curve[start:end+1])
         rSq = 1 - (sse/ssr)
+        print("\nsse", sse, end=" ")
+        print("\nssr", ssr, end=" ")
         
 
         if rSq < smallest:
@@ -453,6 +456,20 @@ def getSmallestRSquared(simpleModel, f, start, end):
             print(f"smallest R at frame {i+1}")
         
     return smallest
+
+def getMeanRSquared(simpleModel, f, start, end):
+    top = 0
+    print(f"{end}-{start}")
+    for i in range(len(simpleModel)):
+        curve = simpleModel[i]
+        sse = getSSE(curve[start:end+1], f[i], start)
+        ssr = getSSR(curve[start:end+1])
+        top += (1 - (sse/ssr))
+        print("\nsse", sse, end=" ")
+        print("\nssr", ssr, end=" ")
+    print("\ntop", top, end=" ")
+    print(top/(end-start+2))
+    return top/(end-start+2)
 
 
 '''
