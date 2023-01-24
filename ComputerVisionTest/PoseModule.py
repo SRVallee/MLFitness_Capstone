@@ -88,7 +88,9 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 cap.release()
 print(f"frames: {len(allFrames)}")
 print(f"framerate: {fps}")
-rSquared = -5
+
+rSquared = 0.0005
+
 print(f"RSquared: {rSquared}")
 extracted = KeyframeExtraction.extractFrames(allFrames, rSquared)
 print(f"{len(extracted)} frames extracted")

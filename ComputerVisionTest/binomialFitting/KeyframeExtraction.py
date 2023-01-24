@@ -3,6 +3,7 @@
 
 import math
 import statistics
+import binomialFitting.PoseUtilities as PoseUtilities
 
 '''
 the curve Li is used
@@ -39,7 +40,7 @@ def getSSE(data, f, startX):
     sse = 0
 
     for i in range(len(data)):
-        e = data[i] - (f[0]*(i+startX) + f[1])
+        e = data[i] - (f[0]*(i+startX+1) + f[1])
         sse += e*e
     return sse
 
@@ -49,6 +50,31 @@ def getSSR(data):
     for i in data:
         ssr += (i - mean)*(i - mean)
     return ssr
+
+def getF(data, startX):
+    n = len(data)
+    tempTopX = 0
+    tempTopXY = 0
+    tempTopXX = 0
+
+    for i in range(n):
+        x = startX+1 + i
+        tempTopX += x
+        tempTopXY += (data[i]*x)
+        tempTopXX += x*x
+
+    xMean = tempTopX/n
+    yMean = statistics.mean(data)
+    xyMean = tempTopXY/n
+    xxMean = tempTopXX/n
+
+    slope = (xyMean - xMean*yMean)/(xxMean - xMean*xMean)
+
+    b = yMean - slope*xMean
+
+    return (slope, b)
+
+
 
 #give the joint and axis
 def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's done
@@ -359,7 +385,7 @@ def extractFrames(frames, rSquared):
     keyList = []
     n = len(frames)
     for frame in frames: #fills list with lists of angles
-        allAngles.append(getAllAngles(frame))
+        allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
     
     simpleModel = simplifiedCurveModel(allAngles)
     f = []
@@ -381,22 +407,21 @@ def extractFrames(frames, rSquared):
                 tempEnd += 1
                 if tempEnd != n:
                     for i in range(len(simpleModel)):
-                        slope = (simpleModel[i][start+1] - simpleModel[i][start])#/1
-                        b = (simpleModel[i][start] - slope*start)
-                        f[i] = (slope,b)
+                        curve = simpleModel[i]
+                        f[i] = getF(curve[start:tempEnd+1], start)
                 
                 
             else:
                 #save keyframe, change start, and get new binomials
                 print("saving...")
-                keyList.append((frames[end],end))
+                keyList.append((frames[end], end))
                 start = tempEnd
+                tempEnd += 1
                 if start+1 != n:
                     for i in range(len(simpleModel)):
-                        slope = (simpleModel[i][start+1] - simpleModel[i][start])#/1
-                        b = (simpleModel[i][start] - slope*start)
-                        f[i] = (slope,b)
-                    tempEnd += 1
+                        curve = simpleModel[i]
+                        f[i] = getF(curve[start:tempEnd+1], start)
+                    
                 
                 break
         else:
