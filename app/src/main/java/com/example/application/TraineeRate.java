@@ -25,7 +25,6 @@ public class TraineeRate extends AppCompatActivity {
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -46,41 +45,67 @@ public class TraineeRate extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.home: {
+                        //Go to home
                         Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.upload: {
+                        //Go to upload
                         Intent i = new Intent(getApplicationContext(), TraineeUpload.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.message: {
+                        //Go to message
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.setting: {
+                        //Go to setting
                         Intent i = new Intent(getApplicationContext(), TraineeSettings.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.profile: {
+                        //Go to profile
                         Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.logout: {
-                        Intent i = new Intent(getApplicationContext(), TraineeLogout.class);
-                        startActivity(i);
+                        //Add a confirmation pop up
+
+                        //Once completed logout/remove locally stored user cred
+
+                        //End all activities and go to welcome screen
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
                         break;
                     }
                     case R.id.share: {
+                        //Go to share
                         Intent i = new Intent(getApplicationContext(), TraineeShare.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.rate: {
+                        //Already selected
+                        //Close drawer
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
@@ -88,7 +113,6 @@ public class TraineeRate extends AppCompatActivity {
                 return false;
             }
         });
-
     }
 
     @Override
@@ -97,10 +121,12 @@ public class TraineeRate extends AppCompatActivity {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-
+            //Go to homepage
+            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(i);
+            finish();
             super.onBackPressed();
         }
-
     }
 }
-

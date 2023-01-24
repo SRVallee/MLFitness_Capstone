@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -13,11 +14,16 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.logging.Handler;
+
 public class TraineeHomePage extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+
+    private Boolean exit = false;
+    private long pressedTime;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -25,7 +31,6 @@ public class TraineeHomePage extends AppCompatActivity {
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -46,43 +51,72 @@ public class TraineeHomePage extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.home: {
+                        //Already selected
+                        //Close drawer
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.upload: {
+                        //Go to upload
                         Intent i = new Intent(getApplicationContext(), TraineeUpload.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.message: {
+                        //Go to message
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.setting: {
+                        //Go to setting
                         Intent i = new Intent(getApplicationContext(), TraineeSettings.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.profile: {
+                        //Go to profile
                         Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.logout: {
-                        Intent i = new Intent(getApplicationContext(), TraineeLogout.class);
-                        startActivity(i);
+                        //Add a confirmation pop up
+
+                        //Once completed logout/remove locally stored user cred
+
+                        //End all activities and go to welcome screen
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
                         break;
                     }
                     case R.id.share: {
+                        //Go to share
                         Intent i = new Intent(getApplicationContext(), TraineeShare.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.rate: {
+                        //Go to rate
                         Intent i = new Intent(getApplicationContext(), TraineeRate.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
+                        finish();
                         break;
+                    }
+                    default: {
+                        drawerLayout.closeDrawer(GravityCompat.START);
                     }
                 }
                 return false;
@@ -95,7 +129,17 @@ public class TraineeHomePage extends AppCompatActivity {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            //Close Application
+            if (pressedTime + 2000 > System.currentTimeMillis()) {
+                Intent i = new Intent(Intent.ACTION_MAIN);
+                i.addCategory(Intent.CATEGORY_HOME);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+            } else {
+                Toast.makeText(getBaseContext(), "Press back again to exit", Toast.LENGTH_SHORT).show();
+            }
+            pressedTime = System.currentTimeMillis();
         }
+        //super.onBackPressed();
     }
 }
