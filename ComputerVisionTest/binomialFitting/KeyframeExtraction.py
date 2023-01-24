@@ -506,7 +506,7 @@ def getMeanRSquared(simpleModel, f, start, end):
 
     Correct reps should have their angles fall in the thresh hold of the standard deviarion, while incorrect ones  
             
-
+    
 
 
 '''
