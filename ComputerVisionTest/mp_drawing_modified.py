@@ -305,4 +305,5 @@ def plot_landmarks(landmark_list: landmark_pb2.NormalizedLandmarkList,
             zs=[landmark_pair[0][2], landmark_pair[1][2]],
             color=_normalize_color(connection_drawing_spec.color[::-1]),
             linewidth=connection_drawing_spec.thickness)
+  plt.ion()
   plt.show()

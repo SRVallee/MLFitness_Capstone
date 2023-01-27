@@ -380,7 +380,7 @@ def getAnglesFromSides(joint1,joint2,joint3): #takes angle at joint2
 
     return math.degrees(math.acos(((a*a)+(b*b)-(c*c))/(2*a*b)))
 
-def extractFrames(frames, rSquared):
+def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if getAngles is set to True
     allAngles = []
     keyList = []
     n = len(frames)
@@ -400,9 +400,9 @@ def extractFrames(frames, rSquared):
         while tempEnd < n:
             count += 1
             smallestR = getMeanRSquared(simpleModel, f, start, tempEnd)
-            print(f"Smallest R squared: {smallestR}")
+            #print(f"Smallest R squared: {smallestR}")
             if smallestR >= rSquared:
-                print("continuing...")
+                # print("continuing...")
                 #include tempEnd
                 end = tempEnd
                 tempEnd += 1
@@ -414,7 +414,7 @@ def extractFrames(frames, rSquared):
                 
             else:
                 #save keyframe, change start, and get new binomials
-                print("saving...")
+                #print("saving...")
                 keyList.append((frames[end], end))
                 start = tempEnd
                 tempEnd += 1
@@ -428,10 +428,12 @@ def extractFrames(frames, rSquared):
         else:
             break
     print(f"looped: {count} times")
+    if getAngles:
+        return keyList, simpleModel
     return keyList
             
 
-def simplifiedCurveModel(angles):
+def simplifiedCurveModel(angles): #rearrenges the list of angles to be joint per list rather than frame per list
     m = [[] for i in range(len(angles[0]))]
 
     for angleSet in angles:
@@ -447,8 +449,8 @@ def getSmallestRSquared(simpleModel, f, start, end):
         sse = getSSE(curve[start:end+1], f[i], start)
         ssr = getSSR(curve[start:end+1])
         rSq = 1 - (sse/ssr)
-        print("\nsse", sse, end=" ")
-        print("\nssr", ssr, end=" ")
+        # print("\nsse", sse, end=" ")
+        # print("\nssr", ssr, end=" ")
         
 
         if rSq < smallest:
@@ -459,55 +461,16 @@ def getSmallestRSquared(simpleModel, f, start, end):
 
 def getMeanRSquared(simpleModel, f, start, end):
     top = 0
-    print(f"{end}-{start}")
+    # print(f"{end}-{start}")
     for i in range(len(simpleModel)):
         curve = simpleModel[i]
         sse = getSSE(curve[start:end+1], f[i], start)
         ssr = getSSR(curve[start:end+1])
         top += (1 - (sse/ssr))
-        print("\nsse", sse, end=" ")
-        print("\nssr", ssr, end=" ")
-    print("\ntop", top, end=" ")
-    print(top/(end-start+2))
+    #     print("\nsse", sse, end=" ")
+    #     print("\nssr", ssr, end=" ")
+    # print("\ntop", top, end=" ")
+    # print(top/(end-start+2))
     return top/(end-start+2)
 
-
-'''
-#Idea 1 (using standard deviation as threshhold)
-#Algorithm on detecting/learning workouts (manual approach)
-
-    #feed tracking data,
-        
-        #find angle cicles (the hard part)
-
-            #for each joint, find changes in increase or decrease of angle
-                - get first frame
-
-                - compare with second frame to label as increase/decrease
-                
-                - keep comparing until the label is wrong
-                
-                - get frame, change label and repeat
-
-            #save type of repetition in a list
-                #repetitions with the same joint changes together
-
-            get the closest sets with the number of repetitions and include the rest (hopefully all, maybe a different approach is more obvious)
-            match with other sets with simmilar angles and maybe height coordinates(assuming straightup camera)
-            compare with existing model if one exists
-
-            return successfull repetitions that match the number given.
-
-    Train model
-
-        model is stored with average angles, standard deviation for each angle, and the number of repetitions used to train it.
-
-        each repetition recorded are used to update the average angles and the standard deviation. (this is why we store the number of reps used)
-
-    Correct reps should have their angles fall in the thresh hold of the standard deviarion, while incorrect ones  
-            
-    
-
-
-'''
             
