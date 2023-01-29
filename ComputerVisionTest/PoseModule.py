@@ -89,7 +89,7 @@ cap.release()
 print(f"frames: {len(allFrames)}")
 print(f"framerate: {fps}")
 
-rSquared = 0.8
+rSquared = 0.5
 
 print(f"RSquared: {rSquared}")
 extracted = KeyframeExtraction.extractFrames(allFrames, rSquared)
