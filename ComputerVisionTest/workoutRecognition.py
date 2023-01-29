@@ -148,8 +148,6 @@ def getReps(keyFrames, allAngles, reps):
         i += 1
 
 
-
-
     return
 
 print("Analyzing video...")
