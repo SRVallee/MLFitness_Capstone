@@ -163,7 +163,7 @@ class poseDetector():
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
     #cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatYV1side.mp4')  # the video sys.path[0] is the current path of the file
+    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatYV2side.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
