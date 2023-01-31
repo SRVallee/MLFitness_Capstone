@@ -5,6 +5,7 @@ import mediapipe as mp
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import vg
 #this is just the class to find and create the pose
 class poseDetector():
 
@@ -108,8 +109,8 @@ class poseDetector():
                 h, w, c = img.shape # we need this to be able to get exact location 
                 #of point as a pixel on the screen
                 #print(id, lm)
-                cx, cy, cc, cv = int(lm.x * w), int(lm.y * h), int(lm.z), float(lm.visibility) #this gives the pixel point of the landmarks
-                mod_lmList.append([id,cx,cy,cc,cv])
+                cx, cy, cz, cv = int(lm.x * w), int(lm.y * h), int(lm.z), float(lm.visibility) #this gives the pixel point of the landmarks
+                mod_lmList.append([id,cx,cy,cz,cv])
                 unmod_list.append([id,lm.x,lm.y,lm.z])
                 #if found checks if can draw it if can draw
                 if draw:
@@ -164,7 +165,9 @@ class poseDetector():
         x1,y1 = self.lmList[p1][1:3]
         x2,y2 = self.lmList[p2][1:3]
         x3,y3 = self.lmList[p3][1:3]
-        
+        point1 = np.array(self.lmList[p1][1:4])
+        point2 = np.array(self.lmList[p2][1:4])
+        point3 = np.array(self.lmList[p3][1:4])
         #this is to calac ulate the angle if you have 3 points
         angle = math.degrees(math.atan2(y3-y2,x3-x2) - math.atan2(y1-y2,x1-x2))
         print(360 -angle)
@@ -181,7 +184,7 @@ class poseDetector():
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
     #cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV2side.mp4')  # the video sys.path[0] is the current path of the file
+    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/Squatlarge1flipped.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
