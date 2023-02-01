@@ -19,21 +19,24 @@ curve and m is 58. In our case is less
 '''
 
 jointsToMeasure = [ #adding them as I make them available
-    [0,11,12], [7,12,11],              #nose/neck angle  x, y
-    [12,11,13], [23,11,13],            #right shoulder
-    [11,12,14], [24,12,14],            #left shoulder
-    [11,13,15], [23,13,15],            #right elbow
-    [12,14,16], [24,14,16],            #left elbow
-    [13,14,19],                        #right wrist 
-    [14,16,20],                        #left wrist
-    [13,15,21], [17,15,21],            #right thumb
-    [14,16,22], [18,16,22],            #left thumb
-    [11,23,24],                        #right hip
-    [12,24,23],                        #left hip
-    [23,25,27], [11,23,25], [24,23,25],#right knee
-    [24,26,28], [12,24,26], [23,24,26],#left knee
-    [25,27,31], [25,27,29],            #right foot
-    [26,28,32], [26,28,30]             #right foot
+    [0,11,12], [7,12,11],              #nose/neck angle  1,2
+    [12,11,13], [23,11,13],            #right shoulder   3,4
+    [11,12,14], [24,12,14],            #left shoulder    5,6
+    [11,13,15], [23,13,15],            #right elbow      7,8
+    [12,14,16], [24,14,16],            #left elbow       9,10
+    [13,14,19],                        #right wrist      11
+    [14,16,20],                        #left wrist       12
+    [13,15,21], [17,15,21],            #right thumb      13,14
+    [14,16,22], [18,16,22],            #left thumb       15,16
+    [11,23,24],                        #right hip        17
+    [12,24,23],                        #left hip         18
+    [23,25,27], [11,23,25], [24,23,25],#right knee       19 - 21
+    [24,26,28], [12,24,26], [23,24,26],#left knee        22 - 24
+    [25,27,31], [25,27,29],            #right foot       25,26
+    [26,28,32], [26,28,30]             #right foot       27,28
+    #x                                                   29
+    #y                                                   30
+    #z                                                   31
     ] 
 
 def getSSE(data, f, startX):
@@ -73,8 +76,6 @@ def getF(data, startX):
     b = yMean - slope*xMean
 
     return (slope, b)
-
-
 
 #give the joint and axis
 def getAngle(keyPoints, joint, axis): #I will convert this to a list once it's done
@@ -452,7 +453,6 @@ def getSmallestRSquared(simpleModel, f, start, end):
         # print("\nsse", sse, end=" ")
         # print("\nssr", ssr, end=" ")
         
-
         if rSq < smallest:
             smallest = rSq
             print(f"smallest R at frame {i+1}")
@@ -472,5 +472,4 @@ def getMeanRSquared(simpleModel, f, start, end):
     # print("\ntop", top, end=" ")
     # print(top/(end-start+2))
     return top/(end-start+2)
-
-            
+    

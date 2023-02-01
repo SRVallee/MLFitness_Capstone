@@ -48,7 +48,51 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-#parameters
+MENU = "Select the joints that cycle separated by commas \n\
+    Ex. for push ups: 4,5\n\n\
+1   neck\n\
+2   right shoulder\n\
+3   left shoulder\n\
+4   right elbow\n\
+5   left elbow\n\
+6   right wrist\n\
+7   left wrist\n\
+8   right hip\n\
+9   left hip\n\
+10  right knee\n\
+11  left knee\n\
+12  right foot\n\
+13  right foot"
+
+choiceList = {
+    "1":    [0,1],
+    "2":    [2,3],
+    "3":    [4,5],
+    "4":    [6,7],
+    "5":    [8,9],
+    "6":    [10],
+    "7":    [11],
+    "8":    [16],
+    "9":    [17],
+    "10":   [18,19,20],
+    "11":   [21,22,23],
+    "12":   [24,25],
+    "13":   [26,27]
+}
+
+def getJoint(angle):
+    a = int(angle)
+    if a in range(10) or a == 12 or a == 13:
+        return a//10 +1
+    elif a == 10 or a == 11:
+        return a - 4
+    elif a == 16 or a == 17:
+        return a - 8
+    elif a == 18 or a == 19 or a == 20:
+        return 10
+    elif a == 21 or a == 22 or a == 23:
+        return 11
+
 def getKeyFramesFromVideo(video, show = False):
     cap = cv2.VideoCapture(video)
     allFrames = []
@@ -94,28 +138,33 @@ def getKeyFramesFromVideo(video, show = False):
     print(f"{len(extracted)} frames extracted")
     return extracted, allangles
 
-def getReps(keyFrames, allAngles, reps):
+def getReps(keyFrames, allAngles, reps, workout = None):
+    # if not workout:
+    #     model, importantJoints = setupNewWorkout()
     nFrames = len(keyFrames)
-    reptypes = [[] for i in range(nFrames)]
+    reptypes = [[] for i in range(nFrames)] 
     
     for curve in range(len(allAngles)):
         angle1, angle2, increase = None, None, None
+        if getJoint(curve) in 
+        for frame in range(nFrames): #TODO Only include important Joints
 
-        for frame in range(nFrames):
-            angle1 = angle2
             angle2 = allAngles[curve][keyFrames[frame][1]] #all angles includes all Frames
 
             if(angle1 != 0 and not angle1): #if first angle
-                continue
-            else:
+                angle1 = angle2
+            else: #get direction change and angle difference
                 #if last frame was a decrese and now it's increasing
                 if (angle1 < angle2) and increase == False: #can be None
                     increase = True
                     reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
+                    angle1 = angle2
+
                 #if last frame was an increase and now it's a decrease
                 elif (angle1 > angle2) and increase:
                     increase = False
                     reptypes[frame].append([angle2, curve, increase, angle1 - angle2])
+                    angle1 = angle2
 
                 #if comparing with first frame
                 elif (increase == None):
@@ -123,18 +172,22 @@ def getReps(keyFrames, allAngles, reps):
                         increase = True
                         reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
                         reptypes[0].append([angle1, curve, False, 0])
+                        angle1 = angle2
                     
                     else:
                         increase = False
                         reptypes[frame].append([angle2, curve, increase, angle1 - angle2])
                         reptypes[0].append([angle1, curve, True, 0])
+                        angle1 = angle2
                     
-    #check frames for similar movements
+    #check important joint changes
     i = 1
+    symetrical = []
     for change in reptypes:
         increase = 0
         decrease = 0
         max = 0
+        maxFrom = 0
         for angle in change:
             #print(f"angle change on {angle}: {angle[3]}")
             if angle[2]:
@@ -143,12 +196,29 @@ def getReps(keyFrames, allAngles, reps):
                 decrease += 1
             if max < angle[3]:
                 max = angle[3]
-        print(f"frame {i} with {len(change)} changes: {increase} increase and {decrease} decrease with a max angle change of {max}")
+                maxFrom = angle[1]
+        print(f"frame {i} with {len(change)} changes: {increase} increase and {decrease} decrease with a max angle change of {max} from {maxFrom}")
 
-        i += 1
-
+        i+=1
 
     return
+
+
+
+def setupNewWorkout():
+    models = os.listdir("/models")
+    print(models)
+    name = input("Name of new workout: ").strip()
+    while (len(name) > 0) and (name + ".json") not in models:
+
+        name = input("Model already exists or the name is invalid! \n\
+Please provide a new name of new workout: ").strip()
+
+    print(MENU)
+    choices = input("Choice(s): ").split(",")
+
+    return name, choices
+
 
 print("Analyzing video...")
 extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
