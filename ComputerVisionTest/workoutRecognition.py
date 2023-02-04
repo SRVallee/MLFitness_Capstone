@@ -83,7 +83,7 @@ choiceList = {
 def getJoint(angle):
     a = int(angle)
     if a in range(10) or a == 12 or a == 13:
-        return a//10 +1
+        return a//2 +1
     elif a == 10 or a == 11:
         return a - 4
     elif a == 16 or a == 17:
@@ -92,6 +92,13 @@ def getJoint(angle):
         return 10
     elif a == 21 or a == 22 or a == 23:
         return 11
+
+def convertJoints(Joints):
+    angles = []
+    for joint in Joints:
+        angles += choiceList[joint]
+    angles.sort()
+    return angles
 
 def getKeyFramesFromVideo(video, show = False):
     cap = cv2.VideoCapture(video)
@@ -131,7 +138,7 @@ def getKeyFramesFromVideo(video, show = False):
     print(f"frames: {len(allFrames)}")
     print(f"framerate: {fps}")
 
-    rSquared = 0.8
+    rSquared = 0.7
 
     print(f"RSquared: {rSquared}")
     extracted, allangles = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
@@ -140,30 +147,57 @@ def getKeyFramesFromVideo(video, show = False):
 
 def getReps(keyFrames, allAngles, reps, workout = None):
     # if not workout:
-    #     model, importantJoints = setupNewWorkout()
+    modelName, importantJoints = setupNewWorkout()
+    importantAngles = convertJoints(importantJoints)
     nFrames = len(keyFrames)
     reptypes = [[] for i in range(nFrames)] 
-    
-    for curve in range(len(allAngles)):
-        angle1, angle2, increase = None, None, None
-        if getJoint(curve) in 
-        for frame in range(nFrames): #TODO Only include important Joints
+    cycles = [[] for i in range(len(importantAngles))] #[start, turning point, end, angle]
+    cycleType = [] #Stores boolean for open type: if angle is closed -> open -> close
 
-            angle2 = allAngles[curve][keyFrames[frame][1]] #all angles includes all Frames
+    for curve in range(len(importantAngles)): #Only include important Joint angles
+        angle1, angle2, increase = None, None, None
+        
+        for frame in range(nFrames):
+
+            angle1 = angle2
+            angle2 = allAngles[importantAngles[curve]][keyFrames[frame][1]] #all angles includes all Frames
 
             if(angle1 != 0 and not angle1): #if first angle
                 angle1 = angle2
+
             else: #get direction change and angle difference
                 #if last frame was a decrese and now it's increasing
                 if (angle1 < angle2) and increase == False: #can be None
                     increase = True
                     reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
+
+                    if not cycleType[curve]:
+                        cycles[curve][-1][2] = frame
+                        if cycles[curve][-1][3] < (angle2 - angle1):
+                            cycles[curve][-1][3] = angle2 - angle1
+                        cycles[curve].append([frame, None, None, angle2 - angle1])
+                    else:
+                        cycles[curve][-1][1] = frame
+                        if cycles[curve][-1][3] < (angle2 - angle1):
+                            cycles[curve][-1][3] = angle2 - angle1
+
                     angle1 = angle2
 
                 #if last frame was an increase and now it's a decrease
                 elif (angle1 > angle2) and increase:
                     increase = False
                     reptypes[frame].append([angle2, curve, increase, angle1 - angle2])
+                    
+                    if cycleType[curve]:
+                        cycles[curve][-1][2] = frame
+                        if cycles[curve][-1][3] < (angle1 - angle2):
+                            cycles[curve][-1][3] = angle1 - angle2
+                        cycles[curve].append([frame, None, None, angle1 - angle2])
+                    else:
+                        cycles[curve][-1][1] = frame
+                        if cycles[curve][-1][3] < (angle1 - angle2):
+                            cycles[curve][-1][3] = angle1 - angle2
+
                     angle1 = angle2
 
                 #if comparing with first frame
@@ -172,17 +206,32 @@ def getReps(keyFrames, allAngles, reps, workout = None):
                         increase = True
                         reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
                         reptypes[0].append([angle1, curve, False, 0])
+                        cycles[curve].append([0, frame, None, angle2 - angle1]) #Set Values for first time setup.
+                        cycleType.append(True)
+
                         angle1 = angle2
+
                     
                     else:
                         increase = False
                         reptypes[frame].append([angle2, curve, increase, angle1 - angle2])
                         reptypes[0].append([angle1, curve, True, 0])
+                        cycles[curve].append([0, frame, None, angle1 - angle2]) #Set Values for first time setup.
+                        cycleType.append(False)
                         angle1 = angle2
                     
     #check important joint changes
     i = 1
-    symetrical = []
+
+    #TODO get trend for buttom and top <-----------------------------------------------------------------------------------------------------
+    parallel = getTrend(cycles)
+    print(f"cycles: {parallel}")
+    #Count if angles are > 10 degrees<-------------------------------------------------------------------------------------------------------
+    #save new Model with average top angles, buttom angles, and stdvs. <---------------------------------------------------------------------
+
+    for x in cycles:
+        print(x)
+    
     for change in reptypes:
         increase = 0
         decrease = 0
@@ -203,13 +252,79 @@ def getReps(keyFrames, allAngles, reps, workout = None):
 
     return
 
+def getTrend(cycles):
+    #cycle [start, turning point, end, angle]
 
+    reps = []
+
+    maxLen = 0
+    for joint in cycles:
+        for cycleJoint in joint:
+            if cycleJoint[3] < 5: #remove cycles under 5 degrees
+                joint.remove(cycleJoint)
+            
+                
+        if len(joint) > maxLen:
+            maxLen = len(joint)
+    
+
+    potentialReps = [[] for i in range(maxLen)]
+
+
+    for joint in  cycles:
+        n = 0
+        for cycleJoint in joint:
+            potentialReps[n].append(cycleJoint)
+            n = n + 1
+            print(n)
+
+    #print(f"Potential: {potentialReps}")
+    
+    for cycleGroup in potentialReps: #Take the most common values
+        starts = {}
+        middle = {}
+        end = {} 
+        for cycle in cycleGroup:
+            print(f"cycle: {cycle}")
+            if str(cycle[0]) in starts.keys():
+                starts[str(cycle[0])] = starts[str(cycle[0])] + 1
+            else:
+                starts[str(cycle[0])] = 1
+
+            if str(cycle[1]) in middle.keys():
+                middle[str(cycle[1])] = middle[str(cycle[1])] + 1
+            else:
+                middle[str(cycle[1])] = 1
+
+            if str(cycle[2]) in end.keys():
+                end[str(cycle[2])] = end[str(cycle[2])] + 1
+            else:
+                end[str(cycle[2])] = 1
+            print(starts)
+        finalStart = 0
+        finalMiddle = 0
+        finalEnd = 0
+        for start in starts.keys():
+            if starts[start] > finalStart:
+                finalStart = int(start)
+
+        for mid in middle.keys():
+            if middle[mid] > finalMiddle:
+                finalMiddle = int(mid)
+
+        for ending in end.keys():
+            if end[ending] > finalEnd:
+                finalEnd = int(ending)
+
+        reps.append([finalStart, finalMiddle, finalEnd])
+
+    return reps
 
 def setupNewWorkout():
-    models = os.listdir("/models")
+    models = os.listdir("ComputerVisionTest/models")
     print(models)
     name = input("Name of new workout: ").strip()
-    while (len(name) > 0) and (name + ".json") not in models:
+    while (len(name) == 0) and (name + ".json") not in models:
 
         name = input("Model already exists or the name is invalid! \n\
 Please provide a new name of new workout: ").strip()
@@ -218,7 +333,6 @@ Please provide a new name of new workout: ").strip()
     choices = input("Choice(s): ").split(",")
 
     return name, choices
-
 
 print("Analyzing video...")
 extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
