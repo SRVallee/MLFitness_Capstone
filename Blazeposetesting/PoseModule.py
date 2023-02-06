@@ -19,6 +19,7 @@ class poseDetector():
         self.smoothseg = smoothseg
         self.detectionCon = detectionCon
         self.trackCon = trackCon
+        self.low_angle = 360
 
         self.mpDraw = mp.solutions.drawing_utils #this is for drawing everything
         self.mpPose = mp.solutions.pose # this is for a model
@@ -170,7 +171,10 @@ class poseDetector():
         point3 = np.array(self.lmList[p3][1:4])
         #this is to calac ulate the angle if you have 3 points
         angle = math.degrees(math.atan2(y3-y2,x3-x2) - math.atan2(y1-y2,x1-x2))
-        print(360 -angle)
+        angle = 360-angle
+        print(angle)
+        if angle< self.low_angle:
+            self.low_angle = angle
         if draw:
             cv2.circle(img,(x1, y1), 10, (0,0,255),cv2.FILLED)
             cv2.circle(img,(x1, y1), 15, (0,0,255),2)
@@ -178,7 +182,8 @@ class poseDetector():
             cv2.circle(img,(x2, y2), 15, (0,0,255),2)
             cv2.circle(img,(x3, y3), 5, (0,0,255),cv2.FILLED)
             cv2.circle(img,(x3, y3), 15, (0,0,255),2)
-            cv2.putText(img, str((int(360-angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
+            cv2.putText(img, str((int(angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
+        return self.low_angle
             
     def findWorldAngle(self,img,p1,p2,p3, draw=True):
         x1,y1 = self.lmList[p1][1:3]
@@ -203,7 +208,7 @@ class poseDetector():
 def main():
     #comment only one line out videocapture of 0 is webcam videocapture than file is for vid
     #cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/Squatlarge1flipped.mp4')  # the video sys.path[0] is the current path of the file
+    cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1side.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -306,7 +311,8 @@ def main():
         fps = 1 / (cTime - pTime)
         pTime = cTime
         if len(lmList) != 0:
-            detector.findAngle(annotated_img,24,26,28)
+            angle = detector.findAngle(annotated_img,24,26,28)
+            print(f"lowest angle; {angle}")
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         #resize is width than height
         resize = cv2.resize(annotated_img, (modded_width, constant_height))

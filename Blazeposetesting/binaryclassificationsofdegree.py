@@ -3,11 +3,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn.datasets import make_regression
 
 # Create a sample dataset with degrees of bend and corresponding labels
-data = {'degree_of_bend': [45, 60, 90, 120, 150],
-        'label': [0, 0, 0, 1, 1]}
+data = {'degree_of_bend': [45, 60, 70, 90, 120, 150], #this is the data to train it to be accurate
+        'label': [0, 0, 0, 1, 1, 1]}
 df = pd.DataFrame(data)
+#how to input tester?
+#possible have one that is 
 
 # Split the dataset into training and testing data
 X = df[['degree_of_bend']]
@@ -17,14 +20,22 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # Train a logistic regression model
 logistic_regression = LogisticRegression()
 logistic_regression.fit(X_train, y_train)
-print(y_test)
+print(f"y Test: {y_test}")
+
 # Make predictions on the testing data
-y_pred = logistic_regression.predict(X_test)
-print(X_test, y_pred)
+y_pred = logistic_regression.predict(X_test) #this is the predictions
+print(f"this is x{X_test}, this is y prediction: {y_pred}, xtrain {X_train}")
 
 # Calculate the accuracy of the model
 accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
+
+X_new = [[40]]
+y_pred = logistic_regression.predict(X_new) #this is to make another prediction
+print(f"2this is x{X_test}, 2this is y prediction: {y_pred}, 2xtrain {X_train}")
+
+
+
 
 #In this example, we first create a sample dataset with degrees of bend and 
 #corresponding labels, where 0 represents degrees of bend less than or equal 
