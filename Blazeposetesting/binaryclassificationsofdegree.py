@@ -17,7 +17,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # Train a logistic regression model
 logistic_regression = LogisticRegression()
 logistic_regression.fit(X_train, y_train)
-
+print(y_test)
 # Make predictions on the testing data
 y_pred = logistic_regression.predict(X_test)
 
