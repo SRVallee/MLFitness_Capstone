@@ -4,8 +4,9 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
 # Sample data
-X = np.array([[1.0, 2.0, 3.0], [2.0, 4.0, 6.0], [3.0, 6.0, 9.0], [4.0, 8.0, 12.0]]) #training data
-y = np.array([0, 0, 1, 1]) # test data
+X = np.array([[1.0, 2.0, 3.0], [2.0, 4.0, 6.0], [3.0, 6.0, 9.0], [4.0, 8.0, 12.0]]) #training data how does this work? why is it 3 nums instead of 4?
+#while the test is 4 nums? what is this
+y = np.array([0, 0, 1, 1]) # test
 
 # Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
