@@ -20,6 +20,7 @@ logistic_regression.fit(X_train, y_train)
 print(y_test)
 # Make predictions on the testing data
 y_pred = logistic_regression.predict(X_test)
+print(X_test, y_pred)
 
 # Calculate the accuracy of the model
 accuracy = accuracy_score(y_test, y_pred)
