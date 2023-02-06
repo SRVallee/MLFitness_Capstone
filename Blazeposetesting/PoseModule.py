@@ -103,7 +103,7 @@ class poseDetector():
     
     def findWorldPosition(self,img, draw=True):
         mod_lmList =[] #modded landmark list for actual pixels
-        unmod_list = [] #modded landmark list for real world estimitation
+        self.world_lmList = [] #modded landmark list for real world estimitation
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_world_landmarks.landmark):
                 h, w, c = img.shape # we need this to be able to get exact location 
@@ -111,12 +111,12 @@ class poseDetector():
                 #print(id, lm)
                 cx, cy, cz, cv = int(lm.x * w), int(lm.y * h), int(lm.z), float(lm.visibility) #this gives the pixel point of the landmarks
                 mod_lmList.append([id,cx,cy,cz,cv])
-                unmod_list.append([id,lm.x,lm.y,lm.z])
+                self.world_lmList .append([id,lm.x,lm.y,lm.z])
                 #if found checks if can draw it if can draw
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
                     #cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-        return mod_lmList, unmod_list
+        return mod_lmList, self.world_lmList 
     
     def checkback(self,img,backplt1,backplt2):
         x1, y1 = backplt1
@@ -162,6 +162,25 @@ class poseDetector():
         return cur_x, cur_y, noseX, noseY, int(slope)
     
     def findAngle(self,img,p1,p2,p3, draw=True):
+        x1,y1 = self.lmList[p1][1:3]
+        x2,y2 = self.lmList[p2][1:3]
+        x3,y3 = self.lmList[p3][1:3]
+        point1 = np.array(self.lmList[p1][1:4])
+        point2 = np.array(self.lmList[p2][1:4])
+        point3 = np.array(self.lmList[p3][1:4])
+        #this is to calac ulate the angle if you have 3 points
+        angle = math.degrees(math.atan2(y3-y2,x3-x2) - math.atan2(y1-y2,x1-x2))
+        print(360 -angle)
+        if draw:
+            cv2.circle(img,(x1, y1), 10, (0,0,255),cv2.FILLED)
+            cv2.circle(img,(x1, y1), 15, (0,0,255),2)
+            cv2.circle(img,(x2, y2), 5, (0,0,255),cv2.FILLED)
+            cv2.circle(img,(x2, y2), 15, (0,0,255),2)
+            cv2.circle(img,(x3, y3), 5, (0,0,255),cv2.FILLED)
+            cv2.circle(img,(x3, y3), 15, (0,0,255),2)
+            cv2.putText(img, str((int(360-angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
+            
+    def findWorldAngle(self,img,p1,p2,p3, draw=True):
         x1,y1 = self.lmList[p1][1:3]
         x2,y2 = self.lmList[p2][1:3]
         x3,y3 = self.lmList[p3][1:3]
@@ -292,7 +311,10 @@ def main():
         #resize is width than height
         resize = cv2.resize(annotated_img, (modded_width, constant_height))
         cv2.imshow("Image", resize)
-        cv2.waitKey(1)  # millisecond delays
+        key = cv2.waitKey(1)  # millisecond delays
+        if key == 27: #esc
+            cv2.destroyAllWindows
+            break
     return
 
 if __name__ == "__main__":
