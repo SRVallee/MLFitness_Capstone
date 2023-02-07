@@ -211,7 +211,6 @@ def main():
     cap = cv2.VideoCapture(sys.path[0]+'/motioncapture/SquatV1side.mp4')  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     #data = np.empty((3,32,length))
     frame_num = 0
     success = True

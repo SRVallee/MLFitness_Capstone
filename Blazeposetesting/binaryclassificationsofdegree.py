@@ -24,15 +24,15 @@ print(f"y Test: {y_test}")
 
 # Make predictions on the testing data
 y_pred = logistic_regression.predict(X_test) #this is the predictions
-print(f"this is x{X_test}, this is y prediction: {y_pred}, xtrain {X_train}")
+print(f"this is x{X_test}, this is y prediction: {y_pred}")
 
 # Calculate the accuracy of the model
 accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
 
-X_new = [[40]]
+X_new = [[100]]
 y_pred = logistic_regression.predict(X_new) #this is to make another prediction
-print(f"2this is x{X_test}, 2this is y prediction: {y_pred}, 2xtrain {X_train}")
+print(f"2this is x{X_test}, 2this is y prediction: {y_pred}")
 
 
 
