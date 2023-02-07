@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class TrainerHomePage extends AppCompatActivity {
+public class TrainerMessages extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
@@ -35,7 +35,7 @@ public class TrainerHomePage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trainer_home_page);
+        setContentView(R.layout.activity_trainer_messages);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -49,9 +49,11 @@ public class TrainerHomePage extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.home: {
-                        //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        //Go to home
+                        Intent i = new Intent(getApplicationContext(), TrainerHomePage.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.upload: {
@@ -63,11 +65,9 @@ public class TrainerHomePage extends AppCompatActivity {
                         break;
                     }
                     case R.id.messages: {
-                        //Go to messages
-                        Intent i = new Intent(getApplicationContext(), TrainerMessages.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
+                        //Already selected
+                        //Close drawer
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
@@ -128,18 +128,12 @@ public class TrainerHomePage extends AppCompatActivity {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            //Close Application
-            if (pressedTime + 2000 > System.currentTimeMillis()) {
-                Intent i = new Intent(Intent.ACTION_MAIN);
-                i.addCategory(Intent.CATEGORY_HOME);
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(i);
-            } else {
-                Toast.makeText(getBaseContext(), "Press back again to exit", Toast.LENGTH_SHORT).show();
-            }
-            pressedTime = System.currentTimeMillis();
+            //Go to homepage
+            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(i);
+            finish();
+            super.onBackPressed();
         }
-        //super.onBackPressed();
-
     }
 }

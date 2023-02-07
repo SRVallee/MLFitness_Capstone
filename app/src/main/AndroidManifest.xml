@@ -57,6 +57,23 @@
         <activity
             android:name=".TrainerHomePage" >
         </activity>
+        <activity
+            android:name=".TrainerUpload" >
+        </activity>
+        <activity
+            android:name=".TrainerMessages" >
+        </activity>
+        <activity
+            android:name=".TrainerSettings" >
+        </activity>
+        <activity
+            android:name=".TrainerTraineeProfile" >
+        </activity>
+        <activity
+            android:name=".TrainerFriends" >
+        </activity>
+        <activity
+            android:name=".TrainerProfile" >
+        </activity>
     </application>
-
 </manifest>
