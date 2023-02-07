@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import numpy as np
 import cv2
 import mediapipe as mp
@@ -59,10 +58,13 @@ USE_CAM = True
 #         results.pose_world_landmarks, mp_holistic.POSE_CONNECTIONS)
 
 # For webcam input:
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0, apiPreference=cv2.CAP_ANY, params=[
+  cv2.CAP_PROP_FRAME_WIDTH, 1920,
+  cv2.CAP_PROP_FRAME_HEIGHT, 1080])
 if not USE_CAM:
   cap = cv2.VideoCapture("ComputerVisionTest/videos/pushup.mp4")
-
+  
+  
 f = open("landmarksLog.txt", 'w')
 
 with mp_holistic.Holistic(
@@ -83,13 +85,21 @@ with mp_holistic.Holistic(
 
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
+    # image = cv2.resize(image, (1280, 720))
+    image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    cv2.namedWindow('MediaPipe Holistic', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('MediaPipe Holistic', 607, 1080)
     image.flags.writeable = False
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = holistic.process(image)
     landmarks = results.pose_world_landmarks
+    angStr = 'None'
+    angStr2 = 'None'
     if landmarks:
       # f.write('{' + str(frameNum) + ': ' + poseutil.frame_landmarks(landmarks) + '}\n')
-      print(np.degrees(pu.compute_body_angles(landmarks)))
+      angs = pu.compute_body_angles(landmarks)
+      angStr  = str(np.degrees(angs[4]))
+      angStr2 = str(np.degrees(angs[5]))
 
     # Draw landmark annotation on the image.
     image.flags.writeable = True
@@ -107,8 +117,24 @@ with mp_holistic.Holistic(
         mp_holistic.POSE_CONNECTIONS,
         landmark_drawing_spec=mp_drawing_styles
         .get_default_pose_landmarks_style())
+    cv2.flip(image, 1)
+    image = cv2.putText(image, angStr, 
+                        (0, 130), 
+                        cv2.FONT_HERSHEY_PLAIN,
+                        10,
+                        (255,255,10),
+                        2,
+                        cv2.LINE_AA)
+    image = cv2.putText(image, angStr2, 
+                        (0, 260), 
+                        cv2.FONT_HERSHEY_PLAIN,
+                        10,
+                        (255,255,10),
+                        2,
+                        cv2.LINE_AA)
+    
     # Flip the image horizontally for a selfie-view display.
-    cv2.imshow('MediaPipe Holistic', cv2.flip(image, 1))
+    cv2.imshow('MediaPipe Holistic', image)
     if cv2.waitKey(5) & 0xFF == 27:
       break
       

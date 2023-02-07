@@ -45,12 +45,12 @@ KEYPOINT_DICT = {
 
 ANGLE_ARRAY = np.array([
     [11, 12, 23, 13], # left shoulder
-    [12, 11, 24, 14], # right shoulder
     [23, 24, 11, 25], # left hip
+    [12, 11, 24, 14], # right shoulder
     [24, 23, 12, 26], # right hip
     [13, 11, 15, -1], # left elbow
-    [14, 12, 16, -1], # right elbow
     [25, 23, 27, -1], # left knee
+    [14, 12, 16, -1], # right elbow
     [26, 24, 28, -1]  # right knee
 ])
 
@@ -120,7 +120,7 @@ def midpoint(landmarkA, landmarkB):
                  (landmarkB.y + landmarkA.y)/2, 
                  (landmarkB.z + landmarkA.z)/2)
 
-def vector_angles(angleVec, vecI, vecJ):
+def vector_angles(angleVec, vecI, vecJ, right=0):
     # Compute both angles of a vec to projected onto the plane I,K and I,J
     # I should be horizontal and J should be vertical relative to the 2-axis rotation
     # for right shoulder we will say (11,12) is vector I, (12, 24) is vector J,
@@ -160,24 +160,28 @@ def vector_angles(angleVec, vecI, vecJ):
     return angleI, angleJ
 
 def compute_body_angles(landmarks):
-    angleArr = np.zeros(26)
+    angleArr = np.zeros(24)
     # head and body
     j = 0
     for i in range(2):
         centre = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 0]], 
-                          landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 1]])
+                           landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 1]])
         pointI = landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 0]]
         pointJ = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 2]], 
-                          landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 3]])
+                           landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 3]])
         pointK = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 4]], 
-                          landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 5]])
-        angle, angle2 = vector_angles(
-            vectorize(centre, pointK),
-            vectorize(centre, pointI),
-            vectorize(centre, pointJ)
-        )
-        angleArr[j] = angle
-        angleArr[j+1] = angle2
+                           landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 5]])
+        vecK = vectorize(centre, pointK)
+        vecI = vectorize(centre, pointI)
+        if i == 0:
+            vecJ = vectorize(centre, pointJ)
+        else:
+            vecJ = vectorize(pointJ, centre)
+        
+        lrAngle, fbAngle = vector_angles(vecK, vecI, vecJ)
+        
+        angleArr[j] = lrAngle
+        angleArr[j+1] = fbAngle
         j += 2
         
     # shoulders, hips
@@ -187,11 +191,13 @@ def compute_body_angles(landmarks):
         pointJ = landmarks.landmark[ANGLE_ARRAY[i, 2]]
         pointK = landmarks.landmark[ANGLE_ARRAY[i, 3]]
         if i < 4: # shoulders and hips
-            angle, angle2 = vector_angles(
-                vectorize(centre, pointK),
-                vectorize(centre, pointI),
-                vectorize(centre, pointJ)
-            )
+            vecK = vectorize(centre, pointK)
+            vecI = vectorize(centre, pointI)
+            if i == 0:
+                vecJ = vectorize(centre, pointJ)
+            else:
+                vecJ = vectorize(pointJ, centre)
+            angle, angle2 = vector_angles(vecK, vecI, vecJ)
             angleArr[j] = angle
             angleArr[j+1] = angle2
             j += 2
@@ -200,5 +206,31 @@ def compute_body_angles(landmarks):
             angleArr[j] = angle
             j += 1
             
-    
+    # for i in range(1,12):
+    #     if i != 4 & i != 5 & i != 7:
+    #         angleArr[i] = np.pi - angleArr
     return angleArr
+
+def compute_body_ang(landmarks):
+    angleArr = np.zeros(24)
+    # -- Head --
+    j = 0
+    shoulders = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 0]], 
+                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 1]])
+    pointI = landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 0]]
+    pointJ = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 2]], 
+                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 3]])
+    head = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 4]], 
+                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 5]])
+    angle, angle2 = vector_angles(
+        vectorize(centre, pointK),
+        vectorize(centre, pointI),
+        vectorize(centre, pointJ)
+    )
+    angleArr[j] = angle
+    angleArr[j+1] = angle2
+    j += 2
+    
+    # -- Body -- 
+    
+    return
