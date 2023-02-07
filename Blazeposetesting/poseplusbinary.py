@@ -336,6 +336,7 @@ def binaryclassifier(degrees, labels, checks):
     model.fit(X_train.reshape(-1,1), y_train)
 
     # Step 5: Evaluate the model
+    #reshape is to make it understand the array for input into the logistic regression
     y_pred = model.predict(X_test.reshape(-1,1))
     accuracy = accuracy_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred)
@@ -361,7 +362,8 @@ def binaryclassifier(degrees, labels, checks):
     #   A model will obtain a medium F1 score if one of Precision and Recall is low and the other is high
 
     # Step 6: Make predictions
-    new_data = np.array([80, 88, 89, 91, 92, 95])
+    #testign data below
+    #new_data = np.array([80, 88, 89, 91, 92, 95])
     predictions = model.predict(checks.reshape(-1,1))
     print(predictions)
     
