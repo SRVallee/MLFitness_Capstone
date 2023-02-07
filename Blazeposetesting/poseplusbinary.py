@@ -1,4 +1,4 @@
-#posemodule plis binary classifier most current one
+#posemodule plus binary classifier most current one
 
 import time
 import math
