@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -13,11 +14,16 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class TraineeShare extends AppCompatActivity {
+import java.util.logging.Handler;
+
+public class TraineeWorkouts extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+
+    private Boolean exit = false;
+    private long pressedTime;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -31,7 +37,7 @@ public class TraineeShare extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trainee_share);
+        setContentView(R.layout.activity_trainee_workouts);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -45,19 +51,17 @@ public class TraineeShare extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.home: {
-                        //Go to home
+                        //Go to homepage
                         Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
                         break;
                     }
-                    case R.id.upload: {
-                        //Go to upload
-                        Intent i = new Intent(getApplicationContext(), TraineeUpload.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
+                    case R.id.workouts: {
+                        //Already selected
+                        //Close drawer
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.message: {
@@ -71,6 +75,22 @@ public class TraineeShare extends AppCompatActivity {
                     case R.id.setting: {
                         //Go to setting
                         Intent i = new Intent(getApplicationContext(), TraineeSettings.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers: {
+                        //Go to trainers
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.friends: {
+                        //Go to friends
+                        Intent i = new Intent(getApplicationContext(), TraineeFriends.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -95,19 +115,8 @@ public class TraineeShare extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     }
-                    case R.id.share: {
-                        //Already selected
-                        //Close drawer
+                    default: {
                         drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
-                    }
-                    case R.id.rate: {
-                        //Go to rate
-                        Intent i = new Intent(getApplicationContext(), TraineeRate.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
-                        break;
                     }
                 }
                 return false;

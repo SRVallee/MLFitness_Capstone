@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -13,11 +14,16 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class TraineeMessages extends AppCompatActivity {
+import java.util.logging.Handler;
+
+public class TraineeTrainerProfile extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+
+    private Boolean exit = false;
+    private long pressedTime;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -31,7 +37,7 @@ public class TraineeMessages extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trainee_messages);
+        setContentView(R.layout.activity_trainee_trainer_profile);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -61,9 +67,11 @@ public class TraineeMessages extends AppCompatActivity {
                         break;
                     }
                     case R.id.message: {
-                        //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        //Go to message
+                        Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.setting: {
@@ -84,18 +92,16 @@ public class TraineeMessages extends AppCompatActivity {
                     }
                     case R.id.friends: {
                         //Go to friends
-                        Intent i = new Intent(getApplicationContext(), TraineeFriends.class);
+                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
                         break;
                     }
                     case R.id.profile: {
-                        //Go to profile
-                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
+                        //Already selected
+                        //Close drawer
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.logout: {

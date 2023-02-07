@@ -115,10 +115,12 @@ public class TraineeUpload extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.upload: {
-                        //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                    case R.id.workouts: {
+                        //Go to workouts
+                        Intent i = new Intent(getApplicationContext(), TraineeWorkouts.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.message: {
@@ -137,12 +139,26 @@ public class TraineeUpload extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.profile: {
-                        //Go to profile
+                    case R.id.trainers: {
+                        //Go to trainers
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.friends: {
+                        //Go to friends
                         Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
+                        break;
+                    }
+                    case R.id.profile: {
+                        //Already selected
+                        //Close drawer
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.logout: {
@@ -156,21 +172,8 @@ public class TraineeUpload extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     }
-                    case R.id.share: {
-                        //Go to share
-                        Intent i = new Intent(getApplicationContext(), TraineeShare.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
-                        break;
-                    }
-                    case R.id.rate: {
-                        //Go to rate
-                        Intent i = new Intent(getApplicationContext(), TraineeRate.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
-                        break;
+                    default: {
+                        drawerLayout.closeDrawer(GravityCompat.START);
                     }
                 }
                 return false;

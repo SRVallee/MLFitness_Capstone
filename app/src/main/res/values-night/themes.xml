@@ -7,10 +7,28 @@
         <item name="colorOnPrimary">@color/dark_grey</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_1</item>
-        <item name="colorSecondaryVariant">@color/teal_1</item>
+        <item name="colorSecondaryVariant">@color/teal_2</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <!-- Dark mode -->
+    <!-- Screen background if dark mode one -->
+    <style name="SCREEN">
+        <item name="android:background">@color/dark_grey</item>
+    </style>
+
+    <!-- Text background if dark mode on -->
+    <style name="TEXT">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <!-- Button background if dark mode on -->
+    <style name="BUTTON">
+        <item name="android:background">@color/azure_blue</item>
+        <item name="android:textColor">#FFF</item>
+    </style>
+
 </resources>

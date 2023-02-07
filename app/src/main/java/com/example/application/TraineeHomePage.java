@@ -56,9 +56,9 @@ public class TraineeHomePage extends AppCompatActivity {
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
-                    case R.id.upload: {
-                        //Go to upload
-                        Intent i = new Intent(getApplicationContext(), TraineeUpload.class);
+                    case R.id.workouts: {
+                        //Go to workouts
+                        Intent i = new Intent(getApplicationContext(), TraineeWorkouts.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -75,6 +75,22 @@ public class TraineeHomePage extends AppCompatActivity {
                     case R.id.setting: {
                         //Go to setting
                         Intent i = new Intent(getApplicationContext(), TraineeSettings.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers: {
+                        //Go to trainers
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.friends: {
+                        //Go to friends
+                        Intent i = new Intent(getApplicationContext(), TraineeFriends.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -97,22 +113,6 @@ public class TraineeHomePage extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
-                        break;
-                    }
-                    case R.id.share: {
-                        //Go to share
-                        Intent i = new Intent(getApplicationContext(), TraineeShare.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
-                        break;
-                    }
-                    case R.id.rate: {
-                        //Go to rate
-                        Intent i = new Intent(getApplicationContext(), TraineeRate.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
                         break;
                     }
                     default: {

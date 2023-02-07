@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -13,11 +14,16 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class TraineeRate extends AppCompatActivity {
+import java.util.logging.Handler;
+
+public class TraineeFriends extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+
+    private Boolean exit = false;
+    private long pressedTime;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -31,7 +37,7 @@ public class TraineeRate extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trainee_rate);
+        setContentView(R.layout.activity_trainee_friends);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -45,16 +51,16 @@ public class TraineeRate extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.home: {
-                        //Go to home
+                        //Go to homepage
                         Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
                         break;
                     }
-                    case R.id.upload: {
-                        //Go to upload
-                        Intent i = new Intent(getApplicationContext(), TraineeUpload.class);
+                    case R.id.workouts: {
+                        //Go to workouts
+                        Intent i = new Intent(getApplicationContext(), TraineeWorkouts.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -76,6 +82,20 @@ public class TraineeRate extends AppCompatActivity {
                         finish();
                         break;
                     }
+                    case R.id.trainers: {
+                        //Go to trainer
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.friends: {
+                        //Already selected
+                        //Close drawer
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        break;
+                    }
                     case R.id.profile: {
                         //Go to profile
                         Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
@@ -95,19 +115,8 @@ public class TraineeRate extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     }
-                    case R.id.share: {
-                        //Go to share
-                        Intent i = new Intent(getApplicationContext(), TraineeShare.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
-                        break;
-                    }
-                    case R.id.rate: {
-                        //Already selected
-                        //Close drawer
+                    default: {
                         drawerLayout.closeDrawer(GravityCompat.START);
-                        break;
                     }
                 }
                 return false;
@@ -128,5 +137,6 @@ public class TraineeRate extends AppCompatActivity {
             finish();
             super.onBackPressed();
         }
+
     }
 }

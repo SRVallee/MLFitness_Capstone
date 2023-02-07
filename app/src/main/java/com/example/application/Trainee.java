@@ -1,12 +1,7 @@
 package com.example.application;
 
-import android.util.Log;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Objects;
-
-/**Trainee
+/**
+ * Trainee
  */
 
 public class Trainee {
@@ -113,6 +108,10 @@ public class Trainee {
 
     //Override functions
 
+    /**
+     * Check Trainee object is equivalent
+     * @param o Trainee object and returns a boolean
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

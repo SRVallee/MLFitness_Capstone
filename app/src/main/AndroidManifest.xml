@@ -34,19 +34,22 @@
             android:name=".TraineeHomePage" >
         </activity>
         <activity
-            android:name=".TraineeSettings" >
+            android:name=".TraineeWorkouts" >
         </activity>
         <activity
             android:name=".TraineeMessages" >
         </activity>
         <activity
+            android:name=".TraineeSettings" >
+        </activity>
+        <activity
+            android:name=".TraineeTrainerProfile" >
+        </activity>
+        <activity
+            android:name=".TraineeFriends" >
+        </activity>
+        <activity
             android:name=".TraineeProfile" >
-        </activity>
-        <activity
-            android:name=".TraineeShare" >
-        </activity>
-        <activity
-            android:name=".TraineeRate" >
         </activity>
         <activity
             android:name=".TraineeUpload" >

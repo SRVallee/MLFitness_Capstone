@@ -19,6 +19,9 @@ public class TrainerHomePage extends AppCompatActivity {
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
 
+    private Boolean exit = false;
+    private long pressedTime;
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -49,7 +52,7 @@ public class TrainerHomePage extends AppCompatActivity {
                         Toast.makeText(TrainerHomePage.this, "Home Selected", Toast.LENGTH_SHORT).show();
                         break;
                     }
-                    case R.id.upload: {
+                    case R.id.workouts: {
                         Toast.makeText(TrainerHomePage.this, "Upload Selected", Toast.LENGTH_SHORT).show();
                         break;
                     }
@@ -81,7 +84,6 @@ public class TrainerHomePage extends AppCompatActivity {
                 return false;
             }
         });
-
     }
 
     @Override
@@ -90,9 +92,18 @@ public class TrainerHomePage extends AppCompatActivity {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-
-            super.onBackPressed();
+            //Close Application
+            if (pressedTime + 2000 > System.currentTimeMillis()) {
+                Intent i = new Intent(Intent.ACTION_MAIN);
+                i.addCategory(Intent.CATEGORY_HOME);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+            } else {
+                Toast.makeText(getBaseContext(), "Press back again to exit", Toast.LENGTH_SHORT).show();
+            }
+            pressedTime = System.currentTimeMillis();
         }
+        //super.onBackPressed();
 
     }
 }
