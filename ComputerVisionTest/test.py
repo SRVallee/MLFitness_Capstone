@@ -7,7 +7,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
 
 
-USE_CAM = True
+
 # For static images:
 # IMAGE_FILES = ["ComputerVisionTest/images/pushup.jpg"]
 # BG_COLOR = (192, 192, 192) # gray
@@ -57,86 +57,100 @@ USE_CAM = True
 #     mp_drawing.plot_landmarks(
 #         results.pose_world_landmarks, mp_holistic.POSE_CONNECTIONS)
 
+path ="C:/Users/1234c/Documents/School/CMPT496/vids/"
+vids = ["export-01.mp4", "export-02.mp4", "export-03.mp4", "export-04.mp4",
+        "export-05.mp4", "export-06.mp4", "export-07.mp4", "export-08.mp4",
+        "export-09.mp4", "export-10.mp4", "export-11.mp4", "export-12.mp4",
+        "export-13.mp4", "export-14.mp4", "export-15.mp4", "export-16.mp4",
+        "export-17.mp4", "export-18.mp4", "export-19.mp4", "export-20.mp4",
+        "export-21.mp4", "export-22.mp4", "export-23.mp4", "export-24.mp4",
+        "export-23.mp4", "export-26.mp4", "export-27.mp4", "export-28.mp4",]
+
+
+f = open("landmarksLog.csv", 'w')
 # For webcam input:
-cap = cv2.VideoCapture(0, apiPreference=cv2.CAP_ANY, params=[
-  cv2.CAP_PROP_FRAME_WIDTH, 1920,
-  cv2.CAP_PROP_FRAME_HEIGHT, 1080])
-if not USE_CAM:
-  cap = cv2.VideoCapture("ComputerVisionTest/videos/pushup.mp4")
-  
-  
-f = open("landmarksLog.txt", 'w')
-
-with mp_holistic.Holistic(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5) as holistic:
-  
-  frameNum = 0
-  while cap.isOpened():
-    frameNum += 1
-    success, image = cap.read()
-    if not success:
-      print("Ignoring empty camera frame.")
-      # If loading a video, use 'break' instead of 'continue'.
-      if USE_CAM:
-        continue
-      else:
-        break
-
-    # To improve performance, optionally mark the image as not writeable to
-    # pass by reference.
-    # image = cv2.resize(image, (1280, 720))
-    image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    cv2.namedWindow('MediaPipe Holistic', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('MediaPipe Holistic', 607, 1080)
-    image.flags.writeable = False
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    results = holistic.process(image)
-    landmarks = results.pose_world_landmarks
-    angStr = 'None'
-    angStr2 = 'None'
-    if landmarks:
-      # f.write('{' + str(frameNum) + ': ' + poseutil.frame_landmarks(landmarks) + '}\n')
-      angs = pu.compute_body_angles(landmarks)
-      angStr  = str(np.degrees(angs[4]))
-      angStr2 = str(np.degrees(angs[5]))
-
-    # Draw landmark annotation on the image.
-    image.flags.writeable = True
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    # mp_drawing.draw_landmarks(
-    #     image,
-    #     results.face_landmarks,
-    #     mp_holistic.FACEMESH_CONTOURS,
-    #     landmark_drawing_spec=None,
-    #     connection_drawing_spec=mp_drawing_styles
-    #     .get_default_face_mesh_contours_style())
-    mp_drawing.draw_landmarks(
-        image,
-        results.pose_landmarks,
-        mp_holistic.POSE_CONNECTIONS,
-        landmark_drawing_spec=mp_drawing_styles
-        .get_default_pose_landmarks_style())
-    cv2.flip(image, 1)
-    image = cv2.putText(image, angStr, 
-                        (0, 130), 
-                        cv2.FONT_HERSHEY_PLAIN,
-                        10,
-                        (255,255,10),
-                        2,
-                        cv2.LINE_AA)
-    image = cv2.putText(image, angStr2, 
-                        (0, 260), 
-                        cv2.FONT_HERSHEY_PLAIN,
-                        10,
-                        (255,255,10),
-                        2,
-                        cv2.LINE_AA)
+USE_CAM = False
+for i in range(28):
+  if not USE_CAM:
+    file = "C:/Users/1234c/Documents/School/CMPT496/vids/" + vids[i]
+    cap = cv2.VideoCapture()
+  else:
+    cap = cv2.VideoCapture(0, apiPreference=cv2.CAP_ANY, params=[
+      cv2.CAP_PROP_FRAME_WIDTH, 1920,
+      cv2.CAP_PROP_FRAME_HEIGHT, 1080])
     
-    # Flip the image horizontally for a selfie-view display.
-    cv2.imshow('MediaPipe Holistic', image)
-    if cv2.waitKey(5) & 0xFF == 27:
-      break
+  with mp_holistic.Holistic(
+      min_detection_confidence=0.5,
+      min_tracking_confidence=0.5) as holistic:
+    
+    frameNum = 0
+    while cap.isOpened():
+      frameNum += 1
+      success, image = cap.read()
+      if not success:
+        print("Ignoring empty camera frame.")
+        # If loading a video, use 'break' instead of 'continue'.
+        if USE_CAM:
+          continue
+        else:
+          break
+
+      # To improve performance, optionally mark the image as not writeable to
+      # pass by reference.
+      # image = cv2.resize(image, (1280, 720))
+      cv2.namedWindow('MediaPipe Holistic', cv2.WINDOW_NORMAL)
+      if USE_CAM:
+        image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        cv2.resizeWindow('MediaPipe Holistic', 607, 1080)
+      image.flags.writeable = False
+      image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+      results = holistic.process(image)
+      landmarks = results.pose_world_landmarks
+      angStr = 'None'
+      angStr2 = 'None'
+      if landmarks:
+        # f.write('{' + str(frameNum) + ': ' + poseutil.frame_landmarks(landmarks) + '}\n')
+        angs = pu.compute_body_angles(landmarks)
+        print()
+        angStr  = str(np.degrees(angs[10]))
+        angStr2 = str(np.degrees(angs[11]))
+
+      # Draw landmark annotation on the image.
+      image.flags.writeable = True
+      image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+      # mp_drawing.draw_landmarks(
+      #     image,
+      #     results.face_landmarks,
+      #     mp_holistic.FACEMESH_CONTOURS,
+      #     landmark_drawing_spec=None,
+      #     connection_drawing_spec=mp_drawing_styles
+      #     .get_default_face_mesh_contours_style())
+      mp_drawing.draw_landmarks(
+          image,
+          results.pose_landmarks,
+          mp_holistic.POSE_CONNECTIONS,
+          landmark_drawing_spec=mp_drawing_styles
+          .get_default_pose_landmarks_style())
+      cv2.flip(image, 1)
+      # image = cv2.putText(image, angStr, 
+      #                     (0, 130), 
+      #                     cv2.FONT_HERSHEY_PLAIN,
+      #                     10,
+      #                     (255,255,10),
+      #                     2,
+      #                     cv2.LINE_AA)
+      # image = cv2.putText(image, angStr2, 
+      #                     (0, 260), 
+      #                     cv2.FONT_HERSHEY_PLAIN,
+      #                     10,
+      #                     (255,255,10),
+      #                     2,
+      #                     cv2.LINE_AA)
       
+      # Flip the image horizontally for a selfie-view display.
+      cv2.imshow('MediaPipe Holistic', image)
+      if cv2.waitKey(5) & 0xFF == 27:
+        break
+  cap.release()
+        
 f.close()
-cap.release()

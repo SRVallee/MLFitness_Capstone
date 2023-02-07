@@ -139,6 +139,8 @@ def vector_angles(angleVec, vecI, vecJ, right=0):
     # project angle vector onto plane IK normal
     projIKNormal = (np.dot(angleVec, normIK)/magnitudeIK**2)*normIK 
     
+    print(normIJ/magnitudeIJ, normIK/magnitudeIK)
+    
     # Subtract projection of angle vec onto IJ normal to find projection onto plane
     projIJ = angleVec - projIJNormal 
     # Subtract projection of angle vec onto IK normal to find projection onto plane
