@@ -372,8 +372,8 @@ def main():
     correct3 = capture_feed('/motioncapture/SquatYV1side.mp4')
     incorrect1 = capture_feed('/motioncapture/highsquatincorrectsideV1.mp4')
     incorrect2 = capture_feed('/motioncapture/deepsquatincorrectV1.mp4')
+    
     # Step 1: Collect and preprocess your data
-    print(correct1,correct2,correct3,incorrect1,incorrect2)
     degrees = np.array([correct1,correct2,correct3,incorrect1,incorrect2])
     labels = np.array([1,1,1,0,0])
     checker1 = capture_feed('/motioncapture/Squatlarge1flipped.mp4') #0
