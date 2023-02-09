@@ -1,39 +1,4 @@
 '''
-#Idea 1 (using standard deviation as threshhold)
-#Algorithm on detecting/learning workouts (manual approach)
-
-    #feed tracking data,
-        
-        #find angle cicles (the hard part)
-
-            #for each joint, find changes in increase or decrease of angle
-                - get first frame
-
-                - compare with second frame to label as increase/decrease
-                
-                - keep comparing until the label is wrong
-                
-                - get frame, change label and repeat
-
-            #save type of repetition in a list
-                #repetitions with the same joint changes together
-
-            get the closest sets with the number of repetitions and include the rest (hopefully all, maybe a different approach is more obvious)
-            match with other sets with simmilar angles and maybe height coordinates(assuming straightup camera)
-            compare with existing model if one exists
-
-            return successfull repetitions that match the number given.
-
-    Train model
-
-        model is stored with average angles, standard deviation for each angle, and the number of repetitions used to train it.
-
-        each repetition recorded are used to update the average angles and the standard deviation. (this is why we store the number of reps used)
-
-    Correct reps should have their angles fall in the thresh hold of the standard deviarion, while incorrect ones  
-            
-    
-
 
 '''
 import cv2
@@ -316,20 +281,20 @@ def getTrend(cycles):
             else:
                 end[str(cycle[2])] = 1
             print(starts)
-        finalStart = 0
-        finalMiddle = 0
-        finalEnd = 0
+        finalStart = None
+        finalMiddle = None
+        finalEnd = None
         for start in starts.keys():
-           
-            finalStart = int(start)
+            if not finalStart or starts[str(finalStart)] < starts[start]:
+                finalStart = int(start)
 
         for mid in middle.keys():
-            
-            finalMiddle = int(mid)
+            if not finalMiddle or middle[str(finalMiddle)] < middle[mid]:
+                finalMiddle = int(mid)
 
         for ending in end.keys():
-            if finalEnd:
-                finalEnd = int(ending)
+            
+            finalEnd = int(ending)
 
         reps.append([finalStart, finalMiddle, finalEnd])
 
