@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 import mediapipe as mp
-import PoseUtilities as pu
+import binomialFitting.PoseUtilities as pu
+import binomialFitting.KeyframeExtraction as ke
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
@@ -68,12 +69,14 @@ vids = ["export-01.mp4", "export-02.mp4", "export-03.mp4", "export-04.mp4",
 
 
 f = open("landmarksLog.csv", 'w')
+breakFlag = False
 # For webcam input:
 USE_CAM = False
 for i in range(28):
+  cap = None
   if not USE_CAM:
     file = "C:/Users/1234c/Documents/School/CMPT496/vids/" + vids[i]
-    cap = cv2.VideoCapture()
+    cap = cv2.VideoCapture(file)
   else:
     cap = cv2.VideoCapture(0, apiPreference=cv2.CAP_ANY, params=[
       cv2.CAP_PROP_FRAME_WIDTH, 1920,
@@ -101,7 +104,7 @@ for i in range(28):
       cv2.namedWindow('MediaPipe Holistic', cv2.WINDOW_NORMAL)
       if USE_CAM:
         image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        cv2.resizeWindow('MediaPipe Holistic', 607, 1080)
+      cv2.resizeWindow('MediaPipe Holistic', 607, 1080)
       image.flags.writeable = False
       image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
       results = holistic.process(image)
@@ -111,7 +114,7 @@ for i in range(28):
       if landmarks:
         # f.write('{' + str(frameNum) + ': ' + poseutil.frame_landmarks(landmarks) + '}\n')
         angs = pu.compute_body_angles(landmarks)
-        print()
+        print(angs)
         angStr  = str(np.degrees(angs[10]))
         angStr2 = str(np.degrees(angs[11]))
 
@@ -150,7 +153,10 @@ for i in range(28):
       # Flip the image horizontally for a selfie-view display.
       cv2.imshow('MediaPipe Holistic', image)
       if cv2.waitKey(5) & 0xFF == 27:
+        breakFlag = True
         break
   cap.release()
+  if breakFlag:
+    break
         
 f.close()

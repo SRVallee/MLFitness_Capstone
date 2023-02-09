@@ -1,4 +1,4 @@
-import PoseUtilities as pu
+import binomialFitting.PoseUtilities as pu
 import numpy as np
 
 i = np.array([-1, 0, 0])
