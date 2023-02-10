@@ -156,7 +156,7 @@ def getReps(keyFrames, anglesPerFrame, workout = None):
                             cycles[curve][-1][3] = angle2 - angle1
                         cycles[curve].append([frame, None, None, angle2 - angle1])
                     else:
-                        cycles[curve][-1][1] = frame
+                        cycles[curve][-1][1] = frame + 1
                         if cycles[curve][-1][3] < (angle2 - angle1):
                             cycles[curve][-1][3] = angle2 - angle1
 
@@ -173,7 +173,7 @@ def getReps(keyFrames, anglesPerFrame, workout = None):
                             cycles[curve][-1][3] = angle1 - angle2
                         cycles[curve].append([frame, None, None, angle1 - angle2])
                     else:
-                        cycles[curve][-1][1] = frame
+                        cycles[curve][-1][1] = frame + 1
                         if cycles[curve][-1][3] < (angle1 - angle2):
                             cycles[curve][-1][3] = angle1 - angle2
 
@@ -209,9 +209,8 @@ def getReps(keyFrames, anglesPerFrame, workout = None):
         parallel = getCloser(cycles, keyFrames, anglesPerFrame, model)
     print(f"cycles: {parallel}")
 
-    for x in cycles:
-        print(x)
-    
+    #for x in cycles:
+        
     # for change in reptypes: #debug only
     #     increase = 0
     #     decrease = 0
@@ -280,7 +279,7 @@ def getTrend(cycles):
                 end[str(cycle[2])] = end[str(cycle[2])] + 1
             else:
                 end[str(cycle[2])] = 1
-            print(starts)
+            
         finalStart = None
         finalMiddle = None
         finalEnd = None
@@ -290,13 +289,20 @@ def getTrend(cycles):
 
         for mid in middle.keys():
             if not finalMiddle or middle[str(finalMiddle)] < middle[mid]:
-                finalMiddle = int(mid)
+                if mid != "None":
+                    finalMiddle = int(mid)
+                else:
+                    finalMiddle = None
 
         for ending in end.keys():
-            
-            finalEnd = int(ending)
+            if not finalEnd or end[str(finalEnd)] < end[ending]:
+                if ending != "None":
+                    finalEnd = int(ending)
+                else:
+                    finalEnd = None
 
-        reps.append([finalStart, finalMiddle, finalEnd])
+        if finalEnd and finalMiddle:
+            reps.append([finalStart, finalMiddle, finalEnd])
 
     return reps
 
@@ -358,14 +364,19 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
                     finalStart = int(start)
 
         for mid in middle.keys():
-            if not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
+            if mid == "None":
+                finalMiddle = None
+            elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
                                         < \
                                    model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
                 if int(mid) > lastEnd:
                     finalMiddle = int(mid)
+                
 
         for ending in end.keys():
-            if not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
+            if ending == "None":
+                finalEnd = None
+            elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
                                         < \
                                 model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
                 if int(ending) > lastEnd:
@@ -470,7 +481,7 @@ model = makeNewModelV1(extracted, allAngles)
 n = input("Frame to display: ")
 while n != "no":
   
-  n = int(n)-1
+  n = int(n)
   mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
   n = input("Frame to display: ")
 

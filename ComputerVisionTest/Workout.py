@@ -19,7 +19,7 @@ class Workout:
     def updateModel(self, newPose : WorkoutPose, poseType : str):
         if poseType == "Top":
             newAngles = self._top.getAngles()
-            for i in len(newAngles):
+            for i in range(len(newAngles)):
                 newAngle = UpdateStats.update_average_with_one_value(
                     newAngles[i], 
                     self._top.getPopulationNumber(), 
@@ -31,7 +31,7 @@ class Workout:
                     
         elif poseType == "Bottom":
             newAngles = self._bottom.getAngles()
-            for i in len(newAngles):
+            for i in range(len(newAngles)):
                 newAngle = UpdateStats.update_average_with_one_value(
                     newAngles[i], 
                     self._bottom.getPopulationNumber(), 
@@ -51,7 +51,7 @@ class Workout:
             self._bottom.plusPopulation(1)
 
     def saveModel(self, path):
-        model = {"Top": self._top.toList(), "Bottom": self._bottom, "ImportantAngles": self._impAng}
+        model = {"Top": self._top.toList(), "Bottom": self._bottom.toList(), "ImportantAngles": self._impAng}
         with open(path, "w") as f:
             json.dump(model, f)
 
