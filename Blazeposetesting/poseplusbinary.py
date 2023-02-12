@@ -190,7 +190,13 @@ class poseDetector():
             cv2.circle(img,(x3, y3), 15, (0,0,255),2)
             cv2.putText(img, str((int(angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
         return self.low_angle
-            
+    
+    ##
+    # find world angle does not work right now but
+    # This grabs the landmarks in a 3d space and creates them
+    # origin is the mid waist
+    # parameters: the class itself 
+    ##
     def findWorldAngle(self,img,p1,p2,p3, draw=True):
         x1,y1 = self.lmList[p1][1:3]
         x2,y2 = self.lmList[p2][1:3]
@@ -198,7 +204,7 @@ class poseDetector():
         point1 = np.array(self.lmList[p1][1:4])
         point2 = np.array(self.lmList[p2][1:4])
         point3 = np.array(self.lmList[p3][1:4])
-        #this is to calac ulate the angle if you have 3 points
+        #this is to calaculate the angle if you have 3 points
         angle = math.degrees(math.atan2(y3-y2,x3-x2) - math.atan2(y1-y2,x1-x2))
         print(360 -angle)
         if draw:
@@ -209,7 +215,14 @@ class poseDetector():
             cv2.circle(img,(x3, y3), 5, (0,0,255),cv2.FILLED)
             cv2.circle(img,(x3, y3), 15, (0,0,255),2)
             cv2.putText(img, str((int(360-angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
-            
+
+##
+# This function is to get the videos and send it to the class pose detector to than
+# add in the landmarks and connect them it also gets the angles, and landmark list
+# This also detects the curvature of the back
+# Parameters: video path
+# returns: lowest angle
+##           
 def capture_feed(vidname):
     cap = cv2.VideoCapture(sys.path[0]+ vidname)  # the video sys.path[0] is the current path of the file
     pTime = 0
@@ -369,6 +382,7 @@ def binaryclassifier(degrees, labels, checks):
     
     
 def main():
+    #these videos are for training of the binary classifier
     correct1 = capture_feed('/motioncapture/SquatV1side.mp4')
     correct2 = capture_feed('/motioncapture/SquatV2side.mp4')
     correct3 = capture_feed('/motioncapture/SquatYV1side.mp4')
@@ -377,11 +391,12 @@ def main():
     
     # Step 1: Collect and preprocess your data
     degrees = np.array([correct1,correct2,correct3,incorrect1,incorrect2])
+    #known labels of correctness
     labels = np.array([1,1,1,0,0])
     checker1 = capture_feed('/motioncapture/Squatlarge1flipped.mp4') #0
     checker2 = capture_feed('/motioncapture/SquatV1sideland.mp4')#1
     checker3 = capture_feed('/motioncapture/SquatV2sideland.mp4')#1
-    checker4 = capture_feed('/motioncapture/SquatYV2sideflipped.mp4')#0
+    checker4 = capture_feed('/motioncapture/SquatYV2sideflipped.mp4')#0 false negative!! due to larger body size cannot go low enough
     checker5 = capture_feed('/motioncapture/Squatlarge1flipped.mp4')#0
     checks = np.array([checker1, checker2, checker3, checker4, checker5])
     binaryclassifier(degrees, labels, checks)
