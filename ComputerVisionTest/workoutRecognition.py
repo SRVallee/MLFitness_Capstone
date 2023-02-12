@@ -392,7 +392,7 @@ def setupNewWorkout():
     models = os.listdir("ComputerVisionTest/models")
     print(models)
     name = input("Name of new workout: ").strip()
-    while (len(name) == 0) and (name + ".json") not in models:
+    while (len(name) == 0) and (name + ".json") in models:
 
         name = input("Model already exists or the name is invalid! \n\
 Please provide a new name of new workout: ").strip()
@@ -474,16 +474,46 @@ def updateModelV1(videoPath, modelName):
     model.saveModel(path)
     return model
 
-print("Analyzing video 1...")
-extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
+def demo1():
 
-model = makeNewModelV1(extracted, allAngles)
-n = input("Frame to display: ")
-while n != "no":
-  
-  n = int(n)
-  mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-  n = input("Frame to display: ")
+    print("Analyzing video 1...")
+    extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
 
-print("Analyzing video 2...")
-updateModelV1("ComputerVisionTest/videos/pushup.mp4", "pushups")
+    model = makeNewModelV1(extracted, allAngles)
+    n = input("Frame to display: ")
+    while n != "no":
+    
+        n = int(n)
+        mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+        n = input("Frame to display: ")
+
+    print("Analyzing video 2...")
+    updateModelV1("ComputerVisionTest/videos/pushup.mp4", "pushups")
+
+if __name__ == "__main__":
+    #demo1()
+    MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Quit\nChoice: "
+    choice = input(MENU2)
+    while choice != "1" and choice != "2" and choice != "3":
+        print("Wrong Input!")
+        choice = input(MENU2)
+
+    while choice != "3":
+        if choice == "1":
+            video = input("Path to video: ")
+            extracted, allAngles = getKeyFramesFromVideo(video)
+            model = makeNewModelV1(extracted, allAngles)
+            print(f"New workout added\n")
+        
+        elif choice == "2":
+            name = input("Workout name: ")
+            video = input("Path to video: ")
+            updateModelV1(video, name)
+            print(f"{name} updated\n")
+
+        MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Quit\nChoice: "
+        choice = input(MENU2)
+        while choice != "1" and choice != "2" and choice != "3":
+            print("Wrong Input!")
+            choice = input(MENU2)
+        
