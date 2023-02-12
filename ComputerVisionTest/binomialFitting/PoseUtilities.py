@@ -45,9 +45,9 @@ KEYPOINT_DICT = {
 
 ANGLE_ARRAY = np.array([
     [11, 12, 23, 13], # left shoulder
-    [23, 24, 11, 25], # left hip
+    [23, 11, 24, 25], # left hip
     [12, 11, 24, 14], # right shoulder
-    [24, 23, 12, 26], # right hip
+    [24, 12, 23, 26], # right hip
     [13, 11, 15, -1], # left elbow
     [25, 23, 27, -1], # left knee
     [14, 12, 16, -1], # right elbow
@@ -193,10 +193,7 @@ def compute_body_angles(landmarks):
                            landmarks.landmark[COMPLEX_ANGLE_ARRAY[i, 5]])
         vecK = vectorize(centre, pointK)
         vecI = vectorize(centre, pointI)
-        if i == 0:
-            vecJ = vectorize(centre, pointJ)
-        else:
-            vecJ = vectorize(pointJ, centre)
+        vecJ = vectorize(centre, pointJ)
         
         lrAngle, fbAngle = vector_angles(vecK, vecI, vecJ)
         
@@ -213,10 +210,8 @@ def compute_body_angles(landmarks):
         if i < 4: # shoulders and hips
             vecK = vectorize(centre, pointK)
             vecI = vectorize(centre, pointI)
-            if i == 0:
-                vecJ = vectorize(centre, pointJ)
-            else:
-                vecJ = vectorize(pointJ, centre)
+            vecJ = vectorize(centre, pointJ)
+            
             angle, angle2 = vector_angles(vecK, vecI, vecJ)
             angleArr[j] = angle
             angleArr[j+1] = angle2
