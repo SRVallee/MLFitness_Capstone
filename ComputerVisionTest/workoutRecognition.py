@@ -1,49 +1,17 @@
 '''
-#Idea 1 (using standard deviation as threshhold)
-#Algorithm on detecting/learning workouts (manual approach)
-
-    #feed tracking data,
-        
-        #find angle cicles (the hard part)
-
-            #for each joint, find changes in increase or decrease of angle
-                - get first frame
-
-                - compare with second frame to label as increase/decrease
-                
-                - keep comparing until the label is wrong
-                
-                - get frame, change label and repeat
-
-            #save type of repetition in a list
-                #repetitions with the same joint changes together
-
-            get the closest sets with the number of repetitions and include the rest (hopefully all, maybe a different approach is more obvious)
-            match with other sets with simmilar angles and maybe height coordinates(assuming straightup camera)
-            compare with existing model if one exists
-
-            return successfull repetitions that match the number given.
-
-    Train model
-
-        model is stored with average angles, standard deviation for each angle, and the number of repetitions used to train it.
-
-        each repetition recorded are used to update the average angles and the standard deviation. (this is why we store the number of reps used)
-
-    Correct reps should have their angles fall in the thresh hold of the standard deviarion, while incorrect ones  
-            
-    
-
 
 '''
 import cv2
 import mediapipe as mp
 import numpy as np
 import math
+import json
 import statistics
 import os
 import binomialFitting.KeyframeExtraction as KeyframeExtraction
 import mp_drawing_modified
+from Workout import Workout
+from WorkoutPose import WorkoutPose
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
@@ -149,10 +117,16 @@ def getKeyFramesFromVideo(video, show = False):
     print(f"{len(extracted)} frames extracted")
     return extracted, allangles
 
-def getReps(keyFrames, allAngles, reps, workout = None):
-    # if not workout:
-    modelName, importantJoints = setupNewWorkout()
-    importantAngles = convertJoints(importantJoints)
+
+def getReps(keyFrames, anglesPerFrame, workout = None):
+    allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
+    if not workout:
+        modelName, importantJoints = setupNewWorkout()
+        importantAngles = convertJoints(importantJoints)
+    else:
+        modelName = workout
+        model = Workout().loadModel(f"ComputerVisionTest/models/{workout}.json")
+        importantAngles = model.getImportantAngles()
     nFrames = len(keyFrames)
     reptypes = [[] for i in range(nFrames)] 
     cycles = [[] for i in range(len(importantAngles))] #[start, turning point, end, angle]
@@ -161,10 +135,11 @@ def getReps(keyFrames, allAngles, reps, workout = None):
     for curve in range(len(importantAngles)): #Only include important Joint angles
         angle1, angle2, increase = None, None, None
         
+        #get cycles
         for frame in range(nFrames):
 
             angle1 = angle2
-            angle2 = allAngles[importantAngles[curve]][keyFrames[frame][1]] #all angles includes all Frames
+            angle2 = allAngles[importantAngles[curve]][keyFrames[frame][1]] #all angles includes all Frames, not just keyframes
 
             if(angle1 != 0 and not angle1): #if first angle
                 angle1 = angle2
@@ -181,7 +156,7 @@ def getReps(keyFrames, allAngles, reps, workout = None):
                             cycles[curve][-1][3] = angle2 - angle1
                         cycles[curve].append([frame, None, None, angle2 - angle1])
                     else:
-                        cycles[curve][-1][1] = frame
+                        cycles[curve][-1][1] = frame + 1
                         if cycles[curve][-1][3] < (angle2 - angle1):
                             cycles[curve][-1][3] = angle2 - angle1
 
@@ -198,7 +173,7 @@ def getReps(keyFrames, allAngles, reps, workout = None):
                             cycles[curve][-1][3] = angle1 - angle2
                         cycles[curve].append([frame, None, None, angle1 - angle2])
                     else:
-                        cycles[curve][-1][1] = frame
+                        cycles[curve][-1][1] = frame + 1
                         if cycles[curve][-1][3] < (angle1 - angle2):
                             cycles[curve][-1][3] = angle1 - angle2
 
@@ -227,34 +202,34 @@ def getReps(keyFrames, allAngles, reps, workout = None):
     #check important joint changes
     i = 1
 
-    #TODO get trend for buttom and top <-----------------------------------------------------------------------------------------------------
-    parallel = getTrend(cycles)
+    #get reps without model
+    if not workout:
+        parallel = getTrend(cycles)
+    else:
+        parallel = getCloser(cycles, keyFrames, anglesPerFrame, model)
     print(f"cycles: {parallel}")
-    #Count if angles are > 10 degrees<-------------------------------------------------------------------------------------------------------
-    #save new Model with average top angles, buttom angles, and stdvs. <---------------------------------------------------------------------
 
-    for x in cycles:
-        print(x)
-    
-    for change in reptypes:
-        increase = 0
-        decrease = 0
-        max = 0
-        maxFrom = 0
-        for angle in change:
-            #print(f"angle change on {angle}: {angle[3]}")
-            if angle[2]:
-                increase += 1
-            else:
-                decrease += 1
-            if max < angle[3]:
-                max = angle[3]
-                maxFrom = angle[1]
-        print(f"frame {i} with {len(change)} changes: {increase} increase and {decrease} decrease with a max angle change of {max} from {maxFrom}")
+    #for x in cycles:
+        
+    # for change in reptypes: #debug only
+    #     increase = 0
+    #     decrease = 0
+    #     max = 0
+    #     maxFrom = 0
+    #     for angle in change:
+    #         #print(f"angle change on {angle}: {angle[3]}")
+    #         if angle[2]:
+    #             increase += 1
+    #         else:
+    #             decrease += 1
+    #         if max < angle[3]:
+    #             max = angle[3]
+    #             maxFrom = angle[1]
+    #     print(f"frame {i} with {len(change)} changes: {increase} increase and {decrease} decrease with a max angle change of {max} from {maxFrom}")
 
-        i+=1
+    #     i+=1
 
-    return
+    return parallel, modelName, importantAngles
 
 def getTrend(cycles):
     #cycle [start, turning point, end, angle]
@@ -304,31 +279,120 @@ def getTrend(cycles):
                 end[str(cycle[2])] = end[str(cycle[2])] + 1
             else:
                 end[str(cycle[2])] = 1
-            print(starts)
-        finalStart = 0
-        finalMiddle = 0
-        finalEnd = 0
+            
+        finalStart = None
+        finalMiddle = None
+        finalEnd = None
         for start in starts.keys():
-            if starts[start] > finalStart:
+            if not finalStart or starts[str(finalStart)] < starts[start]:
                 finalStart = int(start)
 
         for mid in middle.keys():
-            if middle[mid] > finalMiddle:
-                finalMiddle = int(mid)
+            if not finalMiddle or middle[str(finalMiddle)] < middle[mid]:
+                if mid != "None":
+                    finalMiddle = int(mid)
+                else:
+                    finalMiddle = None
 
         for ending in end.keys():
-            if end[ending] > finalEnd:
-                finalEnd = int(ending)
+            if not finalEnd or end[str(finalEnd)] < end[ending]:
+                if ending != "None":
+                    finalEnd = int(ending)
+                else:
+                    finalEnd = None
+
+        if finalEnd and finalMiddle:
+            reps.append([finalStart, finalMiddle, finalEnd])
+
+    return reps
+
+def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
+
+    reps = []
+
+    maxLen = 0
+    for joint in cycles:
+        for cycleJoint in joint:
+            if cycleJoint[3] < 5: #remove cycles under 5 degrees
+                joint.remove(cycleJoint)
+            
+                
+        if len(joint) > maxLen:
+            maxLen = len(joint)
+    
+
+    potentialReps = [[] for i in range(maxLen)]
+
+
+    for joint in  cycles:
+        n = 0
+        for cycleJoint in joint:
+            potentialReps[n].append(cycleJoint)
+            n = n + 1
+    
+    for cycleGroup in potentialReps: #Take the best values
+        lastEnd = 0
+        starts = {}
+        middle = {}
+        end = {} 
+        for cycle in cycleGroup:
+            
+            if str(cycle[0]) in starts.keys():
+                starts[str(cycle[0])] = starts[str(cycle[0])] + 1
+            else:
+                starts[str(cycle[0])] = 1
+
+            if str(cycle[1]) in middle.keys():
+                middle[str(cycle[1])] = middle[str(cycle[1])] + 1
+            else:
+                middle[str(cycle[1])] = 1
+
+            if str(cycle[2]) in end.keys():
+                end[str(cycle[2])] = end[str(cycle[2])] + 1
+            else:
+                end[str(cycle[2])] = 1
+            print(starts)
+        finalStart = 0
+        finalMiddle = 1
+        finalEnd = 2
+        for start in starts.keys():#TODO Use standard deviation comparasion to not skip reps
+            if not finalStart or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(start)][1]]))\
+                                        < \
+                                  model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalStart)][1]]))):
+               #if difference to the model is less than what we have 
+                if int(start) >= lastEnd:
+                    finalStart = int(start)
+
+        for mid in middle.keys():
+            if mid == "None":
+                finalMiddle = None
+            elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
+                                        < \
+                                   model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
+                if int(mid) > lastEnd:
+                    finalMiddle = int(mid)
+                
+
+        for ending in end.keys():
+            if ending == "None":
+                finalEnd = None
+            elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
+                                        < \
+                                model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
+                if int(ending) > lastEnd:
+                    finalEnd = int(ending)
 
         reps.append([finalStart, finalMiddle, finalEnd])
+        lastEnd = finalEnd
 
     return reps
 
 def setupNewWorkout():
+    
     models = os.listdir("ComputerVisionTest/models")
     print(models)
     name = input("Name of new workout: ").strip()
-    while (len(name) == 0) and (name + ".json") not in models:
+    while (len(name) == 0) and (name + ".json") in models:
 
         name = input("Model already exists or the name is invalid! \n\
 Please provide a new name of new workout: ").strip()
@@ -346,29 +410,110 @@ def get_standard_deviation(data):
     return statistics.stdev(data)
 
 
-def update_average_with_one_value(average, size, value):
-    return (size * average + value) / (size + 1)
+def makeNewModelV1(extracted, allAngles):
+    keypointAngles = []
 
+    for frame in extracted:
+        keypointAngles.append(allAngles[frame[1]])
 
-def update_average_with_average(average_one, size_one, average_two, size_two):
-    return (size_one * average_one + size_two * average_two) / (size_one + size_two)
+    reps, modelName, importantAngles = getReps(extracted, allAngles)
+    print(f"Reps: {reps}")
+    model = {}
+    listOfTop = []
+    listOfBottom = []
+    
+    for i in range(len(reps)):
+        rep = reps[i]
+        listOfTop.append(keypointAngles[rep[0]]) 
+        listOfBottom.append(keypointAngles[rep[1]])
+        listOfTop.append(keypointAngles[rep[2]])
+    
+    listOfTop = KeyframeExtraction.simplifiedCurveModel(listOfTop)
+    listOfBottom = KeyframeExtraction.simplifiedCurveModel(listOfBottom)
+            
 
+    averageTop, StdevOfTop = getAverageAndStdvOfList(listOfTop)
+    averageBottom, StdevOfBottom = getAverageAndStdvOfList(listOfBottom)
 
-def update_stdev(old_average, old_stdev, old_size, new_value):
-    old_size += 1
-    var = old_stdev ** 2
-    temp = ((old_size - 2) * var + (new_value - update_average_with_one_value(old_average, old_size, new_value)) * (new_value - old_average)) / (old_size - 1)
-    return np.sqrt(temp)
+    model["Top"] = [averageTop, StdevOfTop, len(listOfTop[0])*2]
+    model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
+    model["ImportantAngles"] = importantAngles
+    path = "ComputerVisionTest/models/" + modelName + ".json"
+    with open(path, 'w') as f:
+        json.dump(model, f)
 
+    return model
 
+def getAverageAndStdvOfList(list):
+    averages = []
+    stdvs = []
+    for i in range(len(list)):
+        print(f"list[{i}] = {list[i]}")
+        averages.append(get_average(list[i]))
+        stdvs.append(get_standard_deviation(list[i]))
+    
+    return averages, stdvs
 
-print("Analyzing video...")
-extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
+def updateModelV1(videoPath, modelName):
+    extracted, allAngles = getKeyFramesFromVideo(videoPath)
+    keypointAngles = []
 
-reps = getReps(extracted, allAngles, 4)
-n = input("Frame to display: ")
-while n != "no":
-  
-  n = int(n)-1
-  mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-  n = input("Frame to display: ")
+    for frame in extracted:
+        keypointAngles.append(allAngles[frame[1]])
+
+    reps, modelName, importantAngles = getReps(extracted, allAngles, modelName)
+    print(f"Reps: {reps}")
+    path = f"ComputerVisionTest/models/{modelName}.json"
+    model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
+    
+    for rep in reps:
+        model.updateModel(WorkoutPose(keypointAngles[rep[0]]), "Top")
+        model.updateModel(WorkoutPose(keypointAngles[rep[2]]), "Top")
+        model.updateModel(WorkoutPose(keypointAngles[rep[1]]), "Bottom")
+
+    model.saveModel(path)
+    return model
+
+def demo1():
+
+    print("Analyzing video 1...")
+    extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
+
+    model = makeNewModelV1(extracted, allAngles)
+    n = input("Frame to display: ")
+    while n != "no":
+    
+        n = int(n)
+        mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+        n = input("Frame to display: ")
+
+    print("Analyzing video 2...")
+    updateModelV1("ComputerVisionTest/videos/pushup.mp4", "pushups")
+
+if __name__ == "__main__":
+    #demo1()
+    MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Quit\nChoice: "
+    choice = input(MENU2)
+    while choice != "1" and choice != "2" and choice != "3":
+        print("Wrong Input!")
+        choice = input(MENU2)
+
+    while choice != "3":
+        if choice == "1":
+            video = input("Path to video: ")
+            extracted, allAngles = getKeyFramesFromVideo(video)
+            model = makeNewModelV1(extracted, allAngles)
+            print(f"New workout added\n")
+        
+        elif choice == "2":
+            name = input("Workout name: ")
+            video = input("Path to video: ")
+            updateModelV1(video, name)
+            print(f"{name} updated\n")
+
+        MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Quit\nChoice: "
+        choice = input(MENU2)
+        while choice != "1" and choice != "2" and choice != "3":
+            print("Wrong Input!")
+            choice = input(MENU2)
+        
