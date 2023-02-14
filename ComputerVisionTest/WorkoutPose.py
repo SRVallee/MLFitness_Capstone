@@ -34,8 +34,6 @@ class WorkoutPose:
         self._stdv = stdv
 
     def getStdvSingle(self, index : int):
-        print(f"stdvs: {self._stdv}")
-        print(f"index: {index}")
         return self._stdv[index]
 
 

@@ -18,7 +18,9 @@ class Workout:
             
     def updateModel(self, newPose : WorkoutPose, poseType : str):
         if poseType == "Top":
+            print("Updating top")
             newAngles = self._top.getAngles()
+            newStdvs = self._top.getStdv()
             for i in range(len(newAngles)):
                 newAngle = UpdateStats.update_average_with_one_value(
                     newAngles[i], 
@@ -35,11 +37,13 @@ class Workout:
                 newAngles[i] = newAngle
                 newStdvs[i] = newStdv
 
+            print("Saving updated top")
             self._top.setAngles(newAngles)
             self._top.setStdv(newStdvs)
             self._top.plusPopulation(1)
                     
         elif poseType == "Bottom":
+            print("Updating bottom")
             newAngles = self._bottom.getAngles()
             newStdvs = self._bottom.getAngles()
             for i in range(len(newAngles)):
@@ -57,9 +61,10 @@ class Workout:
                 )
                 newAngles[i] = newAngle
                 newStdvs[i] = newStdv
-                
+            
+            print("Saving updated bottom")
             self._bottom.setAngles(newAngles)
-            self._bottom.setStdv(newStdv)
+            self._bottom.setStdv(newStdvs)
             self._bottom.plusPopulation(1)
 
     def saveModel(self, path):

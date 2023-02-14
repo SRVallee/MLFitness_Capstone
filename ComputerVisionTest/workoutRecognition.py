@@ -36,8 +36,8 @@ choiceList = {
     "1":    [0,1],
     "2":    [2,3],
     "3":    [4,5],
-    "4":    [6,7],
-    "5":    [8,9],
+    "4":    [6],
+    "5":    [8],
     "6":    [10],
     "7":    [11],
     "8":    [16],
@@ -362,6 +362,7 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
                #if difference to the model is less than what we have 
                 if int(start) >= lastEnd:
                     finalStart = int(start)
+                    lastEnd = int(start)
 
         for mid in middle.keys():
             if mid == "None":
@@ -371,6 +372,7 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
                                    model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
                 if int(mid) > lastEnd:
                     finalMiddle = int(mid)
+                    lastEnd = int(mid)
                 
 
         for ending in end.keys():
@@ -381,6 +383,7 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
                                 model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
                 if int(ending) > lastEnd:
                     finalEnd = int(ending)
+                    lastEnd = int(ending)
 
         reps.append([finalStart, finalMiddle, finalEnd])
         lastEnd = finalEnd
@@ -468,9 +471,10 @@ def updateModelV1(videoPath, modelName):
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
     
     for rep in reps:
-        model.updateModel(WorkoutPose(keypointAngles[rep[0]]), "Top")
-        model.updateModel(WorkoutPose(keypointAngles[rep[2]]), "Top")
-        model.updateModel(WorkoutPose(keypointAngles[rep[1]]), "Bottom")
+        if not None in rep:
+            model.updateModel(WorkoutPose(keypointAngles[rep[0]]), "Top")
+            model.updateModel(WorkoutPose(keypointAngles[rep[2]]), "Top")
+            model.updateModel(WorkoutPose(keypointAngles[rep[1]]), "Bottom")
 
     model.saveModel(path)
     return model
