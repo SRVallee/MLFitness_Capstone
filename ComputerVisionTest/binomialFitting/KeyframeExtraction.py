@@ -1,6 +1,8 @@
 #This module is for extracting keyframes from human motion capture. 
 #The method was taaken from this paper: http://eprints.bournemouth.ac.uk/35006/1/KeyFrame%2BExtraction%2Bfor%2BHuman%2BMotion%2BCapture.pdf
 
+__package__
+
 import math
 import statistics
 import binomialFitting.PoseUtilities as PoseUtilities
@@ -142,10 +144,11 @@ def getAnglesFromSides(joint1,joint2,joint3): #takes angle at joint2
 def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if getAngles is set to True
     allAngles = []
     keyList = []
+    keyAngles = []
     n = len(frames)
     for frame in frames: #fills list with lists of angles
-        #allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
-        allAngles.append(getAllAngles(frame))
+        allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
+        # allAngles.append(getAllAngles(frame))
 
     simpleModel = simplifiedCurveModel(allAngles)
     f = []
@@ -175,6 +178,7 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
                 #save keyframe, change start, and get new binomials
                 #print("saving...")
                 keyList.append((frames[end], end))
+                keyAngles.append(allAngles[end])
                 start = tempEnd
                 tempEnd += 1
                 if start+1 != n:
