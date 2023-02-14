@@ -215,8 +215,8 @@ def getTrend(cycles, repNumber = None):
     for pair in pairs:
         pairList.append(cycles[pair[0]])
 
-    
-    return pairList 
+    if not repNumber:
+        return pairList 
 
     
         
@@ -238,6 +238,7 @@ def getTrend(cycles, repNumber = None):
 
 def getPairs(cycles):
     pairs = []
+    visited = []
     for j in range(len(cycles)):
         cycle = cycles[j]
         for i in range(len(cycles)):
@@ -246,8 +247,10 @@ def getPairs(cycles):
            and cycle[1] == pair[1]\
            and cycle[2] == pair[2]\
            and i != j:
-                if(not (j,i) in pairs):
+                if not j in visited:
                     pairs.append((j,i))
+                    visited.append(j)
+                    visited.append(i)
 
     return pairs
 
