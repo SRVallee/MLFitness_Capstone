@@ -12,12 +12,13 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import mathutil
 
 #this is just the class to find and create the pose
 class poseDetector():
 
     def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
-                 detectionCon=0.9, trackCon=0.5):
+                 detectionCon=0.9, trackCon=0.8):
 
         self.mode = mode
         self.modcomp = modcomp
@@ -256,6 +257,7 @@ def capture_feed(vidname):
         annotated_img = detector.seg_mask(img)
         lmList = detector.findPosition(annotated_img)
         world_mod_lmList, world_unmod_lmlist = detector.findWorldPosition(annotated_img)
+        mathutil.HighVis(lmList)
         for i in range(len(lmList)):
             if lmList[i][0] == 12:
                 x1 = int(lmList[i][1])
@@ -387,6 +389,8 @@ def binaryclassifier(degrees, labels, checks):
     
 def main():
     #these videos are for training of the binary classifier
+    sen = mathutil.hello()
+    print(sen)
     correct1 = capture_feed('/motioncapture/Correct_squat/SquatV1side.mp4')
     correct2 = capture_feed('/motioncapture/Correct_squat/SquatV2side.mp4')
     correct3 = capture_feed('/motioncapture/Correct_squat/SquatYV1side.mp4')
@@ -400,11 +404,11 @@ def main():
     degrees = np.array([correct1,correct2,correct3,correct4, incorrect1,incorrect2, incorrect3, incorrect4])
     #known labels of correctness
     labels = np.array([1,1,1,1,0,0,0,0])
-    checker1 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4') #1 fuck
-    checker2 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4')#1
-    checker3 = capture_feed('/motioncapture/Correct_squat/SquatV2sideland.mp4')#1
-    checker4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatorfiside.mp4')#0 false negative!! due to larger body size cannot go low enough
-    checker5 = capture_feed('/motioncapture/misc/Squatlarge1flipped.mp4')#0
+    checker1 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4')
+    checker2 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4')
+    checker3 = capture_feed('/motioncapture/Correct_squat/SquatV2sideland.mp4')
+    checker4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatorfiside.mp4')
+    checker5 = capture_feed('/motioncapture/misc/Squatlarge1flipped.mp4')
     checks = np.array([checker1, checker2, checker3, checker4, checker5])
     binaryclassifier(degrees, labels, checks)
     return
