@@ -42,9 +42,6 @@ public class TraineeUpload extends AppCompatActivity {
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
 
-    RecyclerView recyclerView;
-    TextView noFilesText;
-
     //Permission codes that are used
     private static int CAMERA_PERMISSION_CODE = 100;
     private static int VIDEO_RECORD_CODE = 101;
@@ -67,13 +64,15 @@ public class TraineeUpload extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_upload);
 
-        recyclerView = findViewById(R.id.videoListViewer);
-        noFilesText = findViewById(R.id.noFilesTextView);
+        RecyclerView recyclerView = findViewById(R.id.videoListViewer);
+        TextView noFilesText = findViewById(R.id.noFilesTextView);
 
         //Get path to display for the video list
-        String storagePath = Environment.getExternalStorageDirectory().getPath();
 
-        File root = new File(storagePath);
+        String storagePath = Environment.getExternalStorageDirectory().getPath();
+        String path = getIntent().getStringExtra("path");
+
+        File root = new File(path);
         File[] filesAndFolders = root.listFiles();
 
         if (filesAndFolders==null||filesAndFolders.length==0) {
@@ -333,13 +332,11 @@ public class TraineeUpload extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        //Checks status of the drawer
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            //If open closes the drawer
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             //Go to homepage
-            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+            Intent i = new Intent(getApplicationContext(), TraineeUpload.class);
             i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(i);
             finish();

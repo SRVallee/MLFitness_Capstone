@@ -31,6 +31,15 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".WelcomeScreen" >
+        </activity>
+        <activity
+            android:name=".Login" >
+        </activity>
+        <activity
+            android:name=".SignUp" >
+        </activity>
+        <activity
             android:name=".TraineeHomePage" >
         </activity>
         <activity

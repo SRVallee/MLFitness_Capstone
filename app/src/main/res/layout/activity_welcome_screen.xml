@@ -8,6 +8,7 @@
     tools:context=".MainActivity"
     android:background="@drawable/ic_login_background">
 
+
     <TextView
         android:id="@+id/welcomeTextView"
         android:layout_width="match_parent"
