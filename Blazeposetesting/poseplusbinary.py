@@ -17,7 +17,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 class poseDetector():
 
     def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
-                 detectionCon=0.5, trackCon=0.5):
+                 detectionCon=0.9, trackCon=0.5):
 
         self.mode = mode
         self.modcomp = modcomp
@@ -169,7 +169,7 @@ class poseDetector():
                 confidence = self.results.segmentation_mask[cur_y][cur_x]
         return cur_x, cur_y, noseX, noseY, int(slope)
     
-    def findAngle(self,img,p1,p2,p3, draw=True):
+    def findkneeAngle(self,img,p1,p2,p3, draw=True):
         x1,y1 = self.lmList[p1][1:3]
         x2,y2 = self.lmList[p2][1:3]
         x3,y3 = self.lmList[p3][1:3]
@@ -178,7 +178,10 @@ class poseDetector():
         point3 = np.array(self.lmList[p3][1:4])
         #this is to calac ulate the angle if you have 3 points
         angle = math.degrees(math.atan2(y3-y2,x3-x2) - math.atan2(y1-y2,x1-x2))
-        angle = 360-angle
+        if angle >= 0:
+            angle = 360-angle
+        else:
+            angle = abs(angle)
         #print(angle)
         if angle< self.low_angle:
             self.low_angle = angle
@@ -326,7 +329,7 @@ def capture_feed(vidname):
         fps = 1 / (cTime - pTime)
         pTime = cTime
         if len(lmList) != 0:
-            angle = detector.findAngle(annotated_img,24,26,28)
+            angle = detector.findkneeAngle(annotated_img,24,26,28)
             print(f"lowest angle; {angle}")
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         #resize is width than height
@@ -390,12 +393,14 @@ def main():
     correct4 = capture_feed('/motioncapture/Correct_squat/squatorfiside.mp4')
     incorrect1 = capture_feed('/motioncapture/Incorrect_Squat/highsquatincorrectsideV1.mp4')
     incorrect2 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatincorrectV1.mp4')
+    incorrect3 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4')
+    incorrect4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4')
     
     # Step 1: Collect and preprocess your data
-    degrees = np.array([correct1,correct2,correct3,correct4, incorrect1,incorrect2])
+    degrees = np.array([correct1,correct2,correct3,correct4, incorrect1,incorrect2, incorrect3, incorrect4])
     #known labels of correctness
-    labels = np.array([1,1,1,1,0,0])
-    checker1 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4') #0
+    labels = np.array([1,1,1,1,0,0,0,0])
+    checker1 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4') #1 fuck
     checker2 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4')#1
     checker3 = capture_feed('/motioncapture/Correct_squat/SquatV2sideland.mp4')#1
     checker4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatorfiside.mp4')#0 false negative!! due to larger body size cannot go low enough
