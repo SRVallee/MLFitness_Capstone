@@ -14,11 +14,29 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import mathutil
 
+# all in inches
+# these are all length to each body part from blaze pose
+
+#JEan carlos Gonzales Graces
+JCface = [2,1.5,4,2,1.5,4,2,]#nose-L inner eye, L inner eye - L outer eye, L outer eye - L ear, 
+#nose - R inner eye, R inner eye - R outer eye, R outer eye - R ear
+JCarm = [12.5, 10] #shoulder - elbow, elbow to wrist 
+JCtorso = [14.25, 21.5, 14] # shoulder - shoulder, shoulder to hip, hip to hip
+JCleg = [14.63, 15.25] # hip to knee, knee to ankle
+
+#Orifzon Hawz
+Orfiface = [2, 1.88, 4, 2, 1.88, 4] #nose-L inner eye, L inner eye - L outer eye, 
+#L outer eye - L ear, nose - R inner eye, R inner eye - R outer eye, R outer eye - R ear
+Orfiarm = [11.5, 11.38] #shoulder to elbow, elbow to wrist
+Orfitorso = [15,22, 14] # shoulder to shoulder, shoulder to hip, hip to hip
+Orfileg = [16,17.88] # hip to knee, knee to ankle
+
+
 #this is just the class to find and create the pose
 class poseDetector():
 
     def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
-                 detectionCon=0.9, trackCon=0.8):
+                 detectionCon=0.5, trackCon=0.5):
 
         self.mode = mode
         self.modcomp = modcomp
@@ -78,7 +96,7 @@ class poseDetector():
     def threeDimensionalplot(self,img):
         ax = plt.axes(projection = "3d")
         ax.scatter(3,5,7)
-        plt.pause(0.001)
+        plt.pause(0.1)
         return plt
     
     #this is using the segmentation mask variable of confidence to measure out where the beginning
@@ -177,7 +195,7 @@ class poseDetector():
         point1 = np.array(self.lmList[p1][1:4])
         point2 = np.array(self.lmList[p2][1:4])
         point3 = np.array(self.lmList[p3][1:4])
-        #this is to calac ulate the angle if you have 3 points
+        #this is to calaculate the angle if you have 3 points
         angle = math.degrees(math.atan2(y3-y2,x3-x2) - math.atan2(y1-y2,x1-x2))
         if angle >= 0:
             angle = 360-angle
@@ -220,6 +238,84 @@ class poseDetector():
             cv2.circle(img,(x3, y3), 5, (0,0,255),cv2.FILLED)
             cv2.circle(img,(x3, y3), 15, (0,0,255),2)
             cv2.putText(img, str((int(360-angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
+    
+    # to get vector a**2 + b**2 + c**2 = d**2
+    def digitalToReal(self, body, leg):
+        lmList = self.lmList
+        chest = body[0]
+        torso = body[1]
+        waist = body[2]
+        thigh = leg[0]
+        shin = leg[1]
+        rshoulderx = lmList[12][1]
+        rshouldery = lmList[12][2]
+        rhipx = lmList[24][1]
+        rhipy = lmList[24][2]
+        lengthy = abs(rhipy - rshouldery)
+        lengthx = abs(rhipx - rshoulderx)
+        length = math.sqrt(lengthy**2 + lengthx**2)
+        
+        lhipx = lmList[23][1]
+        lhipy = lmList[23][2]
+        
+        rkneex = lmList[26][1]
+        rkneey = lmList[26][2]
+        
+        lkneex = lmList[25][1]
+        lkneey = lmList[25][2]
+        
+        lanklex = lmList[27][1]
+        lankley = lmList[27][2]
+        
+        print(f"this is the length {length}")
+        if( len(lmList)>= 32):
+            ratio = torso/length
+            print(f"this is the ratio {ratio}feet/pixel")
+            thighlen = math.sqrt(abs(rkneex - rhipx)**2 + abs(rkneey - rhipy)**2)*ratio
+            print(f"thigh orfi = 16 while {thighlen}") #thigh len increases because knee goes out causing increase in size
+            pixel_len = waist/ratio # what it is supose to be
+            
+            #this is to get depth of the z axis through math
+            lenhipx = (lhipx - rhipx)**2
+            lenhipy = (lhipy - rhipy)**2
+            lenpixel = pixel_len**2
+            hipzlen = math.sqrt(lenpixel -lenhipx  - lenhipy)
+            print(f"hip z (14) {hipzlen*ratio}")
+            
+            #this is to get the other knee
+            lenthighx = (lkneex - lhipx)**2
+            lenthighy = (lkneey - lhipy)**2
+            lenthighpixel = (thigh/ratio)**2
+            print(f"{lenthighpixel}-{lenthighx}-{lenthighy} = {lenthighpixel - lenthighx - lenthighy}")
+            if lenthighpixel - lenthighx - lenthighy >= 0:
+                lkneez = hipzlen + math.sqrt(lenthighpixel - lenthighx - lenthighy)
+                print(f"knee z {lkneez*ratio}")
+            else:
+                lkneez = hipzlen
+                print(f"knee z {lkneez*ratio}")
+            
+            lenanklex = (lanklex - lkneex)**2
+            lenankley = (lankley - lkneey)**2
+            lenanklepixel = (shin/ratio)**2
+            if lenanklepixel - lenanklex - lenankley >= 0:
+                lanklez = lkneez + math.sqrt(lenanklepixel - lenanklex - lenankley)
+                print(f"ankle z {lanklez*ratio}")
+            else:
+                lanklez = lkneez
+                print(f"ankle z {lanklez*ratio}")
+            vecA = (lhipx -lkneex, lhipy - lkneey, hipzlen - lkneez)
+            vecB = (lanklex - lkneex, lankley - lkneey, lanklez - lkneez)
+            prod, angle  = angle_dot(vecA, vecB)
+            print( prod, angle)
+            return angle
+
+def angle_dot(a, b):
+    dot_product = np.dot(a, b)
+    prod_of_norms = np.linalg.norm(a) * np.linalg.norm(b)
+    angle = round(np.degrees(np.arccos(dot_product / prod_of_norms)), 1)
+    return round(dot_product, 1), angle
+            
+
 
 ##
 # This function is to get the videos and send it to the class pose detector to than
@@ -228,13 +324,14 @@ class poseDetector():
 # Parameters: video path
 # returns: lowest angle
 ##           
-def capture_feed(vidname):
+def capture_feed(vidname, torso, leg):
     cap = cv2.VideoCapture(sys.path[0]+ vidname)  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     #data = np.empty((3,32,length))
     frame_num = 0
     success = True
+    new_angle = 360
     
     while success:
         #this sees if it can read the frame that it is given
@@ -257,6 +354,8 @@ def capture_feed(vidname):
         annotated_img = detector.seg_mask(img)
         lmList = detector.findPosition(annotated_img)
         world_mod_lmList, world_unmod_lmlist = detector.findWorldPosition(annotated_img)
+        print(world_unmod_lmlist[12][1], world_unmod_lmlist[12][2], world_unmod_lmlist[12][3])
+        print(world_unmod_lmlist[24][1], world_unmod_lmlist[24][2], world_unmod_lmlist[12][3])
         mathutil.HighVis(lmList)
         for i in range(len(lmList)):
             if lmList[i][0] == 12:
@@ -332,8 +431,12 @@ def capture_feed(vidname):
         pTime = cTime
         if len(lmList) != 0:
             angle = detector.findkneeAngle(annotated_img,24,26,28)
+            angle2 = detector.findkneeAngle(annotated_img,23, 25, 27)
             print(f"lowest angle; {angle}")
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+        farkneeangle = detector.digitalToReal(torso, leg)
+        if farkneeangle < new_angle:
+            new_angle = farkneeangle
         #resize is width than height
         resize = cv2.resize(annotated_img, (modded_width, constant_height))
         cv2.imshow("Image", resize)
@@ -341,7 +444,7 @@ def capture_feed(vidname):
         if key == 27: #esc
             cv2.destroyAllWindows
             break
-    return angle
+    return int(angle), int(farkneeangle)
 
 def binaryclassifier(degrees, labels, checks):
     # Step 2: Split the data into training and testing sets
@@ -349,14 +452,15 @@ def binaryclassifier(degrees, labels, checks):
 
     # Step 3: Choose an appropriate machine learning model
     model = LogisticRegression()
-
+    relen = len(degrees)
+    reinnerlen = len(degrees[1])
     # Step 4: Train the model
     #breaks here
-    model.fit(X_train.reshape(-1,1), y_train)
+    model.fit(X_train, y_train)
 
     # Step 5: Evaluate the model
     #reshape is to make it understand the array for input into the logistic regression
-    y_pred = model.predict(X_test.reshape(-1,1))
+    y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred)
     recall = recall_score(y_test, y_pred)
@@ -383,7 +487,7 @@ def binaryclassifier(degrees, labels, checks):
     # Step 6: Make predictions
     #testign data below
     #new_data = np.array([80, 88, 89, 91, 92, 95])
-    predictions = model.predict(checks.reshape(-1,1))
+    predictions = model.predict(checks)
     print(predictions)
     
     
@@ -391,25 +495,27 @@ def main():
     #these videos are for training of the binary classifier
     sen = mathutil.hello()
     print(sen)
-    correct1 = capture_feed('/motioncapture/Correct_squat/SquatV1side.mp4')
-    correct2 = capture_feed('/motioncapture/Correct_squat/SquatV2side.mp4')
-    correct3 = capture_feed('/motioncapture/Correct_squat/SquatYV1side.mp4')
-    correct4 = capture_feed('/motioncapture/Correct_squat/squatorfiside.mp4')
-    incorrect1 = capture_feed('/motioncapture/Incorrect_Squat/highsquatincorrectsideV1.mp4')
-    incorrect2 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatincorrectV1.mp4')
-    incorrect3 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4')
-    incorrect4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4')
+    correctangleR1, correctangleL1 = capture_feed('/motioncapture/Correct_squat/SquatV1side.mp4', JCtorso, JCleg) #JC
+    correctangleR2, correctangleL2 = capture_feed('/motioncapture/Correct_squat/SquatV2side.mp4', JCtorso, JCleg) #JC
+    correctangleR3, correctangleL3 = capture_feed('/motioncapture/Correct_squat/SquatYV1side.mp4', JCtorso, JCleg) #random man
+    correctangleR4, correctangleL4 = capture_feed('/motioncapture/Correct_squat/squatorfiside.mp4', Orfitorso, Orfileg) #orfi
+    incorrectangleR1,incorrectangleL1 = capture_feed('/motioncapture/Incorrect_Squat/highsquatincorrectsideV1.mp4', JCtorso, JCleg) #Huu
+    incorrectangleR2,incorrectangleL2 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatincorrectV1.mp4', JCtorso, JCleg) #Huu
+    incorrectangleR3,incorrectangleL3 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4',Orfitorso, Orfileg) #orfi
+    incorrectangleR4,incorrectangleL4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4', JCtorso, JCleg) #JC
     
     # Step 1: Collect and preprocess your data
-    degrees = np.array([correct1,correct2,correct3,correct4, incorrect1,incorrect2, incorrect3, incorrect4])
+    degrees = np.array([[correctangleR1, correctangleL1],[correctangleR2, correctangleL2],[correctangleR3, correctangleL3],
+                        [correctangleR4, correctangleL4],[incorrectangleR1,incorrectangleL1], [incorrectangleR2,incorrectangleL2],
+                        [incorrectangleR3,incorrectangleL3],[incorrectangleR4,incorrectangleL4]])
     #known labels of correctness
     labels = np.array([1,1,1,1,0,0,0,0])
-    checker1 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4')
-    checker2 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4')
-    checker3 = capture_feed('/motioncapture/Correct_squat/SquatV2sideland.mp4')
-    checker4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatorfiside.mp4')
-    checker5 = capture_feed('/motioncapture/misc/Squatlarge1flipped.mp4')
-    checks = np.array([checker1, checker2, checker3, checker4, checker5])
+    checkerangleR1, checkerangleL1  = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4', JCtorso, JCleg) # 0
+    checkerangleR2, checkerangleL2 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4', Orfitorso, Orfileg) # 0
+    checkerangleR3, checkerangleL3 = capture_feed('/motioncapture/Correct_squat/SquatV2sideland.mp4', JCtorso, JCleg) # 1
+    checkerangleR4, checkerangleL4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatorfiside.mp4', Orfitorso, Orfileg) # 0
+    checkerangleR5, checkerangleL5 = capture_feed('/motioncapture/misc/Squatlarge1flipped.mp4', Orfitorso, Orfileg) # 0 false negative
+    checks = np.array([[checkerangleR1, checkerangleL1],[checkerangleR2, checkerangleL2], [checkerangleR3, checkerangleL3],[checkerangleR4, checkerangleL4],[checkerangleR5, checkerangleL5]])
     binaryclassifier(degrees, labels, checks)
     return
 
