@@ -18,6 +18,10 @@
 
     </style>
 
+    <style name="ImageView.Circle" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
     <!-- Light mode -->
     <!-- Screen background if light mode one -->
     <style name="SCREEN">

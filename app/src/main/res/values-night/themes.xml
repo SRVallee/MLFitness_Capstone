@@ -17,6 +17,11 @@
         <item name="android:windowExitTransition">@transition/transition_actual_animation</item>
 
     </style>
+
+    <style name="ImageView.Circle" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
     <!-- Dark mode -->
     <!-- Screen background if dark mode one -->
     <style name="SCREEN">
