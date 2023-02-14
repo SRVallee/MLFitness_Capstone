@@ -367,7 +367,7 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
             if mid == "None":
                 finalMiddle = None
             elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
-                                        < \
+                                        <= \
                                    model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
                 if int(mid) > lastEnd:
                     finalMiddle = int(mid)
@@ -377,7 +377,7 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
             if ending == "None":
                 finalEnd = None
             elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
-                                        < \
+                                        <= \
                                 model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
                 if int(ending) > lastEnd:
                     finalEnd = int(ending)
@@ -434,6 +434,7 @@ def makeNewModelV1(extracted, allAngles):
 
     averageTop, StdevOfTop = getAverageAndStdvOfList(listOfTop)
     averageBottom, StdevOfBottom = getAverageAndStdvOfList(listOfBottom)
+    print(f"Sdv returned: {StdevOfBottom}")
 
     model["Top"] = [averageTop, StdevOfTop, len(listOfTop[0])*2]
     model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
@@ -474,6 +475,37 @@ def updateModelV1(videoPath, modelName):
     model.saveModel(path)
     return model
 
+def evaluateVideo(videoPath, modelName):
+    extracted, allAngles = getKeyFramesFromVideo(videoPath)
+    keypointAngles = []
+
+    for frame in extracted:
+        keypointAngles.append(allAngles[frame[1]])
+
+    reps, modelName, importantAngles = getReps(extracted, allAngles, modelName)
+    path = f"ComputerVisionTest/models/{modelName}.json"
+    model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
+    right = []
+    wrong = []
+    for rep in reps:
+        pose1, pose2, pose3 = model.validateWorkout(WorkoutPose(keypointAngles[rep[0]]), WorkoutPose(keypointAngles[rep[1]]), WorkoutPose(keypointAngles[rep[2]]))
+        if pose1 == 0:
+            wrong.append(rep[0])
+        else:
+            right.append(rep[0])
+
+        if pose2 == 0:
+            wrong.append(rep[1])
+        else:
+            right.append(rep[1])
+
+        if pose3 == 0:
+            wrong.append(rep[2])
+        else:
+            right.append(rep[2])
+
+    return right, wrong
+
 def demo1():
 
     print("Analyzing video 1...")
@@ -492,13 +524,13 @@ def demo1():
 
 if __name__ == "__main__":
     #demo1()
-    MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Quit\nChoice: "
+    MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Evaluate workout\n4. Quit\nChoice: "
     choice = input(MENU2)
-    while choice != "1" and choice != "2" and choice != "3":
+    while not choice in ["1","2","3","4"]:
         print("Wrong Input!")
         choice = input(MENU2)
 
-    while choice != "3":
+    while choice != "4":
         if choice == "1":
             video = input("Path to video: ")
             extracted, allAngles = getKeyFramesFromVideo(video)
@@ -507,9 +539,15 @@ if __name__ == "__main__":
         
         elif choice == "2":
             name = input("Workout name: ")
-            video = input("Path to video: ")
+            video = input("Path to video: ").strip("'")
             updateModelV1(video, name)
             print(f"{name} updated\n")
+
+        elif choice == "3":
+            name = input("Workout name: ")
+            video = input("Path to video: ").strip("'")
+            right, wrong = evaluateVideo(video, name)
+            print(f"right: {right}\nwrong: {wrong}")
 
         MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Quit\nChoice: "
         choice = input(MENU2)
