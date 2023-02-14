@@ -187,36 +187,25 @@ def getReps(keyFrames, anglesPerFrame, workout = None, increaseGiven = True):
     #check important joint changes
     i = 1
 
+    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    print(allCycles)
+
     #get reps without model
     if not workout:
-        parallel = getTrend(cycles)
+        parallel = getTrend(allCycles)
     else:
-        parallel = getCloser(cycles, keyFrames, anglesPerFrame, model)
-    print(f"cycles: {parallel}")
+        parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model)
+    #print(f"cycles: {parallel}")
 
-    #for x in cycles:
-        
-    # for change in reptypes: #debug only
-    #     increase = 0
-    #     decrease = 0
-    #     max = 0
-    #     maxFrom = 0
-    #     for angle in change:
-    #         #print(f"angle change on {angle}: {angle[3]}")
-    #         if angle[2]:
-    #             increase += 1
-    #         else:
-    #             decrease += 1
-    #         if max < angle[3]:
-    #             max = angle[3]
-    #             maxFrom = angle[1]
-    #     print(f"frame {i} with {len(change)} changes: {increase} increase and {decrease} decrease with a max angle change of {max} from {maxFrom}")
-
-    #     i+=1
+    for cycle in parallel:
+        if not cycle[1]:
+            parallel.remove(cycle)
+        elif not cycle[2]:
+            cycle[2] = len(keyFrames)-1
 
     return parallel, modelName, importantAngles
 
-def getTrend(cycles):
+def getTrend(cycles, repNumber = None):
     #cycle [start, turning point, end, angle]
 
     reps = []
@@ -225,10 +214,15 @@ def getTrend(cycles):
     pairList = []
     for pair in pairs:
         pairList.append(cycles[pair[0]])
+
+    
+    return pairList 
+
+    
         
     cycles = cycles - pairList
 
-    reps = reps + pairList
+    reps = pairList
 
     maxLen = 0
     for joint in cycles:
@@ -239,65 +233,6 @@ def getTrend(cycles):
                 
         if len(joint) > maxLen:
             maxLen = len(joint)
-    
-
-    potentialReps = [[] for i in range(maxLen)]
-
-
-    for joint in  cycles:
-        n = 0
-        for cycleJoint in joint:
-            potentialReps[n].append(cycleJoint)
-            n = n + 1
-            print(n)
-
-    #print(f"Potential: {potentialReps}")
-    
-    for cycleGroup in potentialReps: #Take the most common values
-        starts = {}  #TODO No More mixing cycles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        middle = {}
-        end = {} 
-        
-        for cycle in cycleGroup:
-            print(f"cycle: {cycle}")
-            if str(cycle[0]) in starts.keys():
-                starts[str(cycle[0])] = starts[str(cycle[0])] + 1
-            else:
-                starts[str(cycle[0])] = 1
-
-            if str(cycle[1]) in middle.keys():
-                middle[str(cycle[1])] = middle[str(cycle[1])] + 1
-            else:
-                middle[str(cycle[1])] = 1
-
-            if str(cycle[2]) in end.keys():
-                end[str(cycle[2])] = end[str(cycle[2])] + 1
-            else:
-                end[str(cycle[2])] = 1
-            
-        finalStart = None
-        finalMiddle = None
-        finalEnd = None
-        for start in starts.keys():
-            if not finalStart or starts[str(finalStart)] < starts[start]:
-                finalStart = int(start)
-
-        for mid in middle.keys():
-            if not finalMiddle or middle[str(finalMiddle)] < middle[mid]:
-                if mid != "None":
-                    finalMiddle = int(mid)
-                else:
-                    finalMiddle = None
-
-        for ending in end.keys():
-            if not finalEnd or end[str(finalEnd)] < end[ending]:
-                if ending != "None":
-                    finalEnd = int(ending)
-                else:
-                    finalEnd = None
-
-        if finalEnd and finalMiddle:
-            reps.append([finalStart, finalMiddle, finalEnd])
 
     return reps
 
@@ -308,17 +243,27 @@ def getPairs(cycles):
         for i in range(len(cycles)):
             pair = cycles[i]
             if cycle[0] == pair[0]\
-           and cycle[0] == pair[0]\
-           and cycle[0] == pair[0]:
+           and cycle[1] == pair[1]\
+           and cycle[2] == pair[2]\
+           and i != j:
                 if(not (j,i) in pairs):
                     pairs.append((j,i))
 
     return pairs
 
 
-def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
+def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = None):
 
     reps = []
+
+    pairs = getPairs(cycles)
+    pairList = []
+    for pair in pairs:
+        pairList.append(cycles[pair[0]])
+
+    if not repNumber:
+        return pairList 
+
 
     maxLen = 0
     for joint in cycles:
@@ -361,7 +306,7 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout):
                 end[str(cycle[2])] = end[str(cycle[2])] + 1
             else:
                 end[str(cycle[2])] = 1
-            print(starts)
+            #print(starts)
         finalStart = None
         finalMiddle = None
         finalEnd = None
@@ -470,7 +415,6 @@ def getAverageAndStdvOfList(list):
     averages = []
     stdvs = []
     for i in range(len(list)):
-        print(f"list[{i}] = {list[i]}")
         averages.append(get_average(list[i]))
         stdvs.append(get_standard_deviation(list[i]))
     
@@ -506,7 +450,7 @@ def updateModelV1(videoPath, modelName, debug = False):
     model.saveModel(path)
     return model
 
-def evaluateVideo(videoPath, modelName):
+def evaluateVideo(videoPath, modelName, debug = None):
     extracted, allAngles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
@@ -534,6 +478,18 @@ def evaluateVideo(videoPath, modelName):
             wrong.append(rep[2])
         else:
             right.append(rep[2])
+
+    if debug:
+        print(f"Right Reps: {right}")
+        print(f"wrong Reps: {wrong}")
+        n = input("Frame to display: ")
+        
+        while n != "no":
+  
+            n = int(n)-1
+            mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+            n = input("Frame to display: ")
+    
 
     return right, wrong
 
@@ -577,7 +533,8 @@ if __name__ == "__main__":
         elif choice == "3":
             name = input("Workout name: ")
             video = input("Path to video: ").strip("'")
-            right, wrong = evaluateVideo(video, name)
+            right, wrong = evaluateVideo(video, name, True)
+            
 
         choice = input(MENU2)
         while not choice in ["1","2","3","4"]:
