@@ -225,27 +225,3 @@ def compute_body_angles(landmarks):
     #     if i != 4 & i != 5 & i != 7:
     #         angleArr[i] = np.pi - angleArr
     return angleArr
-
-def compute_body_ang(landmarks):
-    angleArr = np.zeros(24)
-    # -- Head --
-    j = 0
-    shoulders = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 0]], 
-                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 1]])
-    pointI = landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 0]]
-    pointJ = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 2]], 
-                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 3]])
-    head = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 4]], 
-                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 5]])
-    angle, angle2 = vector_angles(
-        vectorize(shoulders, head),
-        vectorize(shoulders, pointI),
-        vectorize(shoulders, pointJ)
-    )
-    angleArr[j] = angle
-    angleArr[j+1] = angle2
-    j += 2
-    
-    # -- Body -- 
-    
-    return
