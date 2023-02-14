@@ -147,7 +147,8 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
     keyAngles = []
     n = len(frames)
     for frame in frames: #fills list with lists of angles
-        allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
+        if frame.pose_world_landmarks:
+            allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
         # allAngles.append(getAllAngles(frame))
 
     simpleModel = simplifiedCurveModel(allAngles)
