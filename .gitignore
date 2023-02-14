@@ -1,0 +1,6 @@
+__pycache__
+*.pyc
+ComputerVisionTest/__pycache__/mp_drawing_modified.cpython-39.pyc
+ComputerVisionTest/binomialFitting/__pycache__/__init__.cpython-39.pyc
+ComputerVisionTest/binomialFitting/__pycache__/KeyframeExtraction.cpython-39.pyc
+ComputerVisionTest/binomialFitting/__pycache__/PoseUtilities.cpython-39.pyc
