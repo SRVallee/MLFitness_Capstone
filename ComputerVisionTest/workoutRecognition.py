@@ -188,7 +188,6 @@ def getReps(keyFrames, anglesPerFrame, workout = None, increaseGiven = True):
     i = 1
 
     allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    print(allCycles)
 
     #get reps without model
     if not workout:
@@ -210,6 +209,13 @@ def getTrend(cycles, repNumber = None):
 
     reps = []
 
+
+    for cycleJoint in cycles:
+        
+        if cycleJoint[3] < math.radians(10): #remove cycles under 5 degrees
+            cycles.remove(cycleJoint)
+
+    
     pairs = getPairs(cycles)
     pairList = []
     for pair in pairs:
@@ -218,21 +224,11 @@ def getTrend(cycles, repNumber = None):
     if not repNumber:
         return pairList 
 
-    
+    #else search for other reps until #reps match
         
     cycles = cycles - pairList
 
     reps = pairList
-
-    maxLen = 0
-    for joint in cycles:
-        for cycleJoint in joint:
-            if cycleJoint[3] < math.radians(10): #remove cycles under 5 degrees
-                joint.remove(cycleJoint)
-            
-                
-        if len(joint) > maxLen:
-            maxLen = len(joint)
 
     return reps
 
@@ -259,6 +255,12 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
 
     reps = []
 
+    for cycleJoint in cycles:
+        
+        if cycleJoint[3] < math.radians(10): #remove cycles under 10 degrees
+            cycles.remove(cycleJoint)
+            
+
     pairs = getPairs(cycles)
     pairList = []
     for pair in pairs:
@@ -266,85 +268,72 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
 
     if not repNumber:
         return pairList 
-
-
-    maxLen = 0
-    for joint in cycles:
-        for cycleJoint in joint:
-            if cycleJoint[3] < 5: #remove cycles under 5 degrees
-                joint.remove(cycleJoint)
-            
-                
-        if len(joint) > maxLen:
-            maxLen = len(joint)
     
 
-    potentialReps = [[] for i in range(maxLen)]
 
-
-    for joint in  cycles:
-        n = 0
-        for cycleJoint in joint:
-            potentialReps[n].append(cycleJoint)
-            n = n + 1
+    # for joint in  cycles:
+    #     n = 0
+    #     for cycleJoint in joint:
+    #         potentialReps[n].append(cycleJoint)
+    #         n = n + 1
     
-    for cycleGroup in potentialReps: #Take the best values
-        lastEnd = 0
-        starts = {}
-        middle = {}
-        end = {} 
-        for cycle in cycleGroup:
+    # for cycleGroup in potentialReps: #Take the best values
+    #     lastEnd = 0
+    #     starts = {}
+    #     middle = {}
+    #     end = {} 
+    #     for cycle in cycleGroup:
             
-            if str(cycle[0]) in starts.keys():
-                starts[str(cycle[0])] = starts[str(cycle[0])] + 1
-            else:
-                starts[str(cycle[0])] = 1
+    #         if str(cycle[0]) in starts.keys():
+    #             starts[str(cycle[0])] = starts[str(cycle[0])] + 1
+    #         else:
+    #             starts[str(cycle[0])] = 1
 
-            if str(cycle[1]) in middle.keys():
-                middle[str(cycle[1])] = middle[str(cycle[1])] + 1
-            else:
-                middle[str(cycle[1])] = 1
+    #         if str(cycle[1]) in middle.keys():
+    #             middle[str(cycle[1])] = middle[str(cycle[1])] + 1
+    #         else:
+    #             middle[str(cycle[1])] = 1
 
-            if str(cycle[2]) in end.keys():
-                end[str(cycle[2])] = end[str(cycle[2])] + 1
-            else:
-                end[str(cycle[2])] = 1
-            #print(starts)
-        finalStart = None
-        finalMiddle = None
-        finalEnd = None
-        for start in starts.keys():#TODO Use standard deviation comparasion to not skip reps
-            if not finalStart or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(start)][1]]))\
-                                        < \
-                                  model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalStart)][1]]))):
-               #if difference to the model is less than what we have 
-                if int(start) >= lastEnd:
-                    finalStart = int(start)
-                    lastEnd = int(start)
+    #         if str(cycle[2]) in end.keys():
+    #             end[str(cycle[2])] = end[str(cycle[2])] + 1
+    #         else:
+    #             end[str(cycle[2])] = 1
+    #         #print(starts)
+    #     finalStart = None
+    #     finalMiddle = None
+    #     finalEnd = None
+    #     for start in starts.keys():#TODO Use standard deviation comparasion to not skip reps
+    #         if not finalStart or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(start)][1]]))\
+    #                                     < \
+    #                               model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalStart)][1]]))):
+    #            #if difference to the model is less than what we have 
+    #             if int(start) >= lastEnd:
+    #                 finalStart = int(start)
+    #                 lastEnd = int(start)
 
-        for mid in middle.keys():
-            if mid == "None":
-                finalMiddle = None
-            elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
-                                        <= \
-                                   model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
-                if int(mid) > lastEnd:
-                    finalMiddle = int(mid)
-                    lastEnd = int(mid)
+    #     for mid in middle.keys():
+    #         if mid == "None":
+    #             finalMiddle = None
+    #         elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
+    #                                     <= \
+    #                                model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
+    #             if int(mid) > lastEnd:
+    #                 finalMiddle = int(mid)
+    #                 lastEnd = int(mid)
                 
 
-        for ending in end.keys():
-            if ending == "None":
-                finalEnd = None
-            elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
-                                        <= \
-                                model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
-                if int(ending) > lastEnd:
-                    finalEnd = int(ending)
-                    lastEnd = int(ending)
+    #     for ending in end.keys():
+    #         if ending == "None":
+    #             finalEnd = None
+    #         elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
+    #                                     <= \
+    #                             model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
+    #             if int(ending) > lastEnd:
+    #                 finalEnd = int(ending)
+    #                 lastEnd = int(ending)
 
-        reps.append([finalStart, finalMiddle, finalEnd])
-        lastEnd = finalEnd
+    #     reps.append([finalStart, finalMiddle, finalEnd])
+    #     lastEnd = finalEnd
 
     return reps
 
