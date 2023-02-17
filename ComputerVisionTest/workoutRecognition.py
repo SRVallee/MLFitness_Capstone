@@ -9,6 +9,7 @@ import json
 import statistics
 import os
 import binomialFitting.KeyframeExtraction as KeyframeExtraction
+import machineLearning.MachineLearningInitial as mli
 import mp_drawing_modified
 from Workout import Workout
 from WorkoutPose import WorkoutPose
@@ -409,6 +410,15 @@ def get_average(data):
 def get_standard_deviation(data):
     return statistics.stdev(data)
 
+def getRepsFromVideo(videoPath, modelName):
+    extracted, allAngles = getKeyFramesFromVideo(videoPath)
+    keypointAngles = []
+
+    for frame in extracted:
+        keypointAngles.append(allAngles[frame[1]])
+
+    return getReps(extracted, allAngles, modelName)
+
 
 def makeNewModelV1(extracted, allAngles):
     keypointAngles = []
@@ -474,6 +484,23 @@ def updateModelV1(videoPath, modelName):
     model.saveModel(path)
     return model
 
+def trainML(modelName):
+    goodPath = "C:/Users/1234c/Documents/School/CMPT496/vids/"
+    badPath = "C:/Users/1234c/Documents/School/CMPT496/vids/"
+    goodReps = []
+    for filename in os.listdir(goodPath):
+        reps, modelName, importantAngles = getRepsFromVideo(goodPath+filename, modelName)
+        goodReps = goodReps + reps
+        
+    badReps = []
+    for filename in os.listdir(badPath):
+        reps, modelName, importantAngles = getRepsFromVideo(goodPath+filename, modelName)
+        badReps = badReps + reps
+
+    allReps = [badReps, goodReps]
+    
+    mli.repsToDataframe(allReps)
+
 def demo1():
 
     print("Analyzing video 1...")
@@ -492,13 +519,15 @@ def demo1():
 
 if __name__ == "__main__":
     #demo1()
-    MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Quit\nChoice: "
-    choice = input(MENU2)
-    while choice != "1" and choice != "2" and choice != "3":
-        print("Wrong Input!")
+    MENU2 = """
+    Choices:
+    1. Create New Rep Model
+    2. Update Existing Rep Model
+    3. Train and Test Machine Learning Analysis 
+    4. Quit\nChoice: """
+    
+    while True:
         choice = input(MENU2)
-
-    while choice != "3":
         if choice == "1":
             video = input("Path to video: ")
             extracted, allAngles = getKeyFramesFromVideo(video)
@@ -510,10 +539,14 @@ if __name__ == "__main__":
             video = input("Path to video: ")
             updateModelV1(video, name)
             print(f"{name} updated\n")
+            
+        elif choice == "3":
+            name = input("Workout name: ")
+            trainML(name)
+            
+        else:
+            print("Incorrect input, try again.")
+            continue
 
-        MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Quit\nChoice: "
-        choice = input(MENU2)
-        while choice != "1" and choice != "2" and choice != "3":
-            print("Wrong Input!")
-            choice = input(MENU2)
+        
         

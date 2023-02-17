@@ -30,6 +30,13 @@ COLS = [
         'GoodForm'
     ]
 
+def repsToDataframe(totalReps, totalAngs):
+    df = pd.DataFrame(columns=COLS)
+    for i in range(2):
+        for reps in totalReps:
+            break    
+
+
 def split(df, ratio=0.2):
     test = pd.DataFrame(columns=COLS)
     for i in range(df.shape[0]-1, -1, int(1/ratio) * -1):
