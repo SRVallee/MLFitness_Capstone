@@ -144,10 +144,11 @@ def getAnglesFromSides(joint1,joint2,joint3): #takes angle at joint2
 def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if getAngles is set to True
     allAngles = []
     keyList = []
-    # keyAngles = []
+    keyAngles = []
     n = len(frames)
     for frame in frames: #fills list with lists of angles
-        allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
+        if frame.pose_world_landmarks:
+            allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
         # allAngles.append(getAllAngles(frame))
 
     simpleModel = simplifiedCurveModel(allAngles)
@@ -178,7 +179,7 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
                 #save keyframe, change start, and get new binomials
                 #print("saving...")
                 keyList.append((frames[end], end))
-                # keyAngles.append(allAngles[end])
+                keyAngles.append(allAngles[end])
                 start = tempEnd
                 tempEnd += 1
                 if start+1 != n:
