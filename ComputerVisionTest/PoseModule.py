@@ -91,25 +91,49 @@ if VIEW_VIDEO:
 
                 # To improve performance, optionally mark the image as not writeable to
                 # pass by reference.
-                # cv2.namedWindow('ML Test', cv2.WINDOW_NORMAL)
-                # cv2.resizeWindow('ML Test', 607, 1080)
+                cv2.namedWindow('ML Test', cv2.WINDOW_NORMAL)
+                cv2.resizeWindow('ML Test', 607, 1080)
                 image.flags.writeable = False
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 results = pose.process(image)
+                landmarks = results.pose_world_landmarks
+                angStr = 'None'
+                angStr2 = 'None'
+                if landmarks:
+                    # f.write('{' + str(frameNum) + ': ' + poseutil.frame_landmarks(landmarks) + '}\n')
+                    angs = pu.compute_body_angles(landmarks)
+                    # print(angs)
+                    angStr  = str(np.degrees(angs[13]))
+                    angStr2 = str(np.degrees(angs[15]))
                 allFrames.append(results)
                 # Draw the pose annotation on the image.
-                # image.flags.writeable = True
-                # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-                # mp_drawing.draw_landmarks(
-                #     image,
-                #     results.pose_landmarks,
-                #     mp_pose.POSE_CONNECTIONS,
-                #     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-                # # Flip the image horizontally for a selfie-view display.
-                # # cv2.imshow('ML Test', cv2.flip(image, 2))
-                # if cv2.waitKey(5) & 0xFF == 27:
-                #     breakFlag = True
-                #     break
+                image.flags.writeable = True
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                mp_drawing.draw_landmarks(
+                    image,
+                    results.pose_landmarks,
+                    mp_pose.POSE_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+                # Flip the image horizontally for a selfie-view display.
+                cv2.flip(image, 1)
+                image = cv2.putText(image, angStr, 
+                          (0, 130), 
+                          cv2.FONT_HERSHEY_PLAIN,
+                          10,
+                          (255,255,10),
+                          2,
+                          cv2.LINE_AA)
+                image = cv2.putText(image, angStr2, 
+                          (0, 260), 
+                          cv2.FONT_HERSHEY_PLAIN,
+                          10,
+                          (255,255,10),
+                          2,
+                          cv2.LINE_AA)
+                cv2.imshow('ML Test', image)
+                if cv2.waitKey(5) & 0xFF == 27:
+                    breakFlag = True
+                    break
         
         fps = cap.get(cv2.CAP_PROP_FPS)
         cap.release()
@@ -121,22 +145,19 @@ if VIEW_VIDEO:
         if len(extracted) > 2:
             print(f"frames: {len(allFrames)} framerate: {fps}")
             print(f"RSquared: {rSquared}")
-            # print(extracted)
-            # n = input("Frame to display: ")
-            # while n != "no":
+            print(extracted)
+            n = input("Frame to display: ")
+            while n != "no":
                 
-            #     n = int(n)-1
-            #     mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-            #     n = input("Frame to display: ")
+                n = int(n)-1
+                mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+                n = input("Frame to display: ")
         
         data.append(pu.arrange_frame_cols(classifierPositive, angs))
         
         if breakFlag:
             break
         
-    if not breakFlag:
-        mli.do_ml(data)
-                
+    # if not breakFlag:
+        # mli.do_ml(data)
         
-
-    
