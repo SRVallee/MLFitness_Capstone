@@ -193,7 +193,11 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
     if not workout:
         parallel = getTrend(allCycles, int(repNumber))
     else:
-        parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model, int(repNumber))
+        if repNumber:
+            parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model, int(repNumber))
+        else:
+            parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model)
+
     #print(f"cycles: {parallel}")
 
     for cycle in parallel:
@@ -204,7 +208,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
 
     return parallel, modelName, importantAngles
 
-def getTrend(cycles, repNumber = None):
+def getTrend(cycles, repNumber = 9999):
     #cycle [start, turning point, end, angle]
 
     reps = []
@@ -221,7 +225,7 @@ def getTrend(cycles, repNumber = None):
     for pair in pairs:
         pairList.append(cycles[pair[0]])
 
-    if not repNumber or len(pairList) == repNumber:
+    if len(pairList) == repNumber:
         return pairList 
         
     print(f"pairlist: {pairList}")
@@ -258,7 +262,7 @@ def insertRep(reps, rep): #assums rep is valid
 def checkValidRange(cycle, reps):
     if None in cycle:
         return False
-        
+
     for rep in reps:
         if rep[0] <= cycle[0] and rep[2] > cycle[0]:
             return False
@@ -289,7 +293,7 @@ def getPairs(cycles):
     return pairs
 
 
-def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = None):
+def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = 9999):
 
     reps = []
 
@@ -297,14 +301,15 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
         
         if cycleJoint[3] < math.radians(10): #remove cycles under 10 degrees
             cycles.remove(cycleJoint)
-            
+    
+    print(cycles)        
 
     pairs = getPairs(cycles)
     pairList = []
     for pair in pairs:
         pairList.append(cycles[pair[0]])
 
-    if not repNumber or len(pairList) == repNumber:
+    if len(pairList) == repNumber:
         return pairList 
     
     for cycle in cycles:  #Temporary until I fixed commented code
@@ -566,7 +571,7 @@ if __name__ == "__main__":
         
         elif choice == "2":
             name = input("Workout name: ")
-            numberOfReps = input("Number of reps: ")
+            #numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
             updateModelV1(video, name, True)
             print(f"{name} updated\n")
@@ -575,7 +580,7 @@ if __name__ == "__main__":
             name = input("Workout name: ")
             numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
-            right, wrong = evaluateVideo(video, name, True)
+            right, wrong = evaluateVideo(video, name, numberOfReps, True)
             
 
         choice = input(MENU2)
