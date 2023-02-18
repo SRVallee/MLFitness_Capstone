@@ -107,10 +107,10 @@ def getKeyFramesFromVideo(video, show = False):
     return extracted, allangles
 
 
-def getReps(keyFrames, anglesPerFrame, workout = None, increaseGiven = True):
+def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
-        modelName, importantJoints = setupNewWorkout()
+        modelName, importantJoints, repNumber = setupNewWorkout()
         importantAngles = convertJoints(importantJoints)
     else:
         modelName = workout
@@ -189,13 +189,16 @@ def getReps(keyFrames, anglesPerFrame, workout = None, increaseGiven = True):
     i = 1
 
     allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    print(allCycles)
 
     #get reps without model
     if not workout:
-        parallel = getTrend(allCycles)
+        parallel = getTrend(allCycles, int(repNumber))
     else:
-        parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model)
+        if repNumber:
+            parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model, int(repNumber))
+        else:
+            parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model)
+
     #print(f"cycles: {parallel}")
 
     for cycle in parallel:
@@ -206,36 +209,71 @@ def getReps(keyFrames, anglesPerFrame, workout = None, increaseGiven = True):
 
     return parallel, modelName, importantAngles
 
-def getTrend(cycles, repNumber = None):
+def getTrend(cycles, repNumber = 9999):
     #cycle [start, turning point, end, angle]
 
     reps = []
 
+
+    for cycleJoint in cycles:
+        
+        if cycleJoint[3] < math.radians(10): #remove cycles under 5 degrees
+            cycles.remove(cycleJoint)
+
+    
     pairs = getPairs(cycles)
     pairList = []
     for pair in pairs:
         pairList.append(cycles[pair[0]])
 
-    if not repNumber:
+    if len(pairList) == repNumber:
         return pairList 
-
-    
         
-    cycles = cycles - pairList
-
+    print(f"pairlist: {pairList}")
+    for cycle in cycles:
+        if cycle in pairList:
+            cycles.remove(cycle)
+    print(f"pairlist: {pairList}")
     reps = pairList
-
-    maxLen = 0
-    for joint in cycles:
-        for cycleJoint in joint:
-            if cycleJoint[3] < math.radians(10): #remove cycles under 5 degrees
-                joint.remove(cycleJoint)
-            
-                
-        if len(joint) > maxLen:
-            maxLen = len(joint)
+    for cycle in cycles:
+        print(f"cycle: {cycle}")
+        if len(reps) < repNumber and checkValidRange(cycle, reps):
+            reps = insertRep(reps, cycle)
+            print(f"reps: {reps}")
 
     return reps
+
+def insertRep(reps, rep): #assums rep is valid
+
+    if len(reps) == 0:
+        reps.append(rep)
+        return reps
+
+    for i in range(len(reps)):
+
+        if rep[2] <= reps[i][0]:
+            reps.insert(i, rep)
+            return reps
+
+        elif i == len(reps) -1:
+            reps.append(rep)
+            return reps
+        
+
+def checkValidRange(cycle, reps):
+    if None in cycle:
+        return False
+
+    for rep in reps:
+        if rep[0] <= cycle[0] and rep[2] > cycle[0]:
+            return False
+        elif rep[0] < cycle[2] and rep[2] >= cycle[2]:
+            return False
+
+    return True
+
+
+
 
 def getPairs(cycles):
     pairs = []
@@ -256,96 +294,99 @@ def getPairs(cycles):
     return pairs
 
 
-def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = None):
+def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = 9999):
 
     reps = []
+
+    for cycleJoint in cycles:
+        
+        if cycleJoint[3] < math.radians(10): #remove cycles under 10 degrees
+            cycles.remove(cycleJoint)
+    
+    print(cycles)        
 
     pairs = getPairs(cycles)
     pairList = []
     for pair in pairs:
         pairList.append(cycles[pair[0]])
 
-    if not repNumber:
+    if len(pairList) == repNumber:
         return pairList 
-
-
-    maxLen = 0
-    for joint in cycles:
-        for cycleJoint in joint:
-            if cycleJoint[3] < 5: #remove cycles under 5 degrees
-                joint.remove(cycleJoint)
-            
-                
-        if len(joint) > maxLen:
-            maxLen = len(joint)
     
+    for cycle in cycles:  #Temporary until I fixed commented code
+        if cycle in pairList:
+            cycles.remove(cycle)
 
-    potentialReps = [[] for i in range(maxLen)]
-
-
-    for joint in  cycles:
-        n = 0
-        for cycleJoint in joint:
-            potentialReps[n].append(cycleJoint)
-            n = n + 1
+    reps = pairList
     
-    for cycleGroup in potentialReps: #Take the best values
-        lastEnd = 0
-        starts = {}
-        middle = {}
-        end = {} 
-        for cycle in cycleGroup:
+    for cycle in cycles:
+        if len(reps) < repNumber and checkValidRange(cycle, reps):
+            reps = insertRep(reps, cycle)
+
+
+    # for joint in  cycles:
+    #     n = 0
+    #     for cycleJoint in joint:
+    #         potentialReps[n].append(cycleJoint)
+    #         n = n + 1
+    
+    # for cycleGroup in potentialReps: #Take the best values
+    #     lastEnd = 0
+    #     starts = {}
+    #     middle = {}
+    #     end = {} 
+    #     for cycle in cycleGroup:
             
-            if str(cycle[0]) in starts.keys():
-                starts[str(cycle[0])] = starts[str(cycle[0])] + 1
-            else:
-                starts[str(cycle[0])] = 1
+    #         if str(cycle[0]) in starts.keys():
+    #             starts[str(cycle[0])] = starts[str(cycle[0])] + 1
+    #         else:
+    #             starts[str(cycle[0])] = 1
 
-            if str(cycle[1]) in middle.keys():
-                middle[str(cycle[1])] = middle[str(cycle[1])] + 1
-            else:
-                middle[str(cycle[1])] = 1
+    #         if str(cycle[1]) in middle.keys():
+    #             middle[str(cycle[1])] = middle[str(cycle[1])] + 1
+    #         else:
+    #             middle[str(cycle[1])] = 1
 
-            if str(cycle[2]) in end.keys():
-                end[str(cycle[2])] = end[str(cycle[2])] + 1
-            else:
-                end[str(cycle[2])] = 1
-            #print(starts)
-        finalStart = None
-        finalMiddle = None
-        finalEnd = None
-        for start in starts.keys():#TODO Use standard deviation comparasion to not skip reps
-            if not finalStart or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(start)][1]]))\
-                                        < \
-                                  model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalStart)][1]]))):
-               #if difference to the model is less than what we have 
-                if int(start) >= lastEnd:
-                    finalStart = int(start)
-                    lastEnd = int(start)
+    #         if str(cycle[2]) in end.keys():
+    #             end[str(cycle[2])] = end[str(cycle[2])] + 1
+    #         else:
+    #             end[str(cycle[2])] = 1
+    #         #print(starts)
+    #     finalStart = None
+    #     finalMiddle = None
+    #     finalEnd = None
+    #     for start in starts.keys():#TODO Use standard deviation comparasion to not skip reps
+    #         if not finalStart or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(start)][1]]))\
+    #                                     < \
+    #                               model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalStart)][1]]))):
+    #            #if difference to the model is less than what we have 
+    #             if int(start) >= lastEnd:
+    #                 finalStart = int(start)
+    #                 lastEnd = int(start)
 
-        for mid in middle.keys():
-            if mid == "None":
-                finalMiddle = None
-            elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
-                                        <= \
-                                   model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
-                if int(mid) > lastEnd:
-                    finalMiddle = int(mid)
-                    lastEnd = int(mid)
+    #     for mid in middle.keys():
+    #         if mid == "None":
+    #             finalMiddle = None
+    #         elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
+    #                                     <= \
+    #                                model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
+    #             if int(mid) > lastEnd:
+    #                 finalMiddle = int(mid)
+    #                 lastEnd = int(mid)
                 
 
-        for ending in end.keys():
-            if ending == "None":
-                finalEnd = None
-            elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
-                                        <= \
-                                model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
-                if int(ending) > lastEnd:
-                    finalEnd = int(ending)
-                    lastEnd = int(ending)
+    #     for ending in end.keys():
+    #         if ending == "None":
+    #             finalEnd = None
+    #         elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
+    #                                     <= \
+    #                             model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
+    #             if int(ending) > lastEnd:
+    #                 finalEnd = int(ending)
+    #                 lastEnd = int(ending)
 
-        reps.append([finalStart, finalMiddle, finalEnd])
-        lastEnd = finalEnd
+    #     reps.append([finalStart, finalMiddle, finalEnd])
+    #     lastEnd = finalEnd
 
     return reps
 
@@ -354,6 +395,7 @@ def setupNewWorkout():
     models = os.listdir("ComputerVisionTest/models")
     print(models)
     name = input("Name of new workout: ").strip()
+    reps = input("number of repetitions: ")
     while (len(name) == 0) and (name + ".json") in models:
 
         name = input("Model already exists or the name is invalid! \n\
@@ -362,7 +404,7 @@ Please provide a new name of new workout: ").strip()
     print(MENU)
     choices = input("Choice(s): ").split(",")
 
-    return name, choices
+    return name, choices, reps
 
 def get_average(data):
     return mean(data)
@@ -433,14 +475,14 @@ def getAverageAndStdvOfList(list):
     
     return averages, stdvs
 
-def updateModelV1(videoPath, modelName, debug = False):
+def updateModelV1(videoPath, modelName, repNumber, debug = False):
     extracted, allAngles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
-    reps, modelName, importantAngles = getReps(extracted, allAngles, modelName)
+    reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
     print(f"Reps: {reps}")
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
@@ -463,14 +505,14 @@ def updateModelV1(videoPath, modelName, debug = False):
     model.saveModel(path)
     return model
 
-def evaluateVideo(videoPath, modelName, debug = None):
+def evaluateVideo(videoPath, modelName, repNumber, debug = None):
     extracted, allAngles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
-    reps, modelName, importantAngles = getReps(extracted, allAngles, modelName)
+    reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
     right = []
@@ -559,14 +601,16 @@ if __name__ == "__main__":
         
         elif choice == "2":
             name = input("Workout name: ")
+            #numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
             updateModelV1(video, name, True)
             print(f"{name} updated\n")
             
         elif choice == "3":
             name = input("Workout name: ")
+            numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
-            right, wrong = evaluateVideo(video, name, True)
+            right, wrong = evaluateVideo(video, name, numberOfReps, True)
         
         elif choice == "4":
             name = input("Workout name: ")

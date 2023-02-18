@@ -198,6 +198,7 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
             
 
 def simplifiedCurveModel(angles): #rearrenges the list of angles to be joint per list rather than frame per list
+    #print(f"angles: {angles}")
     m = [[] for i in range(len(angles[0]))]
 
     for angleSet in angles:
