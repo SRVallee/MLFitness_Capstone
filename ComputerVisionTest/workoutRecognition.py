@@ -106,10 +106,10 @@ def getKeyFramesFromVideo(video, show = False):
     return extracted, allangles
 
 
-def getReps(keyFrames, anglesPerFrame, workout = None, increaseGiven = True):
+def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
-        modelName, importantJoints = setupNewWorkout()
+        modelName, importantJoints, repNumber = setupNewWorkout()
         importantAngles = convertJoints(importantJoints)
     else:
         modelName = workout
@@ -191,9 +191,9 @@ def getReps(keyFrames, anglesPerFrame, workout = None, increaseGiven = True):
 
     #get reps without model
     if not workout:
-        parallel = getTrend(allCycles)
+        parallel = getTrend(allCycles, int(repNumber))
     else:
-        parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model)
+        parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model, int(repNumber))
     #print(f"cycles: {parallel}")
 
     for cycle in parallel:
@@ -221,16 +221,54 @@ def getTrend(cycles, repNumber = None):
     for pair in pairs:
         pairList.append(cycles[pair[0]])
 
-    if not repNumber:
+    if not repNumber or len(pairList) == repNumber:
         return pairList 
-
-    #else search for other reps until #reps match
         
-    cycles = cycles - pairList
-
+    print(f"pairlist: {pairList}")
+    for cycle in cycles:
+        if cycle in pairList:
+            cycles.remove(cycle)
+    print(f"pairlist: {pairList}")
     reps = pairList
+    for cycle in cycles:
+        print(f"cycle: {cycle}")
+        if len(reps) < repNumber and checkValidRange(cycle, reps):
+            reps = insertRep(reps, cycle)
+            print(f"reps: {reps}")
 
     return reps
+
+def insertRep(reps, rep): #assums rep is valid
+
+    if len(reps) == 0:
+        reps.append(rep)
+        return reps
+
+    for i in range(len(reps)):
+
+        if rep[2] <= reps[i][0]:
+            reps.insert(i, rep)
+            return reps
+
+        elif i == len(reps) -1:
+            reps.append(rep)
+            return reps
+        
+
+def checkValidRange(cycle, reps):
+    if None in cycle:
+        return False
+        
+    for rep in reps:
+        if rep[0] <= cycle[0] and rep[2] > cycle[0]:
+            return False
+        elif rep[0] < cycle[2] and rep[2] >= cycle[2]:
+            return False
+
+    return True
+
+
+
 
 def getPairs(cycles):
     pairs = []
@@ -266,9 +304,18 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
     for pair in pairs:
         pairList.append(cycles[pair[0]])
 
-    if not repNumber:
+    if not repNumber or len(pairList) == repNumber:
         return pairList 
     
+    for cycle in cycles:  #Temporary until I fixed commented code
+        if cycle in pairList:
+            cycles.remove(cycle)
+
+    reps = pairList
+    
+    for cycle in cycles:
+        if len(reps) < repNumber and checkValidRange(cycle, reps):
+            reps = insertRep(reps, cycle)
 
 
     # for joint in  cycles:
@@ -342,6 +389,7 @@ def setupNewWorkout():
     models = os.listdir("ComputerVisionTest/models")
     print(models)
     name = input("Name of new workout: ").strip()
+    reps = input("number of repetitions: ")
     while (len(name) == 0) and (name + ".json") in models:
 
         name = input("Model already exists or the name is invalid! \n\
@@ -350,7 +398,7 @@ Please provide a new name of new workout: ").strip()
     print(MENU)
     choices = input("Choice(s): ").split(",")
 
-    return name, choices
+    return name, choices, reps
 
 def get_average(data):
     return mean(data)
@@ -412,14 +460,14 @@ def getAverageAndStdvOfList(list):
     
     return averages, stdvs
 
-def updateModelV1(videoPath, modelName, debug = False):
+def updateModelV1(videoPath, modelName, repNumber, debug = False):
     extracted, allAngles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
-    reps, modelName, importantAngles = getReps(extracted, allAngles, modelName)
+    reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
     print(f"Reps: {reps}")
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
@@ -442,14 +490,14 @@ def updateModelV1(videoPath, modelName, debug = False):
     model.saveModel(path)
     return model
 
-def evaluateVideo(videoPath, modelName, debug = None):
+def evaluateVideo(videoPath, modelName, repNumber, debug = None):
     extracted, allAngles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
-    reps, modelName, importantAngles = getReps(extracted, allAngles, modelName)
+    reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
     right = []
@@ -518,12 +566,14 @@ if __name__ == "__main__":
         
         elif choice == "2":
             name = input("Workout name: ")
+            numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
             updateModelV1(video, name, True)
             print(f"{name} updated\n")
 
         elif choice == "3":
             name = input("Workout name: ")
+            numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
             right, wrong = evaluateVideo(video, name, True)
             
