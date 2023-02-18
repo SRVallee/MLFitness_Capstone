@@ -106,7 +106,7 @@ def getKeyFramesFromVideo(video, show = False):
     return extracted, allangles
 
 
-def getReps(keyFrames, anglesPerFrame, repNumber = 999, workout = None, increaseGiven = True):
+def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
         modelName, importantJoints, repNumber = setupNewWorkout()
