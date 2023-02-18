@@ -545,13 +545,14 @@ if __name__ == "__main__":
     Choices:
     1. Create New Rep Model
     2. Update Existing Rep Model
-    3. Train and Test Machine Learning Analysis 
-    4. Quit\nChoice: """
+    3. Evaluate Video
+    4. Train and Test Machine Learning Analysis 
+    5. Quit\nChoice: """
     
     while True:
         choice = input(MENU2)
         if choice == "1":
-            video = input("Path to video: ")
+            video = input("Path to video: ").strip("'")
             extracted, allAngles = getKeyFramesFromVideo(video)
             model = makeNewModelV1(extracted, allAngles, True)
             print(f"New workout added\n")
@@ -564,22 +565,18 @@ if __name__ == "__main__":
             
         elif choice == "3":
             name = input("Workout name: ")
+            video = input("Path to video: ").strip("'")
+            right, wrong = evaluateVideo(video, name, True)
+        
+        elif choice == "4":
+            name = input("Workout name: ")
             trainML(name)
+            
+        elif choice == "5" or choice == "q":
+            break
             
         else:
             print("Incorrect input, try again.")
             continue
 
-        
-
-        elif choice == "3":
-            name = input("Workout name: ")
-            video = input("Path to video: ").strip("'")
-            right, wrong = evaluateVideo(video, name, True)
-            
-
-        choice = input(MENU2)
-        while not choice in ["1","2","3","4"]:
-            print("Wrong Input!")
-            choice = input(MENU2)
         

@@ -1,7 +1,6 @@
 #This module is for extracting keyframes from human motion capture. 
 #The method was taaken from this paper: http://eprints.bournemouth.ac.uk/35006/1/KeyFrame%2BExtraction%2Bfor%2BHuman%2BMotion%2BCapture.pdf
 
-__package__
 
 import math
 import statistics
