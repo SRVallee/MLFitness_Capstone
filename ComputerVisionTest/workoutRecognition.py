@@ -8,6 +8,7 @@ import math
 import json
 import statistics
 import os
+from pathlib import Path
 import binomialFitting.KeyframeExtraction as KeyframeExtraction
 import machineLearning.MachineLearningInitial as mli
 import mp_drawing_modified
@@ -507,6 +508,7 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
     model.saveModel(path)
     return model
 
+
 def evaluateVideo(videoPath, modelName, repNumber, debug = None):
     extracted, allAngles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
@@ -550,9 +552,11 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
 
     return right, wrong
 
+
 def trainML(modelName):
-    paths = ["C:/Users/1234c/Documents/School/CMPT496/vids/good_trainML/", # good reps folder
-             "C:/Users/1234c/Documents/School/CMPT496/vids/bad_trainML/"] # bad reps folder
+    vidsDir = Path.cwd().parents[1]
+    paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
+             vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
     allReps = []
     totalAngles = []
     lengths = [] # lengths of good reps, bad reps
@@ -572,7 +576,6 @@ def trainML(modelName):
     df = mli.repsToDataframe(allReps, totalAngles, lengths)
     
     mli.do_ml(df)
-    
     
 
 def demo1():
