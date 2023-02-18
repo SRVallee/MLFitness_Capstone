@@ -30,23 +30,45 @@ COLS = [
         'GoodForm'
     ]
 
-def repsToDataframe(totalReps, totalAngs):
-    df = pd.DataFrame(columns=COLS)
-    for i in range(2):
-        for reps in totalReps:
-            break    
+def repsToDataframe(totalReps, totalAngs, lengths):
+    goodNum = lengths[0]
+    repsList=[]
+    for i in range(len(totalReps)): # for each video
+        for rep in totalReps[i]: # for each rep in video
+            if None in rep:
+                continue
+            else:
+                rowList = []
+                for j in range(3): # for keyuframes in rep
+                    # concat angles of top, bottom, top into one list
+                    if j == 0:
+                        rowList = totalAngs[i][j].tolist()
+                    else:
+                        rowList = rowList + totalAngs[i][j].tolist()
+                
+                # add if is a good rep (for training)
+                if i < goodNum:
+                    rowList.append(1)
+                else: 
+                    rowList.append(0)
+                    
+                # append rep angles to reps list
+                repsList.append(rowList) 
+    #convert to dataframe
+    df = pd.DataFrame(repsList, columns=COLS)
+        
+    return df.sample(frac=1).reset_index(drop=True) # shuffle dataframe and return
 
 
 def split(df, ratio=0.2):
+    train = pd.DataFrame(columns=COLS) 
     test = pd.DataFrame(columns=COLS)
-    for i in range(df.shape[0]-1, -1, int(1/ratio) * -1):
-        if test.size == 0:
-            test = df.iloc[[i]]
-        else:
-            pd.concat([test, df.iloc[[i]]], ignore_index=True)
-        df.drop(index=i)
+    split = int(df.shape[0]*ratio)
     
-    return df, test
+    test = df.iloc[0:split]
+    train = df.iloc[split:df.shape[0]]
+
+    return train, test
 
 def train_model(df, epochs=10):
     tf.random.set_seed(42)
@@ -70,8 +92,7 @@ def train_model(df, epochs=10):
     
     return model
 
-def do_ml(data):
-    df = pd.DataFrame(data, columns=COLS)
+def do_ml(df):
     
     print(df.head)
     

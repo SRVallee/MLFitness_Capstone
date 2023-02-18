@@ -64,6 +64,7 @@ from statistics import stdev
 def getKeyFramesFromVideo(video, show = False):
     cap = cv2.VideoCapture(video)
     allFrames = []
+    frameTime = 0
     with mp_pose.Pose(
         min_detection_confidence=0.1,
         min_tracking_confidence=0.1) as pose:
@@ -81,6 +82,7 @@ def getKeyFramesFromVideo(video, show = False):
             results = pose.process(image)
             allFrames.append(results)
             if show:
+                frameTime = 5
                 # Draw the pose annotation on the image.
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -91,7 +93,7 @@ def getKeyFramesFromVideo(video, show = False):
                     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
                 # Flip the image horizontally for a selfie-view display.
                 cv2.imshow('MediaPipe Pose', cv2.flip(image, 2))
-            if cv2.waitKey(5) & 0xFF == 27:
+            if cv2.waitKey(frameTime) & 0xFF == 27:
                 break
 
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -102,9 +104,9 @@ def getKeyFramesFromVideo(video, show = False):
     rSquared = 0.5
 
     print(f"RSquared: {rSquared}")
-    extracted, allangles = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
+    extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
     print(f"{len(extracted)} frames extracted")
-    return extracted, allangles
+    return extracted, allangles, keyAngs
 
 
 def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
@@ -549,21 +551,29 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
     return right, wrong
 
 def trainML(modelName):
-    goodPath = "C:/Users/1234c/Documents/School/CMPT496/vids/"
-    badPath = "C:/Users/1234c/Documents/School/CMPT496/vids/"
-    goodReps = []
-    for filename in os.listdir(goodPath):
-        reps, modelName, importantAngles = getRepsFromVideo(goodPath+filename, modelName)
-        goodReps = goodReps + reps
-        
-    badReps = []
-    for filename in os.listdir(badPath):
-        reps, modelName, importantAngles = getRepsFromVideo(goodPath+filename, modelName)
-        badReps = badReps + reps
-
-    allReps = [badReps, goodReps]
+    paths = ["C:/Users/1234c/Documents/School/CMPT496/vids/good_trainML/", # good reps folder
+             "C:/Users/1234c/Documents/School/CMPT496/vids/bad_trainML/"] # bad reps folder
+    allReps = []
+    totalAngles = []
+    lengths = [] # lengths of good reps, bad reps
+    for path in paths: #first good paths, then bad paths
+        for filename in os.listdir(path):
+            videoPath = path + filename
+            extracted, allAngles, keyAngs = getKeyFramesFromVideo(videoPath)
+            totalAngles.append(keyAngs)
+            reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
+            allReps.append(reps)
+            
+        if len(lengths) < 1:
+            lengths.append(len(allReps))
+        else:
+            lengths.append(len(allReps) - lengths[0])
+            
+    df = mli.repsToDataframe(allReps, totalAngles, lengths)
     
-    mli.repsToDataframe(allReps)
+    mli.do_ml(df)
+    
+    
 
 def demo1():
 
