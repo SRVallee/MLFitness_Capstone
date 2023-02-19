@@ -1,5 +1,7 @@
 package com.example.application;
 
+import android.media.Image;
+
 public class User {
 
     private int id;
@@ -7,6 +9,7 @@ public class User {
     private String email;
     private int trainerId = -1;
     private int traineeId = -1;
+    private Image pfp;
 
     public User(){
         this(-1);
@@ -62,4 +65,11 @@ public class User {
         return (trainerId != -1);
     }
 
+    public Image getPfp() {
+        return pfp;
+    }
+
+    public void setPfp(Image pfp) {
+        this.pfp = pfp;
+    }
 }
