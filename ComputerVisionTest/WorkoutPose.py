@@ -1,4 +1,4 @@
-
+import statistics
 class WorkoutPose:
 
     def __init__(self, angles : list, stdv = None, numberOfReps = None):
@@ -33,6 +33,9 @@ class WorkoutPose:
     def setStdv(self, stdv):
         self._stdv = stdv
 
+    def getStdvSingle(self, index : int):
+        return self._stdv[index]
+
 
     def getPopulationNumber(self):
         if self._reps:
@@ -47,6 +50,18 @@ class WorkoutPose:
     def toList(self):
         return [self._angles, self._stdv, self._reps]
 
-    
+    def evaluatePose(self, other):
+        accuracies = []
+        for i in len(self._angles):
+            deviation = abs(self._angles[i] - other.getAngle(i))/self.getStdvSingle(i)
+
+            if  deviation >= 1:
+                accuracies.append(0)
+            else:
+                accuracies.append((1-deviation)*100)
+
+            
+        
+        return statistics.mean(accuracies), min(accuracies)
 
     
