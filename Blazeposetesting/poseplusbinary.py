@@ -36,7 +36,7 @@ Orfileg = [16,17.88] # hip to knee, knee to ankle
 class poseDetector():
 
     def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
-                 detectionCon=0.5, trackCon=0.5):
+                 detectionCon=0.7, trackCon=0.5):
 
         self.mode = mode
         self.modcomp = modcomp
@@ -46,6 +46,7 @@ class poseDetector():
         self.detectionCon = detectionCon
         self.trackCon = trackCon
         self.low_angle = 360
+        self.lowhip_angle = 360
 
         self.mpDraw = mp.solutions.drawing_utils #this is for drawing everything
         self.mpPose = mp.solutions.pose # this is for a model
@@ -214,6 +215,28 @@ class poseDetector():
             cv2.putText(img, str((int(angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
         return self.low_angle
     
+    def findhipAngle(self,img,p1,p2,p3, draw=True):
+        x1,y1 = self.lmList[p1][1:3]
+        x2,y2 = self.lmList[p2][1:3]
+        x3,y3 = self.lmList[p3][1:3]
+        point1 = np.array(self.lmList[p1][1:4])
+        point2 = np.array(self.lmList[p2][1:4])
+        point3 = np.array(self.lmList[p3][1:4])
+        #this is to calaculate the angle if you have 3 points
+        angle = math.degrees(math.atan2(y3-y2,x3-x2) - math.atan2(y1-y2,x1-x2))
+        #print(angle)
+        if angle< self.lowhip_angle:
+            self.lowhip_angle = angle
+        if draw:
+            cv2.circle(img,(x1, y1), 10, (0,0,255),cv2.FILLED)
+            cv2.circle(img,(x1, y1), 15, (0,0,255),2)
+            cv2.circle(img,(x2, y2), 5, (0,0,255),cv2.FILLED)
+            cv2.circle(img,(x2, y2), 15, (0,0,255),2)
+            cv2.circle(img,(x3, y3), 5, (0,0,255),cv2.FILLED)
+            cv2.circle(img,(x3, y3), 15, (0,0,255),2)
+            cv2.putText(img, str((int(angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
+        return self.lowhip_angle
+    
     ##
     # find world angle does not work right now but
     # This grabs the landmarks in a 3d space and creates them
@@ -270,11 +293,10 @@ class poseDetector():
         print(f"this is the length {length}")
         if( len(lmList)>= 32):
             ratio = torso/length
-            print(f"this is the ratio {ratio}feet/pixel")
             thighlen = math.sqrt(abs(rkneex - rhipx)**2 + abs(rkneey - rhipy)**2)*ratio
-            print(f"thigh orfi = 16 while {thighlen}") #thigh len increases because knee goes out causing increase in size
+            #print(f"thigh orfi = 16 while {thighlen}") #thigh len increases because knee goes out causing increase in size
             pixel_len = waist/ratio # what it is supose to be
-            
+             
             #this is to get depth of the z axis through math
             lenhipx = (lhipx - rhipx)**2
             lenhipy = (lhipy - rhipy)**2
@@ -299,14 +321,14 @@ class poseDetector():
             lenanklepixel = (shin/ratio)**2
             if lenanklepixel - lenanklex - lenankley >= 0:
                 lanklez = lkneez + math.sqrt(lenanklepixel - lenanklex - lenankley)
-                print(f"ankle z {lanklez*ratio}")
+                #print(f"ankle z {lanklez*ratio}")
             else:
                 lanklez = lkneez
-                print(f"ankle z {lanklez*ratio}")
+                #print(f"ankle z {lanklez*ratio}")
             vecA = (lhipx -lkneex, lhipy - lkneey, hipzlen - lkneez)
             vecB = (lanklex - lkneex, lankley - lkneey, lanklez - lkneez)
             prod, angle  = angle_dot(vecA, vecB)
-            print( prod, angle)
+            print(f"angle of far knee {angle}")
             return angle
 
 def angle_dot(a, b):
@@ -315,7 +337,16 @@ def angle_dot(a, b):
     angle = round(np.degrees(np.arccos(dot_product / prod_of_norms)), 1)
     return round(dot_product, 1), angle
             
-
+def compare(img):
+    imgup = cv2.imread(sys.path[0] + "\compare\JCcorrectup.png",3)
+    imgmid = cv2.imread(sys.path[0] + "\compare\JCcorrectmid.png")
+    imgdown = cv2.imread(sys.path[0] + "\compare\JCcorrectdown.png")
+    detector = poseDetector()
+    annotated_img = detector.findPose(imgup)
+    #diff = cv2.subtract(imgup,img)
+    #err = np.sum(diff**2)
+    #mse = err/(float(h*w))
+    return True
 
 ##
 # This function is to get the videos and send it to the class pose detector to than
@@ -329,22 +360,25 @@ def capture_feed(vidname, torso, leg):
     pTime = 0
     detector = poseDetector()
     #data = np.empty((3,32,length))
-    frame_num = 0
+    frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     success = True
     new_angle = 360
     
     while success:
         #this sees if it can read the frame that it is given
         success, img = cap.read()
+        
         constant_height = 700
         slope = 0
         perp_slope = 0
         if success == False:
             break
+        
         # img.shape is a list of the dimensions of the frame 0 = height
         # 1 = width, 2 = number of chnnels for image
         height = img.shape[0]
         width = img.shape[1]
+        
         height_percentage = float(constant_height/int(height))
         modded_width = int(float(width)*height_percentage)
         img = detector.findPose(img)
@@ -354,8 +388,8 @@ def capture_feed(vidname, torso, leg):
         annotated_img = detector.seg_mask(img)
         lmList = detector.findPosition(annotated_img)
         world_mod_lmList, world_unmod_lmlist = detector.findWorldPosition(annotated_img)
-        print(world_unmod_lmlist[12][1], world_unmod_lmlist[12][2], world_unmod_lmlist[12][3])
-        print(world_unmod_lmlist[24][1], world_unmod_lmlist[24][2], world_unmod_lmlist[12][3])
+        #print(world_unmod_lmlist[12][1], world_unmod_lmlist[12][2], world_unmod_lmlist[12][3])
+        #print(world_unmod_lmlist[24][1], world_unmod_lmlist[24][2], world_unmod_lmlist[12][3])
         mathutil.HighVis(lmList)
         for i in range(len(lmList)):
             if lmList[i][0] == 12:
@@ -432,19 +466,23 @@ def capture_feed(vidname, torso, leg):
         if len(lmList) != 0:
             angle = detector.findkneeAngle(annotated_img,24,26,28)
             angle2 = detector.findkneeAngle(annotated_img,23, 25, 27)
-            print(f"lowest angle; {angle}")
+            hip_angle = detector.findhipAngle(annotated_img,12, 24, 26)
+            #print(f"lowest angle; {angle}")
         cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         farkneeangle = detector.digitalToReal(torso, leg)
         if farkneeangle < new_angle:
             new_angle = farkneeangle
         #resize is width than height
         resize = cv2.resize(annotated_img, (modded_width, constant_height))
+        print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
         cv2.imshow("Image", resize)
         key = cv2.waitKey(1)  # millisecond delays
         if key == 27: #esc
             cv2.destroyAllWindows
             break
-    return int(angle), int(farkneeangle)
+    return int(angle), int(angle2), int(hip_angle)
+
+    
 
 def binaryclassifier(degrees, labels, checks):
     # Step 2: Split the data into training and testing sets
@@ -493,16 +531,14 @@ def binaryclassifier(degrees, labels, checks):
     
 def main():
     #these videos are for training of the binary classifier
-    sen = mathutil.hello()
-    print(sen)
-    correctangleR1, correctangleL1 = capture_feed('/motioncapture/Correct_squat/SquatV1side.mp4', JCtorso, JCleg) #JC
-    correctangleR2, correctangleL2 = capture_feed('/motioncapture/Correct_squat/SquatV2side.mp4', JCtorso, JCleg) #JC
-    correctangleR3, correctangleL3 = capture_feed('/motioncapture/Correct_squat/SquatYV1side.mp4', JCtorso, JCleg) #random man
-    correctangleR4, correctangleL4 = capture_feed('/motioncapture/Correct_squat/squatorfiside.mp4', Orfitorso, Orfileg) #orfi
-    incorrectangleR1,incorrectangleL1 = capture_feed('/motioncapture/Incorrect_Squat/highsquatincorrectsideV1.mp4', JCtorso, JCleg) #Huu
-    incorrectangleR2,incorrectangleL2 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatincorrectV1.mp4', JCtorso, JCleg) #Huu
-    incorrectangleR3,incorrectangleL3 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4',Orfitorso, Orfileg) #orfi
-    incorrectangleR4,incorrectangleL4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4', JCtorso, JCleg) #JC
+    correctangleR1, correctangleL1, correctangleH1 = capture_feed('/motioncapture/Correct_squat/SquatV1side.mp4', JCtorso, JCleg) #JC
+    correctangleR2, correctangleL2, correctangleH2 = capture_feed('/motioncapture/Correct_squat/SquatV2side.mp4', JCtorso, JCleg) #JC
+    correctangleR3, correctangleL3, correctangleH3 = capture_feed('/motioncapture/Correct_squat/SquatYV1side.mp4', JCtorso, JCleg) #random man
+    correctangleR4, correctangleL4, correctangleH4 = capture_feed('/motioncapture/Correct_squat/squatorfiside.mp4', Orfitorso, Orfileg) #orfi
+    incorrectangleR1,incorrectangleL1, incorrectangleH1 = capture_feed('/motioncapture/Incorrect_Squat/highsquatincorrectsideV1.mp4', JCtorso, JCleg) #Huu
+    incorrectangleR2,incorrectangleL2, incorrectangleH2 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatincorrectV1.mp4', JCtorso, JCleg) #Huu
+    incorrectangleR3,incorrectangleL3, incorrectangleH3 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4',Orfitorso, Orfileg) #orfi
+    incorrectangleR4,incorrectangleL4, incorrectangleH4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4', JCtorso, JCleg) #JC
     
     # Step 1: Collect and preprocess your data
     degrees = np.array([[correctangleR1, correctangleL1],[correctangleR2, correctangleL2],[correctangleR3, correctangleL3],
@@ -510,12 +546,14 @@ def main():
                         [incorrectangleR3,incorrectangleL3],[incorrectangleR4,incorrectangleL4]])
     #known labels of correctness
     labels = np.array([1,1,1,1,0,0,0,0])
-    checkerangleR1, checkerangleL1  = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4', JCtorso, JCleg) # 0
-    checkerangleR2, checkerangleL2 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4', Orfitorso, Orfileg) # 0
-    checkerangleR3, checkerangleL3 = capture_feed('/motioncapture/Correct_squat/SquatV2sideland.mp4', JCtorso, JCleg) # 1
-    checkerangleR4, checkerangleL4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatorfiside.mp4', Orfitorso, Orfileg) # 0
-    checkerangleR5, checkerangleL5 = capture_feed('/motioncapture/misc/Squatlarge1flipped.mp4', Orfitorso, Orfileg) # 0 false negative
-    checks = np.array([[checkerangleR1, checkerangleL1],[checkerangleR2, checkerangleL2], [checkerangleR3, checkerangleL3],[checkerangleR4, checkerangleL4],[checkerangleR5, checkerangleL5]])
+    checkerangleR1, checkerangleL1, checkerangleH1  = capture_feed('/motioncapture/Incorrect_Squat/deepsquatJCside.mp4', JCtorso, JCleg) #1
+    checkerangleR2, checkerangleL2, checkerangleH2 = capture_feed('/motioncapture/Incorrect_Squat/highsquatorfiside.mp4', Orfitorso, Orfileg) #0
+    checkerangleR3, checkerangleL3, checkerangleH3 = capture_feed('/motioncapture/Correct_squat/SquatV2sideland.mp4', JCtorso, JCleg) # 1
+    checkerangleR4, checkerangleL4, checkerangleH4 = capture_feed('/motioncapture/Incorrect_Squat/deepsquatorfiside.mp4', Orfitorso, Orfileg) # 0
+    checkerangleR5, checkerangleL5, checkerangleH5 = capture_feed('/motioncapture/misc/Squatlarge1flipped.mp4', Orfitorso, Orfileg) # 0 false negative
+    checks = np.array([[checkerangleR1, checkerangleL1],[checkerangleR2, checkerangleL2],
+                       [checkerangleR3, checkerangleL3],[checkerangleR4, checkerangleL4],
+                       [checkerangleR5, checkerangleL5]])
     binaryclassifier(degrees, labels, checks)
     return
 
