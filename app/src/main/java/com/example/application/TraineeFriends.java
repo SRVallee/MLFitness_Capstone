@@ -30,6 +30,7 @@ public class TraineeFriends extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+    TextView noFriendsText;
     Trainee trainee;
 
     private Boolean exit = false;
@@ -63,6 +64,7 @@ public class TraineeFriends extends AppCompatActivity {
 
             friendName = convertView.findViewById(R.id.rowName);
 
+
             friendName.setText(friends.get(i).getName());
             return convertView;
         }
@@ -71,7 +73,11 @@ public class TraineeFriends extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
+        noFriendsText = findViewById(R.id.no_friends_text);
         ArrayList<User> friendList = new ArrayList<>();
+        if(friendList.isEmpty()){
+            noFriendsText.setVisibility(View.INVISIBLE);
+        }
 
     }
 
@@ -190,7 +196,26 @@ public class TraineeFriends extends AppCompatActivity {
 
     }
 
-    private void getTestList(){
+    private ArrayList<User> getTestList(){
+        ArrayList<User> friends = new ArrayList<>();
+        User fakeFriend= new User(),
+                fakeFriend2= new User(),
+                fakeFriend3= new User(),
+                fakeFriend4 = new User();
 
+        fakeFriend.setId(1);
+        fakeFriend2.setId(2);
+        fakeFriend3.setId(3);
+        fakeFriend4.setId(4);
+        fakeFriend.setName("Giorno Giovana");
+        fakeFriend2.setName("David Xavier");
+        fakeFriend3.setName("Light Yagami");
+        fakeFriend4.setName("Walter White");
+        fakeFriend.setTraineeId(1);
+        fakeFriend2.setTraineeId(2);
+        fakeFriend3.setTraineeId(3);
+        fakeFriend4.setTraineeId(4);
+
+        return friends;
     }
 }
