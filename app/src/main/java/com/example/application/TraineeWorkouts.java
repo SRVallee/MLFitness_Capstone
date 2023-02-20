@@ -149,7 +149,7 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
         String[] arraySpinner = new String[] {
                 "Push ups", "Sit ups", "Squats", "Help", "I", "Want to", "Sleep"
         };
-        Spinner s = (Spinner) findViewById(R.id.workoutSelector);
+        Spinner s = findViewById(R.id.workoutSelector);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, arraySpinner);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
