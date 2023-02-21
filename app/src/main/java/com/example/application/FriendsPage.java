@@ -1,37 +1,37 @@
 package com.example.application;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
-public class TraineeFriends extends AppCompatActivity {
+public class FriendsPage extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
     TextView noFriendsText;
-    Trainee trainee;
+    User trainee;
+    private final ArrayList<User> useList = new ArrayList<>();
+
 
     private Boolean exit = false;
     private long pressedTime;
@@ -40,6 +40,12 @@ public class TraineeFriends extends AppCompatActivity {
         private Context context;
         private ArrayList<User> friends;
         private TextView friendName;
+        private ImageView pfp;
+
+        public CustomAdapter(Context context, ArrayList<User> friends){
+            this.friends = friends;
+            this.context = context;
+        }
 
         @Override
         public int getCount() {
@@ -63,22 +69,16 @@ public class TraineeFriends extends AppCompatActivity {
             }
 
             friendName = convertView.findViewById(R.id.rowName);
-
-
             friendName.setText(friends.get(i).getName());
+
+
+            pfp = convertView.findViewById(R.id.profile_picture);
+            if(friends.get(i).hasPfp()){
+                //https://stackoverflow.com/questions/8459783/android-save-an-image-url-as-a-resource
+                pfp.setImageBitmap(friends.get(i).getPfp());
+            }
             return convertView;
         }
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
-        noFriendsText = findViewById(R.id.no_friends_text);
-        ArrayList<User> friendList = new ArrayList<>();
-        if(friendList.isEmpty()){
-            noFriendsText.setVisibility(View.INVISIBLE);
-        }
-
     }
 
     @Override
@@ -94,6 +94,23 @@ public class TraineeFriends extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_friends);
+
+        updateUseList(getTestList());
+        noFriendsText = findViewById(R.id.no_friends_text);
+        if(useList.isEmpty()){
+            noFriendsText.setVisibility(View.GONE);
+        }
+
+        CustomAdapter friendListAdapter = new CustomAdapter(this, useList);
+        ListView friendListView = findViewById(R.id.friend_listView);
+        friendListView.setAdapter(friendListAdapter);
+
+        friendListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //Go to profile page
+            }
+        });
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -211,11 +228,17 @@ public class TraineeFriends extends AppCompatActivity {
         fakeFriend2.setName("David Xavier");
         fakeFriend3.setName("Light Yagami");
         fakeFriend4.setName("Walter White");
-        fakeFriend.setTraineeId(1);
-        fakeFriend2.setTraineeId(2);
-        fakeFriend3.setTraineeId(3);
-        fakeFriend4.setTraineeId(4);
+
+        friends.add(fakeFriend);
+        friends.add(fakeFriend2);
+        friends.add(fakeFriend3);
+        friends.add(fakeFriend4);
 
         return friends;
+    }
+
+    private void updateUseList(ArrayList<User> newList){
+        useList.clear();
+        useList.addAll(newList);
     }
 }

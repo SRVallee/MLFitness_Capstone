@@ -1,5 +1,6 @@
 package com.example.application;
 
+import android.graphics.Bitmap;
 import android.media.Image;
 
 public class User {
@@ -7,9 +8,8 @@ public class User {
     private int id;
     private String name;
     private String email;
-    private int trainerId = -1;
-    private int traineeId = -1;
-    private Image pfp;
+    private Bitmap pfp;
+    private Boolean isTrainer = false;
 
     public User(){
         this(-1);
@@ -23,14 +23,6 @@ public class User {
 
     public int getId() {
         return id;
-    }
-
-    public int getTraineeId() {
-        return traineeId;
-    }
-
-    public int getTrainerId() {
-        return trainerId;
     }
 
     public String getEmail() {
@@ -53,23 +45,24 @@ public class User {
         this.name = name;
     }
 
-    public void setTraineeId(int traineeId) {
-        this.traineeId = traineeId;
-    }
-
-    public void setTrainerId(int trainerId) {
-        this.trainerId = trainerId;
-    }
-
-    public boolean isTrainer(){
-        return (trainerId != -1);
-    }
-
-    public Image getPfp() {
+    public Bitmap getPfp() {
         return pfp;
     }
 
-    public void setPfp(Image pfp) {
+    public void setPfp(Bitmap pfp) {
         this.pfp = pfp;
+    }
+
+    public boolean isTrainer(){
+        return isTrainer;
+    }
+
+    public void setTrainer(Boolean trainer) {
+        isTrainer = trainer;
+
+    }
+
+    public boolean hasPfp() {
+        return pfp != null;
     }
 }
