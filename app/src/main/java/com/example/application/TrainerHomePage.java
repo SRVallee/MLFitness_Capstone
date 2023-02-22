@@ -88,7 +88,7 @@ public class TrainerHomePage extends AppCompatActivity {
                     }
                     case R.id.friends: {
                         //Go to friends
-                        Intent i = new Intent(getApplicationContext(), TrainerFriends.class);
+                        Intent i = new Intent(getApplicationContext(), FriendsPage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
