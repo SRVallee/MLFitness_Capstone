@@ -55,7 +55,7 @@
             android:name=".TraineeTrainerProfile" >
         </activity>
         <activity
-            android:name=".TraineeFriends" >
+            android:name=".FriendsPage" >
         </activity>
         <activity
             android:name=".TraineeProfile" >

@@ -90,7 +90,7 @@ public class TraineeHomePage extends AppCompatActivity {
                     }
                     case R.id.friends: {
                         //Go to friends
-                        Intent i = new Intent(getApplicationContext(), TraineeFriends.class);
+                        Intent i = new Intent(getApplicationContext(), FriendsPage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();

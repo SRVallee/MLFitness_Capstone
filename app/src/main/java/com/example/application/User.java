@@ -59,7 +59,6 @@ public class User {
 
     public void setTrainer(Boolean trainer) {
         isTrainer = trainer;
-
     }
 
     public boolean hasPfp() {

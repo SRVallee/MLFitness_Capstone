@@ -53,6 +53,10 @@
 
         </LinearLayout>
 
+        <SearchView
+            android:layout_width="match_parent"
+            android:layout_height="40dp" />
+
         <ListView
             android:id="@+id/friend_listView"
             android:layout_width="match_parent"
