@@ -8,12 +8,16 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class TraineeProfile extends AppCompatActivity {
+public class TraineeProfile extends AppCompatActivity{
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
@@ -32,6 +36,27 @@ public class TraineeProfile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_profile);
+
+        //Set objects in the page
+        //Once db is implemented change from test/example cases to the version that get the data from the db
+
+        //Init fields in xml
+        TextView trainee_profile_username_textview = (TextView) findViewById(R.id.userNameTraineeProfile);
+        TextView trainee_profile_email_textview = (TextView) findViewById(R.id.userEmailTraineeProfile);
+
+        ImageView userProfilePicture = (ImageView) findViewById(R.id.profile_picture);
+
+        //Assigns values to the fields in the xml
+        //String trainee_profile_username = user.getUsername();
+        String trainee_profile_username = "test username";
+        trainee_profile_username_textview.setText(trainee_profile_username);
+        //String trainee_profile_email = user.getEmail();
+        String trainee_profile_email = "test email";
+        trainee_profile_email_textview.setText(trainee_profile_email);
+
+        //Check line to get from db
+        int trainee_profile_image = R.drawable.ic_baseline_tag_faces_24;
+        userProfilePicture.setImageResource(trainee_profile_image);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -116,6 +141,27 @@ public class TraineeProfile extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    public void goToEdit(View view) {
+        Intent i;
+        i = new Intent(getApplicationContext(), TraineeEditProfile.class);
+        startActivity(i);
+        finish();
+    }
+
+    public void moreWorkouts(View view) {
+        Intent i;
+        i = new Intent(getApplicationContext(), TraineeWorkouts.class);
+        startActivity(i);
+        finish();
+    }
+
+    public void moreAwards(View view) {
+        Intent i;
+        i = new Intent(getApplicationContext(), TraineeEditProfile.class);
+        startActivity(i);
+        finish();
     }
 
     @Override
