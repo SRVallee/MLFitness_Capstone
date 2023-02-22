@@ -228,7 +228,6 @@ def getTrend(cycles, repNumber = 9999):
     if len(pairList) == repNumber:
         return pairList 
         
-    print(f"pairlist: {pairList}")
     for cycle in cycles:
         if cycle in pairList:
             cycles.remove(cycle)
@@ -236,12 +235,13 @@ def getTrend(cycles, repNumber = 9999):
     
     reps = pairList
 
-    for cycle in cycles:
-        print(f"cycle: {cycle}")
+    for i in range(len(cycles)):
+        cycle = pickLargest(cycles)
+        cycles.remove(cycle)
         if len(reps) < repNumber and checkValidRange(cycle, reps):
             reps = insertRep(reps, cycle)
-            print(f"reps: {reps}")
-
+    
+    print(f"reps: {reps}")
     return reps
 
 def insertRep(reps, rep): #assums rep is valid
