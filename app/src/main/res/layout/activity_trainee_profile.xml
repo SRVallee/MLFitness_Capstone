@@ -61,18 +61,20 @@
             android:src="@drawable/ic_baseline_edit_24"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            android:clickable="true"
+            android:onClick="goToEdit"/>
 
         <TextView
             android:id="@+id/userNameTraineeProfile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="90dp"
+            android:layout_marginTop="125dp"
             android:gravity="center"
             android:text="Username"
             android:textColor="@color/mid_grey"
-            android:textSize="25dp"
+            android:textSize="20dp"
             android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/profile_picture"
             app:layout_constraintTop_toTopOf="parent" />
@@ -86,7 +88,7 @@
             android:gravity="center"
             android:text="Email"
             android:textColor="@color/mid_grey"
-            android:textSize="25dp"
+            android:textSize="20dp"
             android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/profile_picture"
             app:layout_constraintTop_toBottomOf="@+id/userNameTraineeProfile" />
@@ -96,7 +98,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="10dp"
             android:gravity="center"
             android:text="Workout Ratings"
             android:textColor="@color/mid_grey"
@@ -270,13 +272,16 @@
             android:layout_marginHorizontal="20dp"
             android:layout_marginEnd="20dp"
             android:clickable="true"
+            android:onClick="moreWorkouts"
             android:drawableRight="@drawable/ic_baseline_arrow_forward_ios_24"
             android:text="More"
             android:textColor="@color/mid_grey"
             android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/recentWorkoutList"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
+
 
         <ListView
             android:id="@+id/recentWorkoutList"
@@ -306,13 +311,15 @@
             android:layout_marginHorizontal="20dp"
             android:layout_marginEnd="20dp"
             android:clickable="true"
+            android:onClick="moreAwards"
             android:drawableRight="@drawable/ic_baseline_arrow_forward_ios_24"
             android:text="More"
             android:textColor="@color/mid_grey"
             android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/awardProfileList"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recentWorkoutList" />
 
         <ListView
             android:id="@+id/awardProfileList"

@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/arrow_forward_ios/baseline_arrow_forward_ios_24.xml" />
+                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/text_fields/baseline_text_fields_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,7 +29,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="0a7cf6" />
-                            <entry key="outputName" value="ic_baseline_arrow_forward_ios_24" />
+                            <entry key="outputName" value="ic_baseline_text_fields_24" />
                           </map>
                         </option>
                       </PersistentState>
