@@ -216,10 +216,10 @@ def getTrend(cycles, repNumber = 9999):
 
     for cycleJoint in cycles:
         
-        if cycleJoint[3] < math.radians(10): #remove cycles under 5 degrees
+        if cycleJoint[3] < math.radians(10): #remove cycles under 10 degrees
             cycles.remove(cycleJoint)
 
-    
+    print(f"all cycles before pairs: {cycles}")
     pairs = getPairs(cycles)
     pairList = []
     for pair in pairs:
@@ -233,7 +233,9 @@ def getTrend(cycles, repNumber = 9999):
         if cycle in pairList:
             cycles.remove(cycle)
     print(f"pairlist: {pairList}")
+    
     reps = pairList
+
     for cycle in cycles:
         print(f"cycle: {cycle}")
         if len(reps) < repNumber and checkValidRange(cycle, reps):
@@ -318,7 +320,9 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
 
     reps = pairList
     
-    for cycle in cycles:
+    for i in range(len(cycles)):
+        cycle = pickLargest(cycles)
+        cycles.remove(cycle) 
         if len(reps) < repNumber and checkValidRange(cycle, reps):
             reps = insertRep(reps, cycle)
 
@@ -388,6 +392,13 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
     #     lastEnd = finalEnd
 
     return reps
+
+
+def pickLargest(cycles):
+    largest = [0,0,0,0]
+    for cycle in cycles:
+        if cycle[3] > largest[3]:
+            largest = cycle
 
 def setupNewWorkout():
     
