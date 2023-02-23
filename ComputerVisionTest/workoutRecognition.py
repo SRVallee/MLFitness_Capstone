@@ -210,7 +210,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
             parallel.remove(cycle)
         elif not cycle[2]:
             cycle[2] = len(keyFrames)-1
-
+    print(f"important Angles from get rep {importantAngles}")
     return parallel, modelName, importantAngles
 
 def getTrend(cycles, repNumber = 9999):
@@ -486,7 +486,7 @@ def getAverageAndStdvOfList(list):
     return averages, stdvs
 
 def updateModelV1(videoPath, modelName, repNumber, debug = False):
-    extracted, allAngles = getKeyFramesFromVideo(videoPath)
+    extracted, allAngles, importangles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
