@@ -99,8 +99,8 @@ def getKeyFramesFromVideo(video, show = False):
 
     fps = cap.get(cv2.CAP_PROP_FPS)
     cap.release()
-    print(f"frames: {len(allFrames)}")
-    print(f"framerate: {fps}")
+    #print(f"frames: {len(allFrames)}")
+    #print(f"framerate: {fps}")
 
     rSquared = 0.5
 
@@ -191,7 +191,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
     #check important joint changes
     i = 1
 
-    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOOOO
 
     #get reps without model
     if not workout:
@@ -232,17 +232,17 @@ def getTrend(cycles, repNumber = 9999):
     if len(pairList) == repNumber:
         return pairList 
         
-    print(f"pairlist: {pairList}")
+    #print(f"pairlist: {pairList}")
     for cycle in cycles:
         if cycle in pairList:
             cycles.remove(cycle)
-    print(f"pairlist: {pairList}")
+    #print(f"pairlist: {pairList}")
     reps = pairList
     for cycle in cycles:
-        print(f"cycle: {cycle}")
+        #print(f"cycle: {cycle}")
         if len(reps) < repNumber and checkValidRange(cycle, reps):
             reps = insertRep(reps, cycle)
-            print(f"reps: {reps}")
+            #print(f"reps: {reps}")
 
     return reps
 
@@ -312,7 +312,7 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
         if cycleJoint[3] < math.radians(10): #remove cycles under 10 degrees
             cycles.remove(cycleJoint)
     
-    print(cycles)        
+    #print(cycles)        
 
     pairs = getPairs(cycles)
     pairList = []
@@ -439,7 +439,7 @@ def makeNewModelV1(extracted, allAngles, debug = False):
         keypointAngles.append(allAngles[frame[1]])
 
     reps, modelName, importantAngles = getReps(extracted, allAngles)
-    print(f"Reps: {reps}")
+    #print(f"Reps: {reps}")
     model = {}
     listOfTop = []
     listOfBottom = []
@@ -492,7 +492,7 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
         keypointAngles.append(allAngles[frame[1]])
 
     reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
-    print(f"Reps: {reps}")
+    #print(f"Reps: {reps}")
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
     
@@ -581,8 +581,23 @@ def trainML(modelName):
             
     df = mli.repsToDataframe(allReps, totalAngles, lengths)
     
-    mli.do_ml(df)
-    
+    return mli.do_ml(df)
+
+# This function will grab video path from user and what model it is for key extraction
+# and the trained model to evaluate the video if the reps are correct or not
+#
+#
+#
+#
+def vid_ML_eval(modelName,trained_MLmodel, vid_path):
+    totalAngles = []
+    extracted, allAngles, keyAngs = getKeyFramesFromVideo(vid_path)
+    totalAngles.append(keyAngs)
+    reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
+    print(f"amount of reps: {reps}")
+    df =mli.dataframeforeval(reps, allAngles)
+    mli.vid_ml_eval(trained_MLmodel,df)
+    return True
 
 def demo1():
 
@@ -608,13 +623,14 @@ if __name__ == "__main__":
     2. Update Existing Rep Model
     3. Evaluate Video
     4. Train and Test Machine Learning Analysis 
-    5. Quit\nChoice: """
-    
+    5. Machine learning video input
+    6. Quit\nChoice: """
+    model_created = 0
     while True:
         choice = input(MENU2)
         if choice == "1":
             video = input("Path to video: ").strip("'")
-            extracted, allAngles,angs = getKeyFramesFromVideo(video)
+            extracted, allAngles,impangs = getKeyFramesFromVideo(video)
             model = makeNewModelV1(extracted, allAngles, True)
             print(f"New workout added\n")
         
@@ -633,9 +649,20 @@ if __name__ == "__main__":
         
         elif choice == "4":
             name = input("Workout name: ")
-            trainML(name)
+            trained_model = trainML(name)
+            model_created = 1
             
-        elif choice == "5" or choice == "q":
+        elif choice == "5" and model_created == 1:
+            name = input("workout name: ")
+            path = input("video path: ")
+            vid_ML_eval(name,trained_model, path)
+            #mli.vid_ml_eval(name, path)
+            
+        elif choice == "5" and model_created == 0:
+            print("Error No trained model")
+            print("choice 4 of training model has not yet been made")
+            
+        elif choice == "6" or choice == "q":
             break
             
         else:

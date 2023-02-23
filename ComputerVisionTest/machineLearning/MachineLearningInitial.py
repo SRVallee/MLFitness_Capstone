@@ -1,6 +1,8 @@
 import tensorflow as tf
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 #these are all the points of the body
 COLS = [
@@ -68,6 +70,21 @@ def repsToDataframe(totalReps, totalAngs, lengths):
         
     return df.sample(frac=1).reset_index(drop=True) # shuffle dataframe and return
 
+def dataframeforeval(totalreps, totalAngs):
+    repsList=[] # is a list of reps. reps is a list of [top, bottom, top] angles
+    print(f"\ntotal reps: {len(totalreps)}")
+    for i in range(len(totalreps)):
+        rowList = []
+        for j in range(3):
+            # concat angles of top, bottom, top into one list radiens
+            if j == 0:
+                rowList = totalAngs[j].tolist()
+            else:
+                rowList = rowList + totalAngs[j].tolist()
+        repsList.append(rowList) #appends the list of (top, bottom, top) angles in raidens
+    return repsList
+                
+
 #
 #
 #
@@ -99,20 +116,21 @@ def train_model(df, epochs=10):
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(48, activation='relu'),
-        tf.keras.layers.Dense(1, activation='sigmoid')
+        tf.keras.layers.Dense(1, activation='softmax')
     ])
+    
     model.compile(
         optimizer='adam',
         loss=tf.keras.losses.binary_crossentropy,
         metrics=['accuracy']
     )
     
-    y = df.pop('GoodForm').values.tolist()
-    print(y)
-    x = df.values.tolist()
-    print(x)
+    y_test = df.pop('GoodForm').values.tolist()
+    print(f"y(df.pop): {y_test}")
+    x_test = df.values.tolist()
+    print(f"x(df.values.tolist): {x_test}")
     
-    model.fit(x, y, epochs)
+    model.fit(x_test, y_test, epochs,batch_size = 48, validation_data=(x_test, y_test))
     
     return model
 
@@ -126,7 +144,7 @@ def train_model(df, epochs=10):
 #
 def do_ml(df):
     
-    print(df.head)
+    print(f"df.head: {df.head}")
     
     train, test = split(df)
     
@@ -137,3 +155,17 @@ def do_ml(df):
     
     test_loss, test_acc = model.evaluate(testx, testy)
     print("MODEL ACCURACY: ", test_acc)
+    return model
+
+#this evaluate a user inputted cideo from key frame extraction
+#it takes the already built model to evaluate the reps of the
+#users videos. it than gives prediction of how accurate for
+#each rep and prints it
+#
+#
+def vid_ml_eval(trained_model,df):# df is the list of reps. the reps are list of top bottom top angle.
+    #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
+    print(f"len of df: {len(df)}")
+    y_pred = trained_model.predict(df)
+    print(f"\n\nthis is the prediction for reps: {y_pred}")
+    return True
