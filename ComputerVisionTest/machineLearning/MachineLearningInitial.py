@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
+#these are all the points of the body
 COLS = [
         'headLR1', 'headFB1',
         'backLR1', 'backFB1',
@@ -30,6 +31,14 @@ COLS = [
         'GoodForm'
     ]
 
+#
+#
+#
+#
+#
+#
+#
+#
 def repsToDataframe(totalReps, totalAngs, lengths):
     goodNum = lengths[0]
     repsList=[]
@@ -59,7 +68,14 @@ def repsToDataframe(totalReps, totalAngs, lengths):
         
     return df.sample(frac=1).reset_index(drop=True) # shuffle dataframe and return
 
-
+#
+#
+#
+#
+#
+#
+#
+#
 def split(df, ratio=0.2):
     train = pd.DataFrame(columns=COLS) 
     test = pd.DataFrame(columns=COLS)
@@ -70,6 +86,14 @@ def split(df, ratio=0.2):
 
     return train, test
 
+#
+#
+#
+#
+#
+#
+#
+#
 def train_model(df, epochs=10):
     tf.random.set_seed(42)
     model = tf.keras.Sequential([
@@ -92,6 +116,14 @@ def train_model(df, epochs=10):
     
     return model
 
+#
+#
+#
+#
+#
+#
+#
+#
 def do_ml(df):
     
     print(df.head)

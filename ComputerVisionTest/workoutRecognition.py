@@ -136,14 +136,14 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                 angle1 = angle2
 
             else: #get direction change and angle difference
-                #if last frame was a decrese and now it's increasing
+                #if last frame was a decrease and now it's increasing
                 if (angle1 < angle2) and increase == False: #can be None
                     increase = True
                     reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
 
                     if not increaseGiven:
-                        cycles[curve][-1][2] = frame
-                        if cycles[curve][-1][3] < (angle2 - angle1):
+                        cycles[curve][-1][2] = frame #TODO comment this what is this why is it subtracting
+                        if cycles[curve][-1][3] < (angle2 - angle1): #a list within a list witin a list
                             cycles[curve][-1][3] = angle2 - angle1
                         cycles[curve].append([frame, None, None, angle2 - angle1])
                     else:
@@ -296,7 +296,13 @@ def getPairs(cycles):
 
     return pairs
 
-
+#getCloser
+#checks if keyframe before and current keyframe are a larger difference than 10 degrees
+#if so than append it as a rep if not removes from keyframe list
+#
+#parameters: cycles()
+#
+#
 def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = 9999):
 
     reps = []
@@ -510,7 +516,7 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
 
 
 def evaluateVideo(videoPath, modelName, repNumber, debug = None):
-    extracted, allAngles = getKeyFramesFromVideo(videoPath)
+    extracted, allAngles,impotantangs = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
@@ -555,8 +561,8 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
 
 def trainML(modelName):
     vidsDir = Path.cwd().parents[1]
-    paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
-             vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
+    paths = ["E:\\University\\winter2023\\Cmpt496\\ML_training\\correct_trainML\\side_squat\\", # good reps folder
+             "E:\\University\\winter2023\\Cmpt496\\ML_training\\incorrect_trainML\\side_squat\\"] # bad reps folder
     allReps = []
     totalAngles = []
     lengths = [] # lengths of good reps, bad reps
@@ -608,7 +614,7 @@ if __name__ == "__main__":
         choice = input(MENU2)
         if choice == "1":
             video = input("Path to video: ").strip("'")
-            extracted, allAngles = getKeyFramesFromVideo(video)
+            extracted, allAngles,angs = getKeyFramesFromVideo(video)
             model = makeNewModelV1(extracted, allAngles, True)
             print(f"New workout added\n")
         
