@@ -18,6 +18,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
+#what is body angle
 MENU = "Select the joints that cycle separated by commas \n\
     Ex. for push ups: 4,5\n\n\
 1   head angle \n\
@@ -99,8 +100,8 @@ def getKeyFramesFromVideo(video, show = False):
 
     fps = cap.get(cv2.CAP_PROP_FPS)
     cap.release()
-    print(f"frames: {len(allFrames)}")
-    print(f"framerate: {fps}")
+    #print(f"frames: {len(allFrames)}")
+    #print(f"framerate: {fps}")
 
     rSquared = 0.5
 
@@ -136,14 +137,14 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                 angle1 = angle2
 
             else: #get direction change and angle difference
-                #if last frame was a decrese and now it's increasing
+                #if last frame was a decrease and now it's increasing
                 if (angle1 < angle2) and increase == False: #can be None
                     increase = True
                     reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
 
                     if not increaseGiven:
-                        cycles[curve][-1][2] = frame
-                        if cycles[curve][-1][3] < (angle2 - angle1):
+                        cycles[curve][-1][2] = frame #TODO comment this what is this why is it subtracting
+                        if cycles[curve][-1][3] < (angle2 - angle1): #a list within a list witin a list
                             cycles[curve][-1][3] = angle2 - angle1
                         cycles[curve].append([frame, None, None, angle2 - angle1])
                     else:
@@ -191,7 +192,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
     #check important joint changes
     i = 1
 
-    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOOOO
 
     #get reps without model
     if not workout:
@@ -209,7 +210,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
             parallel.remove(cycle)
         elif not cycle[2]:
             cycle[2] = len(keyFrames)-1
-
+    print(f"important Angles from get rep {importantAngles}")
     return parallel, modelName, importantAngles
 
 def getTrend(cycles, repNumber = 9999):
@@ -232,17 +233,17 @@ def getTrend(cycles, repNumber = 9999):
     if len(pairList) == repNumber:
         return pairList 
         
-    print(f"pairlist: {pairList}")
+    #print(f"pairlist: {pairList}")
     for cycle in cycles:
         if cycle in pairList:
             cycles.remove(cycle)
-    print(f"pairlist: {pairList}")
+    #print(f"pairlist: {pairList}")
     reps = pairList
     for cycle in cycles:
-        print(f"cycle: {cycle}")
+        #print(f"cycle: {cycle}")
         if len(reps) < repNumber and checkValidRange(cycle, reps):
             reps = insertRep(reps, cycle)
-            print(f"reps: {reps}")
+            #print(f"reps: {reps}")
 
     return reps
 
@@ -296,7 +297,13 @@ def getPairs(cycles):
 
     return pairs
 
-
+#getCloser
+#checks if keyframe before and current keyframe are a larger difference than 10 degrees
+#if so than append it as a rep if not removes from keyframe list
+#
+#parameters: cycles()
+#
+#
 def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = 9999):
 
     reps = []
@@ -306,7 +313,7 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
         if cycleJoint[3] < math.radians(10): #remove cycles under 10 degrees
             cycles.remove(cycleJoint)
     
-    print(cycles)        
+    #print(cycles)        
 
     pairs = getPairs(cycles)
     pairList = []
@@ -433,7 +440,7 @@ def makeNewModelV1(extracted, allAngles, debug = False):
         keypointAngles.append(allAngles[frame[1]])
 
     reps, modelName, importantAngles = getReps(extracted, allAngles)
-    print(f"Reps: {reps}")
+    #print(f"Reps: {reps}")
     model = {}
     listOfTop = []
     listOfBottom = []
@@ -479,14 +486,14 @@ def getAverageAndStdvOfList(list):
     return averages, stdvs
 
 def updateModelV1(videoPath, modelName, repNumber, debug = False):
-    extracted, allAngles = getKeyFramesFromVideo(videoPath)
+    extracted, allAngles, importangles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
     reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
-    print(f"Reps: {reps}")
+    #print(f"Reps: {reps}")
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
     
@@ -510,7 +517,7 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
 
 
 def evaluateVideo(videoPath, modelName, repNumber, debug = None):
-    extracted, allAngles = getKeyFramesFromVideo(videoPath)
+    extracted, allAngles,impotantangs = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
@@ -554,9 +561,11 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
 
 
 def trainML(modelName):
-    vidsDir = Path.cwd().parents[1]
-    paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
-             vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
+    vidsDir = Path.cwd().parents[0]
+    # paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
+    #          vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
+    paths = [str(vidsDir) + "\\ML_training\\correct_trainML\\angle_squat\\", # good reps folder
+             str(vidsDir) + "\\ML_training\\incorrect_trainML\\angle_squat\\"] # bad reps folder
     allReps = []
     totalAngles = []
     lengths = [] # lengths of good reps, bad reps
@@ -575,8 +584,23 @@ def trainML(modelName):
             
     df = mli.repsToDataframe(allReps, totalAngles, lengths)
     
-    mli.do_ml(df)
-    
+    return mli.do_ml(df)
+
+# This function will grab video path from user and what model it is for key extraction
+# and the trained model to evaluate the video if the reps are correct or not
+#
+#
+#
+#
+def vid_ML_eval(modelName,trained_MLmodel, vid_path):
+    totalAngles = []
+    extracted, allAngles, keyAngs = getKeyFramesFromVideo(vid_path)
+    totalAngles.append(keyAngs)
+    reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
+    print(f"amount of reps: {reps}")
+    df =mli.dataframeforeval(reps, allAngles)
+    mli.vid_ml_eval(trained_MLmodel,df)
+    return True
 
 def demo1():
 
@@ -602,13 +626,14 @@ if __name__ == "__main__":
     2. Update Existing Rep Model
     3. Evaluate Video
     4. Train and Test Machine Learning Analysis 
-    5. Quit\nChoice: """
-    
+    5. Machine learning video input
+    6. Quit\nChoice: """
+    model_created = 0
     while True:
         choice = input(MENU2)
         if choice == "1":
             video = input("Path to video: ").strip("'")
-            extracted, allAngles = getKeyFramesFromVideo(video)
+            extracted, allAngles,impangs = getKeyFramesFromVideo(video)
             model = makeNewModelV1(extracted, allAngles, True)
             print(f"New workout added\n")
         
@@ -627,9 +652,20 @@ if __name__ == "__main__":
         
         elif choice == "4":
             name = input("Workout name: ")
-            trainML(name)
+            trained_model = trainML(name)
+            model_created = 1
             
-        elif choice == "5" or choice == "q":
+        elif choice == "5" and model_created == 1:
+            name = input("workout name: ")
+            path = input("video path: ")
+            vid_ML_eval(name,trained_model, path)
+            #mli.vid_ml_eval(name, path)
+            
+        elif choice == "5" and model_created == 0:
+            print("Error No trained model")
+            print("choice 4 of training model has not yet been made")
+            
+        elif choice == "6" or choice == "q":
             break
             
         else:

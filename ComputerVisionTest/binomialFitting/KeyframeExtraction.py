@@ -191,6 +191,7 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
         else:
             break
     print(f"looped: {count} times")
+    print(f"key list {keyList[1]}")
     if getAngles:
         return keyList, allAngles, keyAngles
         # return keyList, keyAngles
