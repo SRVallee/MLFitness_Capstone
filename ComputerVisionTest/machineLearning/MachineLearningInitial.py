@@ -179,13 +179,16 @@ def vid_ml_eval(trained_model,df):# df is the list of reps. the reps are list of
     print(f"\n\nthis is the prediction for reps: {y_pred}")
     return True
 #correct testing vids reps
-#
-#
-#
-#
+#squatorfiangle.mp4 = 5 reps
+#squatV1angle.mp4 = 5 reps
+#squatV1angleland.mp4 = 5 reps
+#squatV2angleland.mp4 = 5 reps
+
 #incorrect testing vid reps
 #deepsquatorfiangle.mp4 = 6 reps
 #highsquatJCangle.mp4 = 5 reps
 #deepsquatJCangle.mp4 = 5 reps
 #curvedbacksquatorfiangle.mp4 = 5 reps
 #curvedbacksquatJCangle.mp4 = 5 reps
+
+#total reps 46, key frame sxtraction getting 2 extra reps
