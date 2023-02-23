@@ -18,6 +18,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
+#what is body angle
 MENU = "Select the joints that cycle separated by commas \n\
     Ex. for push ups: 4,5\n\n\
 1   head angle \n\
@@ -560,9 +561,11 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
 
 
 def trainML(modelName):
-    vidsDir = Path.cwd().parents[1]
-    paths = ["E:\\University\\winter2023\\Cmpt496\\ML_training\\correct_trainML\\side_squat\\", # good reps folder
-             "E:\\University\\winter2023\\Cmpt496\\ML_training\\incorrect_trainML\\side_squat\\"] # bad reps folder
+    vidsDir = Path.cwd().parents[0]
+    # paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
+    #          vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
+    paths = [str(vidsDir) + "\\ML_training\\correct_trainML\\angle_squat\\", # good reps folder
+             str(vidsDir) + "\\ML_training\\incorrect_trainML\\angle_squat\\"] # bad reps folder
     allReps = []
     totalAngles = []
     lengths = [] # lengths of good reps, bad reps

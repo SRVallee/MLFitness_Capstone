@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 #these are all the points of the body
 COLS = [
@@ -112,27 +113,33 @@ def split(df, ratio=0.2):
 #
 #
 def train_model(df, epochs=10):
+    labels = df.pop('GoodForm').values.tolist()
+    print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
+    x = df.values.tolist()
+    print(f"x(df.values.tolist): {x}. \nlen is {len(x)}\n")
+    X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=0)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    X_train = np.array(X_train)
+    y_train = np.array(y_train)
+    X_test = np.array(X_test)
+    y_test = np.array(y_test)
     tf.random.set_seed(42)
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(48, activation='relu'),
-        tf.keras.layers.Dense(1, activation='softmax')
+        tf.keras.layers.Dense(1, activation='sigmoid')
     ])
     
     model.compile(
         optimizer='adam',
         loss=tf.keras.losses.binary_crossentropy,
-        metrics=['accuracy']
-    )
+        metrics=['accuracy',tf.keras.metrics.Precision()]
+    )  
     
-    y_test = df.pop('GoodForm').values.tolist()
-    print(f"y(df.pop): {y_test}")
-    x_test = df.values.tolist()
-    print(f"x(df.values.tolist): {x_test}")
-    
-    model.fit(x_test, y_test, epochs,batch_size = 48, validation_data=(x_test, y_test))
-    
-    return model
+    model.fit(X_train, y_train, epochs)
+    return model, X_test, y_test
 
 #
 #
@@ -148,13 +155,15 @@ def do_ml(df):
     
     train, test = split(df)
     
-    model = train_model(train)
+    model, x_test, y_test = train_model(df)
     
     testy = test.pop('GoodForm').values.tolist()
     testx = test.values.tolist()
     
-    test_loss, test_acc = model.evaluate(testx, testy)
+    test_loss, test_acc, test_prec = model.evaluate(x_test, y_test)
     print("MODEL ACCURACY: ", test_acc)
+    print("MODEL PRECISION: ",test_prec)
+    print("MODEL MEAN SQUARED ERROR: ", test_loss)
     return model
 
 #this evaluate a user inputted cideo from key frame extraction
@@ -169,3 +178,14 @@ def vid_ml_eval(trained_model,df):# df is the list of reps. the reps are list of
     y_pred = trained_model.predict(df)
     print(f"\n\nthis is the prediction for reps: {y_pred}")
     return True
+#correct testing vids reps
+#
+#
+#
+#
+#incorrect testing vid reps
+#deepsquatorfiangle.mp4 = 6 reps
+#highsquatJCangle.mp4 = 5 reps
+#deepsquatJCangle.mp4 = 5 reps
+#curvedbacksquatorfiangle.mp4 = 5 reps
+#curvedbacksquatJCangle.mp4 = 5 reps
