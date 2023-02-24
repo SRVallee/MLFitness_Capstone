@@ -99,7 +99,7 @@ public class TraineeEditProfile extends AppCompatActivity {
         }
 
         if(!email.isEmpty() && !emailIsValid(email)){
-            alertDialog.setTitle("Invalid email 1 :" + email);
+            alertDialog.setTitle("Invalid email: " + email);
             alertDialog.setMessage("Please enter a valid email");
             alertDialog.show();
             return;
