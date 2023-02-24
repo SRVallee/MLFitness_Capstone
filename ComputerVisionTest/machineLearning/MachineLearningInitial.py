@@ -3,19 +3,29 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
+#refrence between
+# 1   head angle = [0,1]
+# 2   body angle = [2,3]
+# 3   left shoulder = [4,5]
+# 4   left hip = [6,7]
+# 5   right shoulder = [8,9]
+# 6   right hip = [10,11]
+# 7   left elbow = [12]
+# 8   left knee = [13]
+# 9   right elbow = [14]
+# 10  right knee = [15]
 #these are all the points of the body. 49 points. UD = UP down, FB = Face Back
 COLS = [
         #up postion
-        'headLR1', 'headFB1',
-        'backLR1', 'backFB1',
-        'lShoulderFB1', 'lShoulderUD1',
-        'lHipLR1', 'lHipFB1',
-        'rShoulderFB1', 'rShoulderUD1',
-        'rHipLR1', 'rHipFB1',
-        'lElb1', 'rElb1',
-        'lKnee1', 'rKnee1',
+        'headLR1', 'headFB1',#[0,1]
+        'backLR1', 'backFB1',#[2,3]
+        'lShoulderFB1', 'lShoulderUD1',#[4,5]
+        'lHipLR1', 'lHipFB1',#[6,7]
+        'rShoulderFB1', 'rShoulderUD1',#[8,9]
+        'rHipLR1', 'rHipFB1', #[10,11]
+        'lElb1',  'lKnee1', #[12],[13]
+        'rElb1', 'rKnee1', #[14],[15]
         
         #down position
         'headLR2', 'headFB2',
@@ -24,8 +34,8 @@ COLS = [
         'lHipLR2', 'lHipFB2',
         'rShoulderFB2', 'rShoulderUD2',
         'rHipLR2', 'rHipFB2',
-        'lElb2', 'rElb2',
-        'lKnee2', 'rKnee2',
+        'lElb2', 'lKnee2',
+        'rElb2', 'rKnee2',
         
         #up position
         'headLR3', 'headFB3',
@@ -34,8 +44,8 @@ COLS = [
         'lHipLR3', 'lHipFB3',
         'rShoulderFB3', 'rShoulderUD3',
         'rHipLR3', 'rHipFB3',
-        'lElb3', 'rElb3',
-        'lKnee3', 'rKnee3',
+        'lElb3', 'lKnee3',
+        'rElb3', 'rKnee3',
         'GoodForm'
     ]
 
@@ -117,12 +127,13 @@ def split(df, ratio=0.2):
 #
 #
 #
-def train_model(df, epochs=10):
+def train_model(df, importantAngles, epochs=10):
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
+    print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}")
     x = df.values.tolist()
-    print(f"x(df.values.tolist): {x}.")
-    X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=0)
+    #print(f"x(df.values.tolist): {x}.")
+    X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=42)
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
@@ -130,10 +141,10 @@ def train_model(df, epochs=10):
     y_train = np.array(y_train)
     X_test = np.array(X_test)
     y_test = np.array(y_test)
-    tf.random.set_seed(42)
+    #tf.random.set_seed(42)
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(48, activation='relu'),
-        #tf.keras.layers.Dense(48, activation='relu'),
+        tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
     
@@ -143,7 +154,7 @@ def train_model(df, epochs=10):
         metrics=['accuracy',tf.keras.metrics.Precision(), 
                   tf.keras.metrics.TruePositives(),
                  tf.keras.metrics.FalseNegatives()]
-    )  
+    )
     
     model.fit(X_train, y_train, epochs)
     return model, X_test, y_test
@@ -156,13 +167,13 @@ def train_model(df, epochs=10):
 #
 #
 #
-def do_ml(df):
+def do_ml(df, importantAngles):
     
-    print(f"df.head: {df.head}")
+    #print(f"df.head: {df.head}")
     
     train, test = split(df)
     
-    model, x_test, y_test = train_model(df)
+    model, x_test, y_test = train_model(df,importantAngles)
     
     testy = test.pop('GoodForm').values.tolist()
     testx = test.values.tolist()
@@ -196,7 +207,7 @@ def do_ml(df):
     return model
 
 
-#this evaluate a user inputted cideo from key frame extraction
+#this evaluate a user inputted video from key frame extraction
 #it takes the already built model to evaluate the reps of the
 #users videos. it than gives prediction of how accurate for
 #each rep and prints it
@@ -212,7 +223,7 @@ def vid_ml_eval(trained_model,df):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
     y_pred = trained_model.predict(df)
-    print(f"\n\nthis is the prediction for eaxh rep: {y_pred}")
+    print(f"\n\nthis is the prediction for each rep: {y_pred}")
     return True
 
 #correct testing vids reps
@@ -227,5 +238,3 @@ def vid_ml_eval(trained_model,df):
 #deepsquatJCangle.mp4 = 5 reps
 #curvedbacksquatorfiangle.mp4 = 5 reps
 #curvedbacksquatJCangle.mp4 = 5 reps
-
-#total reps 46, key frame sxtraction getting 2 extra reps

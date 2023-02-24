@@ -18,7 +18,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-#what is body angle
+#body angle 
 MENU = "Select the joints that cycle separated by commas \n\
     Ex. for push ups: 4,5\n\n\
 1   head angle \n\
@@ -192,7 +192,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
     #check important joint changes
     i = 1
 
-    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOOOO
+    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     #get reps without model
     if not workout:
@@ -503,7 +503,6 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
             model.updateModel(WorkoutPose(keypointAngles[rep[2]]), "Top")
             model.updateModel(WorkoutPose(keypointAngles[rep[1]]), "Bottom")
 
-
     if debug:
         n = input("Frame to display: ")
         while n != "no":
@@ -584,7 +583,7 @@ def trainML(modelName):
             
     df = mli.repsToDataframe(allReps, totalAngles, lengths)
     
-    return mli.do_ml(df)
+    return mli.do_ml(df, importantAngles)
 
 # This function will grab video path from user and what model it is for key extraction
 # and the trained model to evaluate the video if the reps are correct or not
