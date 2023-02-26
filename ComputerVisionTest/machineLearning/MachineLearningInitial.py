@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler
 # 8   left knee = [13]
 # 9   right elbow = [14]
 # 10  right knee = [15]
-#these are all the points of the body. 49 points. UD = UP down, FB = Face Back
+#these are all the points of the body. 49 points for 3 reps and form. UD = UP down, FB = Face Back
 COLS = [
         #up postion
         'headLR1', 'headFB1',#[0,1]
@@ -86,6 +86,11 @@ def repsToDataframe(totalReps, totalAngs, lengths):
         
     return df #df.sample(frac=1).reset_index(drop=True) # shuffle dataframe and return
 
+#
+#
+#
+#
+#
 def dataframeforeval(totalreps, totalAngs):
     repsList=[] # is a list of reps. reps is a list of [top, bottom, top] angles
     print(f"\ntotal reps: {len(totalreps)}")
@@ -133,7 +138,7 @@ def train_model(df, importantAngles, epochs=10):
     print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}")
     x = df.values.tolist()
     #print(f"x(df.values.tolist): {x}.")
-    X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=0)
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
@@ -194,6 +199,7 @@ def do_ml(df, importantAngles):
     recall = true_pos/(true_pos + false_neg)
     print("Recall: ", recall) #measures how good the model is at correctly predicting positive classes
     #this is determined by # of true positives/(# of true positives + # of false negatives)
+    
     if (test_prec + recall) > 0:
         f1 = 2*((test_prec * recall)/(test_prec + recall))
         print("F1-Score: ", f1)# is the harmonic mean of precision and recall
@@ -219,12 +225,24 @@ def do_ml(df, importantAngles):
 #parameters:
 #           trained_model = an already trained model
 #           df = is the list of reps. the reps are list of top bottom top angle in raidens
-def vid_ml_eval(trained_model,df):
+#
+#Return:
+#           nothing
+def vid_ml_eval(trained_model, df, extracted, reps):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
+    class_list = []
+    acutal_frame_num = []
+    rep_frame_list = []
+    count = 0
+    for i in range(len(extracted)):
+        (temp_class_extract, temp_frame_extract) = extracted[i]
+        rep_frame_list.append(temp_frame_extract)
+    for j in reps:
+        acutal_frame_num.append([rep_frame_list[j[0]], rep_frame_list[j[1]], rep_frame_list[j[2]],j[3]])
     y_pred = trained_model.predict(df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
-    return True
+    print(f"this is the actual frame numbers [up, down, up, degree]: {acutal_frame_num}")
 
 #correct testing vids reps
 #squatorfiangle.mp4 = 5 reps

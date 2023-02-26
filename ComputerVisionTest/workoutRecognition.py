@@ -106,6 +106,7 @@ def getKeyFramesFromVideo(video, show = False):
     rSquared = 0.5
 
     print(f"RSquared: {rSquared}")
+    #extracted is a list of tuples with class Solution outputs and the actual frame
     extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
     print(f"{len(extracted)} frames extracted")
     return extracted, allangles, keyAngs
@@ -598,7 +599,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
     print(f"amount of reps: {reps}")
     df =mli.dataframeforeval(reps, allAngles)
-    mli.vid_ml_eval(trained_MLmodel,df)
+    mli.vid_ml_eval(trained_MLmodel, df, extracted, reps)
     return True
 
 def demo1():
