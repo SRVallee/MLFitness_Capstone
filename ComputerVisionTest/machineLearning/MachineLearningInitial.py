@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from keras.preprocessing.text import Tokenizer
 
 #refrence between
 # 1   head angle = [0,1]
@@ -231,18 +232,21 @@ def do_ml(df, importantAngles):
 def vid_ml_eval(trained_model, df, extracted, reps):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
-    class_list = []
     acutal_frame_num = []
     rep_frame_list = []
-    count = 0
+    y_pred_list =[]
     for i in range(len(extracted)):
         (temp_class_extract, temp_frame_extract) = extracted[i]
         rep_frame_list.append(temp_frame_extract)
     for j in reps:
+        print(f"j in reps: {j}")
         acutal_frame_num.append([rep_frame_list[j[0]], rep_frame_list[j[1]], rep_frame_list[j[2]],j[3]])
     y_pred = trained_model.predict(df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
     print(f"this is the actual frame numbers [up, down, up, degree]: {acutal_frame_num}")
+    for confidence in range(len(acutal_frame_num)):
+        y_pred_list.append(y_pred[confidence][0])
+    return y_pred_list, acutal_frame_num
 
 #correct testing vids reps
 #squatorfiangle.mp4 = 5 reps

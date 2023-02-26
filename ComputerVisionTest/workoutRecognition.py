@@ -12,6 +12,7 @@ from pathlib import Path
 import binomialFitting.KeyframeExtraction as KeyframeExtraction
 import machineLearning.MachineLearningInitial as mli
 import mp_drawing_modified
+import evalPoseDisplay as poseDisplay
 from Workout import Workout
 from WorkoutPose import WorkoutPose
 mp_drawing = mp.solutions.drawing_utils
@@ -599,8 +600,8 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
     print(f"amount of reps: {reps}")
     df =mli.dataframeforeval(reps, allAngles)
-    mli.vid_ml_eval(trained_MLmodel, df, extracted, reps)
-    return True
+    y_pred, frame_rep_list= mli.vid_ml_eval(trained_MLmodel, df, extracted, reps)
+    return y_pred, frame_rep_list
 
 def demo1():
 
@@ -658,7 +659,14 @@ if __name__ == "__main__":
         elif choice == "5" and model_created == 1:
             name = input("workout name: ")
             path = input("video path: ")
-            vid_ML_eval(name,trained_model, path)
+            y_pred, acutal_frame_list =vid_ML_eval(name,trained_model, path)
+            for i in range(len(acutal_frame_list)):
+                up_start = acutal_frame_list[i][0]
+                down = acutal_frame_list[i][1]
+                up_end = acutal_frame_list[i][2]
+                poseDisplay.capture_feed(path, up_start)
+                poseDisplay.capture_feed(path, down)
+                poseDisplay.capture_feed(path, up_end)
             #mli.vid_ml_eval(name, path)
             
         elif choice == "5" and model_created == 0:

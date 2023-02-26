@@ -29,9 +29,23 @@ Orfileg = [16,17.88] # hip to knee, knee to ankle
 
 
 #this is just the class to find and create the pose
+# MODE:
+#     mode set to false is for a video due to it will try to localize the landmarks to each other
+#     mode set to True is for images due to 2 images can be completely different therefore does
+#     not need to localize landmarks to be closer together
+# SMOOTH: 
+#     if set to True reduces jittering making it more smooth transition from each frame
+#     if set to False does not try to reduce jittering in video
+#     if mode is set to True for images it will be automatically ignored
+# SEGMEN:
+#     if True generates the segmentation mask for the pose
+#     if False does not generate the segmentation mask
+# SMOOTHSEG:
+#     if set True will try to reduce the masks jitter on the images
+#     if set False will not try to reduce the jitter
 class poseDetector():
 
-    def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
+    def __init__(self, mode=True,modcomp = 2, smooth=False,segmen=True, smoothseg=True,
                  detectionCon=0.7, trackCon=0.5):
 
         self.mode = mode
@@ -230,7 +244,7 @@ class poseDetector():
             cv2.circle(img,(x2, y2), 15, (0,0,255),2)
             cv2.circle(img,(x3, y3), 5, (0,0,255),cv2.FILLED)
             cv2.circle(img,(x3, y3), 15, (0,0,255),2)
-            cv2.putText(img, str((int(angle))),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
+            cv2.putText(img, str(int(angle)),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
         return self.lowhip_angle
 
 ##
@@ -240,8 +254,8 @@ class poseDetector():
 # Parameters: video path
 # returns: lowest angle
 ##           
-def capture_feed(vidname, torso, leg):
-    cap = cv2.VideoCapture(sys.path[0]+ vidname)  # the video sys.path[0] is the current path of the file
+def capture_feed(path, frame_id):
+    cap = cv2.VideoCapture(path)  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
     #data = np.empty((3,32,length))
@@ -251,6 +265,7 @@ def capture_feed(vidname, torso, leg):
     
     while success:
         #this sees if it can read the frame that it is given
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
         success, img = cap.read()
         
         constant_height = 700
@@ -349,17 +364,20 @@ def capture_feed(vidname, torso, leg):
         fps = 1 / (cTime - pTime)
         pTime = cTime
         if len(lmList) != 0:
-            angle = detector.findkneeAngle(annotated_img,24,26,28)
-            angle2 = detector.findkneeAngle(annotated_img,23, 25, 27)
-            hip_angle = detector.findhipAngle(annotated_img,12, 24, 26)
+            angle = detector.findkneeAngle(annotated_img,24,26,28) #delete
+            angle2 = detector.findkneeAngle(annotated_img,23, 25, 27) #delete
+            hip_angle = detector.findhipAngle(annotated_img,12, 24, 26) #delete
             #print(f"lowest angle; {angle}")
-        cv2.putText(img, str(int(fps)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+        cv2.putText(annotated_img, str(int(frame_id)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         #resize is width than height
         resize = cv2.resize(annotated_img, (modded_width, constant_height))
-        print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
+        #print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
         cv2.imshow("Image", resize)
-        key = cv2.waitKey(1)  # millisecond delays
+        key = cv2.waitKey(0)  # millisecond delays
         if key == 27: #esc
-            cv2.destroyAllWindows
+            cv2.destroyWindow("Image")
+            cap.release()
             break
-    return int(angle), int(angle2), int(hip_angle)
+    #cv2.destroyAllWindows
+    #cap.release()
+    #return int(angle), int(angle2), int(hip_angle)
