@@ -68,9 +68,13 @@ def getKeyFramesFromVideo(video, show = False):
     cap = cv2.VideoCapture(video)
     allFrames = []
     frameTime = 0
-    with mp_pose.Pose(
-        min_detection_confidence=0.1,
-        min_tracking_confidence=0.1) as pose:
+    with mp_pose.Pose(static_image_mode=False,
+               model_complexity=2,
+               smooth_landmarks=True,
+               enable_segmentation=False,
+               smooth_segmentation=True,
+               min_detection_confidence=0.1,
+               min_tracking_confidence=0.1) as pose:
         while cap.isOpened():
             success, image = cap.read()
             if not success:
@@ -452,10 +456,9 @@ def makeNewModelV1(extracted, allAngles, debug = False):
         listOfTop.append(keypointAngles[rep[0]]) 
         listOfBottom.append(keypointAngles[rep[1]])
         listOfTop.append(keypointAngles[rep[2]])
-    
+
     listOfTop = KeyframeExtraction.simplifiedCurveModel(listOfTop)
     listOfBottom = KeyframeExtraction.simplifiedCurveModel(listOfBottom)
-            
 
     averageTop, StdevOfTop = getAverageAndStdvOfList(listOfTop)
     averageBottom, StdevOfBottom = getAverageAndStdvOfList(listOfBottom)
@@ -484,7 +487,7 @@ def getAverageAndStdvOfList(list):
     for i in range(len(list)):
         averages.append(get_average(list[i]))
         stdvs.append(get_standard_deviation(list[i]))
-    
+
     return averages, stdvs
 
 def updateModelV1(videoPath, modelName, repNumber, debug = False):
@@ -498,7 +501,7 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
     #print(f"Reps: {reps}")
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
-    
+ 
     for rep in reps:
         if not None in rep:
             model.updateModel(WorkoutPose(keypointAngles[rep[0]]), "Top")
@@ -508,7 +511,7 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
     if debug:
         n = input("Frame to display: ")
         while n != "no":
-  
+
             n = int(n)-1
             mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
             n = input("Frame to display: ")
@@ -644,38 +647,33 @@ if __name__ == "__main__":
             video = input("Path to video: ").strip("'")
             updateModelV1(video, name, True)
             print(f"{name} updated\n")
-            
+
         elif choice == "3":
             name = input("Workout name: ")
             numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
             right, wrong = evaluateVideo(video, name, numberOfReps, True)
-        
+
         elif choice == "4":
             name = input("Workout name: ")
             trained_model = trainML(name)
             model_created = 1
-            
+
         elif choice == "5" and model_created == 1:
             name = input("workout name: ")
             path = input("video path: ")
             y_pred, acutal_frame_list =vid_ML_eval(name,trained_model, path)
             for i in range(len(acutal_frame_list)):
-                up_start = acutal_frame_list[i][0]
-                down = acutal_frame_list[i][1]
-                up_end = acutal_frame_list[i][2]
-                poseDisplay.capture_feed(path, up_start)
-                poseDisplay.capture_feed(path, down)
-                poseDisplay.capture_feed(path, up_end)
+                poseDisplay.capture_feed(path, acutal_frame_list)
             #mli.vid_ml_eval(name, path)
-            
+
         elif choice == "5" and model_created == 0:
             print("Error No trained model")
             print("choice 4 of training model has not yet been made")
-            
+
         elif choice == "6" or choice == "q":
             break
-            
+
         else:
             print("Incorrect input, try again.")
             continue

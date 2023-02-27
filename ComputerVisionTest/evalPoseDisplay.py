@@ -10,24 +10,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import mathutility
 
-# all in inches
-# these are all length to each body part from blaze pose
-
-#JEan carlos Gonzales Graces
-JCface = [2,1.5,4,2,1.5,4,2,]#nose-L inner eye, L inner eye - L outer eye, L outer eye - L ear, 
-#nose - R inner eye, R inner eye - R outer eye, R outer eye - R ear
-JCarm = [12.5, 10] #shoulder - elbow, elbow to wrist 
-JCtorso = [14.25, 21.5, 14] # shoulder - shoulder, shoulder to hip, hip to hip
-JCleg = [14.63, 15.25] # hip to knee, knee to ankle
-
-#Orifzon Hawz
-Orfiface = [2, 1.88, 4, 2, 1.88, 4] #nose-L inner eye, L inner eye - L outer eye, 
-#L outer eye - L ear, nose - R inner eye, R inner eye - R outer eye, R outer eye - R ear
-Orfiarm = [11.5, 11.38] #shoulder to elbow, elbow to wrist
-Orfitorso = [15,22, 14] # shoulder to shoulder, shoulder to hip, hip to hip
-Orfileg = [16,17.88] # hip to knee, knee to ankle
-
-
 #this is just the class to find and create the pose
 # MODE:
 #     mode set to false is for a video due to it will try to localize the landmarks to each other
@@ -45,7 +27,7 @@ Orfileg = [16,17.88] # hip to knee, knee to ankle
 #     if set False will not try to reduce the jitter
 class poseDetector():
 
-    def __init__(self, mode=True,modcomp = 2, smooth=False,segmen=True, smoothseg=True,
+    def __init__(self, mode=False,modcomp = 2, smooth=True,segmen=True, smoothseg=True,
                  detectionCon=0.7, trackCon=0.5):
 
         self.mode = mode
@@ -254,7 +236,7 @@ class poseDetector():
 # Parameters: video path
 # returns: lowest angle
 ##           
-def capture_feed(path, frame_id):
+def capture_feed(path, frame_rep_list):
     cap = cv2.VideoCapture(path)  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
@@ -262,122 +244,129 @@ def capture_feed(path, frame_id):
     frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     success = True
     new_angle = 360
-    
-    while success:
-        #this sees if it can read the frame that it is given
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
-        success, img = cap.read()
-        
-        constant_height = 700
-        slope = 0
-        perp_slope = 0
-        if success == False:
-            break
-        
-        # img.shape is a list of the dimensions of the frame 0 = height
-        # 1 = width, 2 = number of chnnels for image
-        height = img.shape[0]
-        width = img.shape[1]
-        
-        height_percentage = float(constant_height/int(height))
-        modded_width = int(float(width)*height_percentage)
-        img = detector.findPose(img)
-        #this is the annotated image with the segmentation mask it is needed as a copy
-        #of the first image so that they are 2 seperate images so that all the colours will not
-        #be the same
-        annotated_img = detector.seg_mask(img)
-        lmList = detector.findPosition(annotated_img)
-        world_mod_lmList, world_unmod_lmlist = detector.findWorldPosition(annotated_img)
-        #print(world_unmod_lmlist[12][1], world_unmod_lmlist[12][2], world_unmod_lmlist[12][3])
-        #print(world_unmod_lmlist[24][1], world_unmod_lmlist[24][2], world_unmod_lmlist[12][3])
-        mathutility.HighVis(lmList)
-        for i in range(len(lmList)):
-            if lmList[i][0] == 12:
-                x1 = int(lmList[i][1])
-                y1 = int(lmList[i][2])
-                visibilty = int(lmList[i][4])
-                pt1 = (x1,y1)
-            elif lmList[i][0] == 24:
-                x2 = int(lmList[i][1])
-                y2 = int(lmList[i][2])
-                visibilty2 = int(lmList[i][4])
-                pt2 = (x2 ,y2)
-            elif lmList[i][0] == 8:
-                earX = lmList[i][1]
-                earY = lmList[i][2]
-        cv2.line(img,pt1,pt2,(139,0,0),2)
-        
-        #this is due to if the line is completely verical
-        if x2-x1 != 0:
-            slope = ((y2-y1)/(x2-x1))
+    print(f"{frame_rep_list}, length: {len(frame_rep_list)}")
+    for i in range(len(frame_rep_list)):
+        start_frame_id = frame_rep_list[i][0]
+        end_frame_id = frame_rep_list[i][2]
+        amount_frames = end_frame_id - start_frame_id
+        cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id)
+        while success:
+            #this sees if it can read the frame that it is given
+            success, img = cap.read()
             
-        y_inter = (y1-(slope*x1)) 
-        #print(f"slope: {slope}, y_inter: {y_inter}, x1: {x1}, y1: {y1}, x2: {x2}, y2: {y2}")
-        
-        
-        #also for case for completely vertical
-        if slope != 0:
-            perp_slope = (-1)/slope
-        perp_y_inter = int(y1-(perp_slope*x1)) 
-        #shoulder
-        cv2.line(annotated_img,pt1,(0,perp_y_inter),(0,128,0),6)
-        perp_y_inter_bottom = int(y2-(perp_slope*x2))
-        #hip out
-        cv2.line(annotated_img,pt2,(0,perp_y_inter_bottom),(0,128,0),6)
-        if y2 >img.shape[0]:
-            y2 = img.shape[0]-1
-        
-        backx, backx2 = detector.backLine(img,x1,y1,x2,y2,perp_slope,perp_y_inter,perp_y_inter_bottom)
-        #print(f"back point1: {backx}, back point2: {backx2}")
-        backplt1 = backx-10, int(perp_slope*(backx-10)+perp_y_inter)
-        backplt2 = backx2-10, int(perp_slope*(backx2-10)+perp_y_inter_bottom)
+            constant_height = 700
+            slope = 0
+            perp_slope = 0
+            if success == False:
+                break
+            
+            if int(cap.get(cv2.CAP_PROP_POS_FRAMES)) == end_frame_id:
+                cv2.destroyWindow("Image")
+                break
+            
+            # img.shape is a list of the dimensions of the frame 0 = height
+            # 1 = width, 2 = number of chnnels for image
+            height = img.shape[0]
+            width = img.shape[1]
+            
+            height_percentage = float(constant_height/int(height))
+            modded_width = int(float(width)*height_percentage)
+            img = detector.findPose(img)
+            #this is the annotated image with the segmentation mask it is needed as a copy
+            #of the first image so that they are 2 seperate images so that all the colours will not
+            #be the same
+            annotated_img = detector.seg_mask(img)
+            lmList = detector.findPosition(annotated_img)
+            world_mod_lmList, world_unmod_lmlist = detector.findWorldPosition(annotated_img)
+            #print(world_unmod_lmlist[12][1], world_unmod_lmlist[12][2], world_unmod_lmlist[12][3])
+            #print(world_unmod_lmlist[24][1], world_unmod_lmlist[24][2], world_unmod_lmlist[12][3])
+            mathutility.HighVis(lmList)
+            for i in range(len(lmList)):
+                if lmList[i][0] == 12:
+                    x1 = int(lmList[i][1])
+                    y1 = int(lmList[i][2])
+                    visibilty = int(lmList[i][4])
+                    pt1 = (x1,y1)
+                elif lmList[i][0] == 24:
+                    x2 = int(lmList[i][1])
+                    y2 = int(lmList[i][2])
+                    visibilty2 = int(lmList[i][4])
+                    pt2 = (x2 ,y2)
+                elif lmList[i][0] == 8:
+                    earX = lmList[i][1]
+                    earY = lmList[i][2]
+            cv2.line(img,pt1,pt2,(139,0,0),2)
+            
+            #this is due to if the line is completely verical
+            if x2-x1 != 0:
+                slope = ((y2-y1)/(x2-x1))
+                
+            y_inter = (y1-(slope*x1)) 
+            #print(f"slope: {slope}, y_inter: {y_inter}, x1: {x1}, y1: {y1}, x2: {x2}, y2: {y2}")
+            
+            
+            #also for case for completely vertical
+            if slope != 0:
+                perp_slope = (-1)/slope
+            perp_y_inter = int(y1-(perp_slope*x1)) 
+            #shoulder
+            cv2.line(annotated_img,pt1,(0,perp_y_inter),(0,128,0),6)
+            perp_y_inter_bottom = int(y2-(perp_slope*x2))
+            #hip out
+            cv2.line(annotated_img,pt2,(0,perp_y_inter_bottom),(0,128,0),6)
+            if y2 >img.shape[0]:
+                y2 = img.shape[0]-1
+            
+            backx, backx2 = detector.backLine(img,x1,y1,x2,y2,perp_slope,perp_y_inter,perp_y_inter_bottom)
+            #print(f"back point1: {backx}, back point2: {backx2}")
+            backplt1 = backx-10, int(perp_slope*(backx-10)+perp_y_inter)
+            backplt2 = backx2-10, int(perp_slope*(backx2-10)+perp_y_inter_bottom)
 
 
-        arch= detector.checkback(img,backplt1,backplt2)
-        #this is for the upper back to lower back checking back posture
-        if arch == True:
-            cv2.line(annotated_img,backplt1,backplt2,(0,128,0),6)
-        else:
-            cv2.line(annotated_img,backplt1,backplt2,(0,0,128),6)
+            arch= detector.checkback(img,backplt1,backplt2)
+            #this is for the upper back to lower back checking back posture
+            if arch == True:
+                cv2.line(annotated_img,backplt1,backplt2,(0,128,0),6)
+            else:
+                cv2.line(annotated_img,backplt1,backplt2,(0,0,128),6)
 
 
-        #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
-        #print(lmList)
-        #the landmarks i want for side are 12 and 24 to get line and slope
-        #plotting= detector.threeDimensionalplot(img)
-        #print(world_lmList)
+            #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
+            #print(lmList)
+            #the landmarks i want for side are 12 and 24 to get line and slope
+            #plotting= detector.threeDimensionalplot(img)
+            #print(world_lmList)
 
-        #this gets the points to draw the line to the back of the head
-        head_x, head_y ,noseX, noseY, head_slope= detector.face_track(img,lmList)
-        arch2= detector.checkback(img,(head_x,head_y),backplt2)
-        
-        #this is to create the line from nose to back of head
-        cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
+            #this gets the points to draw the line to the back of the head
+            head_x, head_y ,noseX, noseY, head_slope= detector.face_track(img,lmList)
+            arch2= detector.checkback(img,(head_x,head_y),backplt2)
+            
+            #this is to create the line from nose to back of head
+            cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
 
-        #this is for from the back of head to hip checking for posture
-        if arch2 == True:
-            cv2.line(annotated_img,(head_x,head_y),backplt2,(0,128,0),6)
-        else:
-            cv2.line(annotated_img,(head_x,head_y),backplt2,(0,0,255),6)
-        cTime = time.time()
-        #print(f"real world measurements: {world_unmod_lmlist}")
-        fps = 1 / (cTime - pTime)
-        pTime = cTime
-        if len(lmList) != 0:
-            angle = detector.findkneeAngle(annotated_img,24,26,28) #delete
-            angle2 = detector.findkneeAngle(annotated_img,23, 25, 27) #delete
-            hip_angle = detector.findhipAngle(annotated_img,12, 24, 26) #delete
-            #print(f"lowest angle; {angle}")
-        cv2.putText(annotated_img, str(int(frame_id)), (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-        #resize is width than height
-        resize = cv2.resize(annotated_img, (modded_width, constant_height))
-        #print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
-        cv2.imshow("Image", resize)
-        key = cv2.waitKey(0)  # millisecond delays
-        if key == 27: #esc
-            cv2.destroyWindow("Image")
-            cap.release()
-            break
-    #cv2.destroyAllWindows
-    #cap.release()
+            #this is for from the back of head to hip checking for posture
+            if arch2 == True:
+                cv2.line(annotated_img,(head_x,head_y),backplt2,(0,128,0),6)
+            else:
+                cv2.line(annotated_img,(head_x,head_y),backplt2,(0,0,255),6)
+            cTime = time.time()
+            #print(f"real world measurements: {world_unmod_lmlist}")
+            fps = 1 / (cTime - pTime)
+            pTime = cTime
+            if len(lmList) != 0:
+                angle = detector.findkneeAngle(annotated_img,24,26,28) #delete
+                angle2 = detector.findkneeAngle(annotated_img,23, 25, 27) #delete
+                hip_angle = detector.findhipAngle(annotated_img,12, 24, 26) #delete
+                #print(f"lowest angle; {angle}")
+            cv2.putText(annotated_img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, {end_frame_id}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+            #resize is width than height
+            resize = cv2.resize(annotated_img, (modded_width, constant_height))
+            #print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
+            cv2.imshow("Image", resize)
+            key = cv2.waitKey(1)  # millisecond delays
+            if key == 27: #esc
+                cv2.destroyWindow("Image")
+                break
+        cv2.destroyAllWindows
+    cap.release()
     #return int(angle), int(angle2), int(hip_angle)
