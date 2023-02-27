@@ -56,6 +56,20 @@ def convertJoints(Joints):
     angles.sort()
     return angles
 
+def getParallelJoint(joint):
+    if getParallelJoint == "3":
+        return choiceList["5"]
+    elif getParallelJoint == "5":
+        return choiceList["3"]
+    elif getParallelJoint == "4":
+        return choiceList["6"]
+    elif getParallelJoint == "6":
+        return choiceList["4"]
+    elif getParallelJoint == "7":
+        return choiceList["9"]
+    elif getParallelJoint == "9":
+        return choiceList["7"]
+
 from statistics import mean
 from statistics import stdev
 
@@ -399,6 +413,8 @@ def pickLargest(cycles):
     for cycle in cycles:
         if cycle[3] > largest[3]:
             largest = cycle
+    if largest != [0,0,0,0]:
+        return largest
 
 def setupNewWorkout():
     
