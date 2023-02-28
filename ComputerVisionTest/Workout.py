@@ -7,6 +7,7 @@ class Workout:
             self._top = WorkoutPose(model["Top"][0], model["Top"][1], model["Top"][2])
             self._bottom = WorkoutPose(model["Top"][0], model["Top"][1], model["Top"][2])
             self._impAng = model["ImportantAngles"]
+            self._exclAng = model["ExcludeAngles"]
 
     def loadModel(self, path):
         with open(path, "r") as f:
@@ -14,6 +15,7 @@ class Workout:
         self._top = WorkoutPose(model["Top"][0], model["Top"][1], model["Top"][2])
         self._bottom = WorkoutPose(model["Top"][0], model["Top"][1], model["Top"][2])
         self._impAng = model["ImportantAngles"]
+        self._exclAng = model["ExcludeAngles"]
         return self
             
     def updateModel(self, newPose : WorkoutPose, poseType : str):
@@ -68,7 +70,7 @@ class Workout:
             self._bottom.plusPopulation(1)
 
     def saveModel(self, path):
-        model = {"Top": self._top.toList(), "Bottom": self._bottom.toList(), "ImportantAngles": self._impAng}
+        model = {"Top": self._top.toList(), "Bottom": self._bottom.toList(), "ImportantAngles": self._impAng, "ExcludeAngles":self._exclAng}
         with open(path, "w") as f:
             json.dump(model, f)
 
@@ -98,6 +100,9 @@ class Workout:
 
     def getImportantAngles(self):
         return self._impAng
+    
+    def getExcludeAngles(self):
+        return self._exclAng
 
     def validateWorkout(self, start : WorkoutPose, middle : WorkoutPose, end = WorkoutPose):
 
