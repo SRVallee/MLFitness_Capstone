@@ -226,7 +226,7 @@ def getSmallestRSquared(simpleModel, f, start, end):
         
         if rSq < smallest:
             smallest = rSq
-            print(f"smallest R at frame {i+1}")
+            #print(f"smallest R at frame {i+1}")
         
     return smallest
 

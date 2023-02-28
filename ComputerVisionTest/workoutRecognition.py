@@ -242,7 +242,7 @@ def getTrend(cycles, allAngles, repNumber = 9999):
         if cycleJoint[3] < math.radians(5): #remove cycles under 5 degrees
             cycles.remove(cycleJoint)
 
-    print(f"all cycles before pairs: {cycles}")
+    #print(f"all cycles before pairs: {cycles}")
     pairs = getPairs(cycles)
     pairList = []
     for pair in pairs:
@@ -254,7 +254,7 @@ def getTrend(cycles, allAngles, repNumber = 9999):
     for cycle in cycles:
         if cycle in pairList:
             cycles.remove(cycle)
-    print(f"pairlist: {pairList}")
+    #print(f"pairlist: {pairList}")
     
     reps = pairList
 
@@ -271,23 +271,23 @@ def getTrend(cycles, allAngles, repNumber = 9999):
 
 def getParallelCycleAngle(cycle, allAngles):
     opositeAngles = getParallelJoint(getJoint(cycle[4]))
-    print(f"\ncycle: {cycle}")
-    print(f"Oposite angles: {opositeAngles}")
+    #print(f"\ncycle: {cycle}")
+    #print(f"Oposite angles: {opositeAngles}")
     maxAngles = []
     if opositeAngles:
         for angle in opositeAngles:
-            print(f"allAngleslen: {len(allAngles)}")
-            print(f"framelen: {len(allAngles[0])}")
+            #print(f"allAngleslen: {len(allAngles)}")
+            #print(f"framelen: {len(allAngles[0])}")
             angle1 = abs(allAngles[cycle[0]][angle] - allAngles[cycle[1]][angle])
             angle2 = abs(allAngles[cycle[1]][angle] - allAngles[cycle[2]][angle])
             if angle1 > angle2:
                 maxAngles.append(angle1)
             else:
                 maxAngles.append(angle2)
-    print(f"\nmax angles: {maxAngles}")
+    #print(f"\nmax angles: {maxAngles}")
 
     if maxAngles:
-        print(f"returning: {max(maxAngles)}")
+        #print(f"returning: {max(maxAngles)}")
         return max(maxAngles)
     return
 
