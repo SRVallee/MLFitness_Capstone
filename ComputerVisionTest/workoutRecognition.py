@@ -218,14 +218,14 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
             cycle[2] = len(keyFrames)-1
 
 
-    #get reps without model
-    if not workout:
+    #get reps without model           #Not using getCloser for now
+    #if not workout:
         parallel = getTrend(allCycles, anglesFromExtracted, int(repNumber))
-    else:
-        if repNumber:
-            parallel = getCloser(allCycles, anglesFromExtracted, model, int(repNumber))
-        else:
-            parallel = getCloser(allCycles, anglesFromExtracted, model)
+    # else:
+    #     if repNumber:
+    #         parallel = getCloser(allCycles, anglesFromExtracted, model, int(repNumber))
+    #     else:
+    #         parallel = getCloser(allCycles, anglesFromExtracted, model)
 
     #print(f"cycles: {parallel}")
 
