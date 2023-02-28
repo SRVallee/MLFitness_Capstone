@@ -270,6 +270,8 @@ def getTrend(cycles, allAngles, repNumber = 9999):
     return reps
 
 def getParallelCycleAngle(cycle, allAngles):
+    if not cycle[0] or not cycle[1] or not cycle[2]:
+        return
     opositeAngles = getParallelJoint(getJoint(cycle[4]))
     #print(f"\ncycle: {cycle}")
     #print(f"Oposite angles: {opositeAngles}")
@@ -477,7 +479,7 @@ def get_standard_deviation(data):
 
 def makeNewModelV1(extracted, allAngles, debug = False):
     keypointAngles = []
-
+    
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
@@ -499,7 +501,7 @@ def makeNewModelV1(extracted, allAngles, debug = False):
 
     averageTop, StdevOfTop = getAverageAndStdvOfList(listOfTop)
     averageBottom, StdevOfBottom = getAverageAndStdvOfList(listOfBottom)
-    print(f"Sdv returned: {StdevOfBottom}")
+    #print(f"Sdv returned: {StdevOfBottom}")
 
     model["Top"] = [averageTop, StdevOfTop, len(listOfTop[0])*2]
     model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
