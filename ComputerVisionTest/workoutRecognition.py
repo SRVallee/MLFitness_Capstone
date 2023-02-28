@@ -12,13 +12,14 @@ from pathlib import Path
 import binomialFitting.KeyframeExtraction as KeyframeExtraction
 import machineLearning.MachineLearningInitial as mli
 import mp_drawing_modified
+import evalPoseDisplay as poseDisplay
 from Workout import Workout
 from WorkoutPose import WorkoutPose
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-#what is body angle
+#body angle 
 MENU = "Select the joints that cycle separated by commas \n\
     Ex. for push ups: 4,5\n\n\
 1   head angle \n\
@@ -85,9 +86,13 @@ def getKeyFramesFromVideo(video, show = False):
     cap = cv2.VideoCapture(video)
     allFrames = []
     frameTime = 0
-    with mp_pose.Pose(
-        min_detection_confidence=0.1,
-        min_tracking_confidence=0.1) as pose:
+    with mp_pose.Pose(static_image_mode=False,
+               model_complexity=2,
+               smooth_landmarks=True,
+               enable_segmentation=False,
+               smooth_segmentation=True,
+               min_detection_confidence=0.1,
+               min_tracking_confidence=0.1) as pose:
         while cap.isOpened():
             success, image = cap.read()
             if not success:
@@ -124,6 +129,7 @@ def getKeyFramesFromVideo(video, show = False):
     rSquared = 0.5
 
     print(f"RSquared: {rSquared}")
+    #extracted is a list of tuples with class Solution outputs and the actual frame
     extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
     print(f"{len(extracted)} frames extracted")
     return extracted, allangles, keyAngs
@@ -512,10 +518,9 @@ def makeNewModelV1(extracted, allAngles, debug = False):
         listOfTop.append(keypointAngles[rep[0]]) 
         listOfBottom.append(keypointAngles[rep[1]])
         listOfTop.append(keypointAngles[rep[2]])
-    
+
     listOfTop = KeyframeExtraction.simplifiedCurveModel(listOfTop)
     listOfBottom = KeyframeExtraction.simplifiedCurveModel(listOfBottom)
-            
 
     averageTop, StdevOfTop = getAverageAndStdvOfList(listOfTop)
     averageBottom, StdevOfBottom = getAverageAndStdvOfList(listOfBottom)
@@ -544,7 +549,7 @@ def getAverageAndStdvOfList(list):
     for i in range(len(list)):
         averages.append(get_average(list[i]))
         stdvs.append(get_standard_deviation(list[i]))
-    
+
     return averages, stdvs
 
 def updateModelV1(videoPath, modelName, repNumber, debug = False):
@@ -558,18 +563,17 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
     #print(f"Reps: {reps}")
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
-    
+ 
     for rep in reps:
         if not None in rep:
             model.updateModel(WorkoutPose(keypointAngles[rep[0]]), "Top")
             model.updateModel(WorkoutPose(keypointAngles[rep[2]]), "Top")
             model.updateModel(WorkoutPose(keypointAngles[rep[1]]), "Bottom")
 
-
     if debug:
         n = input("Frame to display: ")
         while n != "no":
-  
+
             n = int(n)-1
             mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
             n = input("Frame to display: ")
@@ -646,7 +650,7 @@ def trainML(modelName):
             
     df = mli.repsToDataframe(allReps, totalAngles, lengths)
     
-    return mli.do_ml(df)
+    return mli.do_ml(df, importantAngles)
 
 # This function will grab video path from user and what model it is for key extraction
 # and the trained model to evaluate the video if the reps are correct or not
@@ -661,8 +665,8 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
     print(f"amount of reps: {reps}")
     df =mli.dataframeforeval(reps, allAngles)
-    mli.vid_ml_eval(trained_MLmodel,df)
-    return True
+    y_pred, frame_rep_list= mli.vid_ml_eval(trained_MLmodel, df, extracted, reps)
+    return y_pred, frame_rep_list
 
 def demo1():
 
@@ -705,31 +709,33 @@ if __name__ == "__main__":
             video = input("Path to video: ").strip("'")
             updateModelV1(video, name, True)
             print(f"{name} updated\n")
-            
+
         elif choice == "3":
             name = input("Workout name: ")
             numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
             right, wrong = evaluateVideo(video, name, numberOfReps, True)
-        
+
         elif choice == "4":
             name = input("Workout name: ")
             trained_model = trainML(name)
             model_created = 1
-            
+
         elif choice == "5" and model_created == 1:
             name = input("workout name: ")
             path = input("video path: ")
-            vid_ML_eval(name,trained_model, path)
+            y_pred, acutal_frame_list =vid_ML_eval(name,trained_model, path)
+            for i in range(len(acutal_frame_list)):
+                poseDisplay.capture_feed(path, acutal_frame_list)
             #mli.vid_ml_eval(name, path)
-            
+
         elif choice == "5" and model_created == 0:
             print("Error No trained model")
             print("choice 4 of training model has not yet been made")
-            
+
         elif choice == "6" or choice == "q":
             break
-            
+
         else:
             print("Incorrect input, try again.")
             continue
