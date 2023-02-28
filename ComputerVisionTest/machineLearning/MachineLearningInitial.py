@@ -14,8 +14,8 @@ COLS = [
         'lHipLR1', 'lHipFB1',
         'rShoulderFB1', 'rShoulderUD1',
         'rHipLR1', 'rHipFB1',
-        'lElb1', 'rElb1',
-        'lKnee1', 'rKnee1',
+        'lElb1', 'lKnee1',
+        'rElb1', 'rKnee1',
         
         #down position
         'headLR2', 'headFB2',
@@ -24,8 +24,8 @@ COLS = [
         'lHipLR2', 'lHipFB2',
         'rShoulderFB2', 'rShoulderUD2',
         'rHipLR2', 'rHipFB2',
-        'lElb2', 'rElb2',
-        'lKnee2', 'rKnee2',
+        'lElb2', 'lKnee2',
+        'rElb2', 'rKnee2',
         
         #up position
         'headLR3', 'headFB3',
@@ -34,7 +34,7 @@ COLS = [
         'lHipLR3', 'lHipFB3',
         'rShoulderFB3', 'rShoulderUD3',
         'rHipLR3', 'rHipFB3',
-        'lElb3', 'rElb3',
+        'lElb3', 'lKnee3',
         'lKnee3', 'rKnee3',
         'GoodForm'
     ]
@@ -117,7 +117,7 @@ def split(df, ratio=0.2):
 #
 #
 #
-def train_model(df, epochs=10):
+def train_model_NN(df, epochs=10):
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
     x = df.values.tolist()
@@ -133,7 +133,7 @@ def train_model(df, epochs=10):
     tf.random.set_seed(42)
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(48, activation='relu'),
-        #tf.keras.layers.Dense(48, activation='relu'),
+        tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
     

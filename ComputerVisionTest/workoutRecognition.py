@@ -118,7 +118,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         importantAngles = convertJoints(importantJoints)
     else:
         modelName = workout
-        model = Workout().loadModel(f"ComputerVisionTest/models/{workout}.json")
+        model = Workout().loadModel(f"models/{workout}.json")
         importantAngles = model.getImportantAngles()
     nFrames = len(keyFrames)
     reptypes = [[] for i in range(nFrames)] 
@@ -561,11 +561,11 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
 
 
 def trainML(modelName):
-    vidsDir = Path.cwd().parents[0]
-    # paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
-    #          vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
-    paths = [str(vidsDir) + "\\ML_training\\correct_trainML\\angle_squat\\", # good reps folder
-             str(vidsDir) + "\\ML_training\\incorrect_trainML\\angle_squat\\"] # bad reps folder
+    vidsDir = Path.cwd().parents[1]
+    paths = [str(vidsDir) + "\\vids\\good_trainML\\", # good reps folder
+             str(vidsDir) + "\\vids\\bad_trainML\\"] # bad reps folder
+    # paths = [str(vidsDir) + "\\ML_training\\correct_trainML\\angle_squat\\", # good reps folder
+    #          str(vidsDir) + "\\ML_training\\incorrect_trainML\\angle_squat\\"] # bad reps folder
     allReps = []
     totalAngles = []
     lengths = [] # lengths of good reps, bad reps
