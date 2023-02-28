@@ -58,7 +58,7 @@ COLS = [
 #
 #
 #
-def repsToDataframe(totalReps, totalAngs, lengths):
+def repsToDataframe(totalReps, totalAngs, lengths, rmCols=None):
     goodNum = lengths[0]
     repsList=[]
     for i in range(len(totalReps)): # for each video
@@ -67,12 +67,19 @@ def repsToDataframe(totalReps, totalAngs, lengths):
                 continue
             else:
                 rowList = []
-                for j in range(3): # for keyuframes in rep
+                for j in range(3): # for keyframes in rep
                     # concat angles of top, bottom, top into one list
-                    if j == 0:
-                        rowList = totalAngs[i][j].tolist()
-                    else:
-                        rowList = rowList + totalAngs[i][j].tolist()
+                    
+                    currList = totalAngs[i][j].tolist() # all angles for keyframe
+                    if rmCols: # if there are cols to delete
+                        rmCols.sort(reverse=True) # desceneding
+                        for num in rmCols: 
+                            del currList[num] # delete col index
+                            
+                    if j == 0: # first 16
+                        rowList = currList
+                    else: # next 32
+                        rowList = rowList + currList
                 
                 # add if is a good rep (for training)
                 if i < goodNum:
@@ -175,7 +182,7 @@ def train_model(df, importantAngles, epochs=10):
 #
 def do_ml(df, importantAngles):
     
-    #print(f"df.head: {df.head}")
+    print(f"df.head: {df.head}")
     
     train, test = split(df)
     
