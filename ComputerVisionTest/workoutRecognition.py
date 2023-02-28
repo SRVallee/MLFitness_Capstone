@@ -59,6 +59,24 @@ def convertJoints(Joints):
     angles.sort()
     return angles
 
+def getParallelJoint(joint):
+    if joint == 3:
+        return choiceList["5"]
+    elif joint == 5:
+        return choiceList["3"]
+    elif joint == 4:
+        return choiceList["6"]
+    elif joint == 6:
+        return choiceList["4"]
+    elif joint == 7:
+        return choiceList["9"]
+    elif joint == 9:
+        return choiceList["7"]
+    elif joint == 8:
+        return choiceList["10"]
+    elif joint == 10:
+        return choiceList["9"]
+
 from statistics import mean
 from statistics import stdev
 
@@ -146,7 +164,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                         cycles[curve][-1][2] = frame #TODO comment this what is this why is it subtracting
                         if cycles[curve][-1][3] < (angle2 - angle1): #a list within a list witin a list
                             cycles[curve][-1][3] = angle2 - angle1
-                        cycles[curve].append([frame, None, None, angle2 - angle1])
+                        cycles[curve].append([frame, None, None, angle2 - angle1, importantAngles[curve]])
                     else:
                         cycles[curve][-1][1] = frame
                         if cycles[curve][-1][3] < (angle2 - angle1):
@@ -163,7 +181,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                         cycles[curve][-1][2] = frame
                         if cycles[curve][-1][3] < (angle1 - angle2):
                             cycles[curve][-1][3] = angle1 - angle2
-                        cycles[curve].append([frame, None, None, angle1 - angle2])
+                        cycles[curve].append([frame, None, None, angle1 - angle2, importantAngles[curve]])
                     else:
                         cycles[curve][-1][1] = frame
                         if cycles[curve][-1][3] < (angle1 - angle2):
@@ -177,7 +195,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                         increase = True
                         reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
                         reptypes[0].append([angle1, curve, False, 0])
-                        cycles[curve].append([0, frame, None, angle2 - angle1]) #Set Values for first time setup.
+                        cycles[curve].append([0, frame, None, angle2 - angle1, importantAngles[curve]]) #Set Values for first time setup.
 
                         angle1 = angle2
 
@@ -186,34 +204,39 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                         increase = False
                         reptypes[frame].append([angle2, curve, increase, angle1 - angle2])
                         reptypes[0].append([angle1, curve, True, 0])
-                        cycles[curve].append([0, frame, None, angle1 - angle2]) #Set Values for first time setup.
+                        cycles[curve].append([0, frame, None, angle1 - angle2, importantAngles[curve]]) #Set Values for first time setup.
                         angle1 = angle2
                     
     #check important joint changes
     i = 1
 
-    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOOOO
+    allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    anglesFromExtracted = []
+    for frame in keyFrames:
+        anglesFromExtracted.append(anglesPerFrame[frame[1]])
+
+    for cycle in allCycles:
+        if not cycle[1]:
+            allCycles.remove(cycle)
+        elif not cycle[2]:
+            cycle[2] = len(keyFrames)-1
+
 
     #get reps without model
     if not workout:
-        parallel = getTrend(allCycles, int(repNumber))
+        parallel = getTrend(allCycles, anglesFromExtracted, int(repNumber))
     else:
         if repNumber:
-            parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model, int(repNumber))
+            parallel = getCloser(allCycles, anglesFromExtracted, model, int(repNumber))
         else:
-            parallel = getCloser(allCycles, keyFrames, anglesPerFrame, model)
+            parallel = getCloser(allCycles, anglesFromExtracted, model)
 
     #print(f"cycles: {parallel}")
 
-    for cycle in parallel:
-        if not cycle[1]:
-            parallel.remove(cycle)
-        elif not cycle[2]:
-            cycle[2] = len(keyFrames)-1
-    print(f"important Angles from get rep {importantAngles}")
     return parallel, modelName, importantAngles
 
-def getTrend(cycles, repNumber = 9999):
+def getTrend(cycles, allAngles, repNumber = 9999):
     #cycle [start, turning point, end, angle]
 
     reps = []
@@ -221,10 +244,10 @@ def getTrend(cycles, repNumber = 9999):
 
     for cycleJoint in cycles:
         
-        if cycleJoint[3] < math.radians(10): #remove cycles under 5 degrees
+        if cycleJoint[3] < math.radians(5): #remove cycles under 5 degrees
             cycles.remove(cycleJoint)
 
-    
+    #print(f"all cycles before pairs: {cycles}")
     pairs = getPairs(cycles)
     pairList = []
     for pair in pairs:
@@ -233,19 +256,45 @@ def getTrend(cycles, repNumber = 9999):
     if len(pairList) == repNumber:
         return pairList 
         
-    #print(f"pairlist: {pairList}")
     for cycle in cycles:
         if cycle in pairList:
             cycles.remove(cycle)
     #print(f"pairlist: {pairList}")
+    
     reps = pairList
-    for cycle in cycles:
-        #print(f"cycle: {cycle}")
-        if len(reps) < repNumber and checkValidRange(cycle, reps):
-            reps = insertRep(reps, cycle)
-            #print(f"reps: {reps}")
 
+    for i in range(len(cycles)):
+        cycle = pickLargest(cycles)
+        parallelAngle = getParallelCycleAngle(cycle, allAngles)
+        cycles.remove(cycle)
+        if parallelAngle and parallelAngle > math.radians(5): 
+        
+            if len(reps) < repNumber and checkValidRange(cycle, reps):
+                reps = insertRep(reps, cycle)
+    
     return reps
+
+def getParallelCycleAngle(cycle, allAngles):
+    opositeAngles = getParallelJoint(getJoint(cycle[4]))
+    #print(f"\ncycle: {cycle}")
+    #print(f"Oposite angles: {opositeAngles}")
+    maxAngles = []
+    if opositeAngles:
+        for angle in opositeAngles:
+            #print(f"allAngleslen: {len(allAngles)}")
+            #print(f"framelen: {len(allAngles[0])}")
+            angle1 = abs(allAngles[cycle[0]][angle] - allAngles[cycle[1]][angle])
+            angle2 = abs(allAngles[cycle[1]][angle] - allAngles[cycle[2]][angle])
+            if angle1 > angle2:
+                maxAngles.append(angle1)
+            else:
+                maxAngles.append(angle2)
+    #print(f"\nmax angles: {maxAngles}")
+
+    if maxAngles:
+        #print(f"returning: {max(maxAngles)}")
+        return max(maxAngles)
+    return
 
 def insertRep(reps, rep): #assums rep is valid
 
@@ -289,6 +338,8 @@ def getPairs(cycles):
             if cycle[0] == pair[0]\
            and cycle[1] == pair[1]\
            and cycle[2] == pair[2]\
+           and cycle[3] > math.radians(10)\
+           and pair[3] > math.radians(10)\
            and i != j:
                 if not j in visited:
                     pairs.append((j,i))
@@ -329,7 +380,9 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
 
     reps = pairList
     
-    for cycle in cycles:
+    for i in range(len(cycles)):
+        cycle = pickLargest(cycles)
+        cycles.remove(cycle) 
         if len(reps) < repNumber and checkValidRange(cycle, reps):
             reps = insertRep(reps, cycle)
 
@@ -399,6 +452,15 @@ def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:i
     #     lastEnd = finalEnd
 
     return reps
+
+
+def pickLargest(cycles):
+    largest = [0,0,0,0]
+    for cycle in cycles:
+        if cycle[3] > largest[3]:
+            largest = cycle
+    if largest != [0,0,0,0]:
+        return largest
 
 def setupNewWorkout():
     
