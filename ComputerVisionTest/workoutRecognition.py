@@ -143,7 +143,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         excludeAngles = convertJoints(excludeJoints)
     else:
         modelName = workout
-        model = Workout().loadModel(f"models/{workout}.json")
+        model = Workout().loadModel(f"./models/{workout}.json")
         importantAngles = model.getImportantAngles()
         excludeAngles = model.getExcludeAngles()
         
@@ -234,7 +234,11 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
 
     #get reps without model           #Not using getCloser for now
     #if not workout:
+    if not repNumber:
+        parallel = getTrend(allCycles, anglesFromExtracted)
+    else:
         parallel = getTrend(allCycles, anglesFromExtracted, int(repNumber))
+        
     # else:
     #     if repNumber:
     #         parallel = getCloser(allCycles, anglesFromExtracted, model, int(repNumber))
@@ -475,7 +479,7 @@ def pickLargest(cycles):
 
 def setupNewWorkout():
     
-    models = os.listdir("ComputerVisionTest/models")
+    models = os.listdir("./models")
     print(models)
     name = input("Name of new workout: ").strip()
     reps = input("number of repetitions: ")
@@ -539,7 +543,7 @@ def makeNewModelV1(extracted, allAngles, debug = False):
     model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
     model["ImportantAngles"] = importantAngles
     model["ExcludeAngles"] = excludeAngles
-    path = "ComputerVisionTest/models/" + modelName + ".json"
+    path = "./models/" + modelName + ".json"
     with open(path, 'w') as f:
         json.dump(model, f)
 
@@ -572,7 +576,7 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
     reps, modelName, _, _ = getReps(extracted, allAngles, repNumber, modelName)
     #print(f"Reps: {reps}")
     path = f"ComputerVisionTest/models/{modelName}.json"
-    model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
+    model = Workout().loadModel(f"./models/{modelName}.json")
  
     for rep in reps:
         if not None in rep:
@@ -601,7 +605,7 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
 
     reps, modelName, _, _ = getReps(extracted, allAngles, repNumber, modelName)
     path = f"ComputerVisionTest/models/{modelName}.json"
-    model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
+    model = Workout().loadModel(f"./models/{modelName}.json")
     right = []
     wrong = []
     for rep in reps:
@@ -650,7 +654,7 @@ def trainML(modelName):
             videoPath = path + filename
             extracted, allAngles, keyAngs = getKeyFramesFromVideo(videoPath)
             totalAngles.append(keyAngs)
-            reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
+            reps, modelName, importantAngles, excludeAngles = getReps(extracted, allAngles, workout=modelName)
             allReps.append(reps)
             
         if len(lengths) < 1:
@@ -658,7 +662,7 @@ def trainML(modelName):
         else:
             lengths.append(len(allReps) - lengths[0])
             
-    df = mli.repsToDataframe(allReps, totalAngles, lengths)
+    df = mli.repsToDataframe(allReps, totalAngles, lengths, excludeAngles)
     
     return mli.do_ml(df, importantAngles)
 

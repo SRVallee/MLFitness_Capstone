@@ -61,6 +61,8 @@ COLS = [
 def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
     goodNum = lengths[0]
     repsList=[]
+    colsList = COLS.copy() # copy list of all possible cols names
+    colNamesRemoved = False
     for i in range(len(totalReps)): # for each video
         for rep in totalReps[i]: # for each rep in video
             if None in rep:
@@ -74,13 +76,17 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
                     if rmCols: # if there are cols to delete
                         rmCols.sort(reverse=True) # desceneding
                         for num in rmCols: 
+                            if not colNamesRemoved:
+                                colIndex = num + (2-j) * 16
+                                del colsList[colIndex] # delete exclude column name
                             del currList[num] # delete col index
                             
                     if j == 0: # first 16
                         rowList = currList
                     else: # next 32
                         rowList = rowList + currList
-                
+                        
+                colNamesRemoved = True
                 # add if is a good rep (for training)
                 if i < goodNum:
                     rowList.append(1)
@@ -90,7 +96,7 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
                 # append rep angles to reps list
                 repsList.append(rowList) 
     #convert to dataframe
-    df = pd.DataFrame(repsList, columns=COLS)
+    df = pd.DataFrame(repsList, columns=colsList)
         
     return df #df.sample(frac=1).reset_index(drop=True) # shuffle dataframe and return
 
