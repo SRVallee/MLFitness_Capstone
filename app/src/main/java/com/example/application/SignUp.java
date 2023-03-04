@@ -178,7 +178,11 @@ public class SignUp extends AppCompatActivity {
                             paramV.put("name", name);
                             paramV.put("email", email);
                             paramV.put("password", passwordOne);
-                            paramV.put("isTrainer", String.valueOf(isTrainer));
+                            if(isTrainer) {
+                                paramV.put("isTrainer", "1");
+                            }else{
+                                paramV.put("isTrainer", "0");
+                            }
                             return paramV;
                         }
         };

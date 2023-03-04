@@ -22,6 +22,7 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.sql.Array;
 import java.util.HashMap;
@@ -80,52 +81,58 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         //At this point have user input, thus check with server if the values entered are correct
         //Check email and password with database
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = "http://192.168.56.1/ml_fitness/register.php"; //local network for now
+        String url = "http://192.168.56.1/ml_fitness/login.php"; //local network for now
 
-//        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response){
-//                        //TODO: convert string to JSON array
-//                        if (response.get(0).equals("success")) { //or email already exists if when implemented
-//                            Log.d("Response: ", response.toString());
-//                            SocketFunctions.user.setId(Integer.parseInt(response.getString(1)));
-//                            SocketFunctions.user.setEmail(response.getString(2));
-//                            SocketFunctions.user.setName(response.getString(3));
-//                            SocketFunctions.user.setTrainer(response.getBoolean(4));
-//                            Log.d("User id: ", "was returned");
-//                            Intent i;
-//                            if (SocketFunctions.user.isTrainer()) {
-//                                //User has entered all inputs and has indicated to signup as trainee
-//                                i = new Intent(getApplicationContext(), TrainerHomePage.class);
-//                                startActivity(i);
-//                                finish();
-//                            } else {
-//                                //User has entered all inputs and has indicated to signup as trainee
-//                                //makeUser(username, name, email, passwordOne, isTrainer);
-//                                i = new Intent(getApplicationContext(), TraineeHomePage.class);
-//                                startActivity(i);
-//                                finish();
-//                            }
-//                        }
-//                        else{
-//                            Log.d("User id: ", "was not returned");
-//                        }
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.d("User id: ", error.getLocalizedMessage());
-//            }
-//        }) {
-//            protected Map<String, String> getParams() {
-//                Map<String, String> paramV = new HashMap<>();
-//                paramV.put("email", email);
-//                paramV.put("password", password);
-//                return paramV;
-//            }
-//        };
-//        queue.add(stringRequest);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response){
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            if (status.equals("success")) { //or email already exists if when implemented
+                                //Log.d("Response: ", response.toString());
+                                SocketFunctions.user.setId(Integer.parseInt(jsonResponse.getString("user_id")));
+                                SocketFunctions.user.setEmail(jsonResponse.getString("email"));
+                                SocketFunctions.user.setName(jsonResponse.getString("name"));
+                                SocketFunctions.user.setTrainer(jsonResponse.getString("isTrainer").equals("1"));
+                                Log.d("User id: ", "successful login");
+                                Intent i;
+                                if (SocketFunctions.user.isTrainer()) {
+                                    //User has entered all inputs and has indicated to signup as trainee
+                                    i = new Intent(getApplicationContext(), TrainerHomePage.class);
+                                    startActivity(i);
+                                    finish();
+                                } else {
+                                    //User has entered all inputs and has indicated to signup as trainee
+                                    //makeUser(username, name, email, passwordOne, isTrainer);
+                                    i = new Intent(getApplicationContext(), TraineeHomePage.class);
+                                    startActivity(i);
+                                    finish();
+                                }
+                            }
+                            else{
+                                Log.d("User id: ", status);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("email", email);
+                paramV.put("password", password);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
         /*
         if(verifyLogin(email, password)) {
             //email and password are valid
