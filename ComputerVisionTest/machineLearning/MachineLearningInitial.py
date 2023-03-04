@@ -58,7 +58,7 @@ COLS = [
 #
 #
 #
-def repsToDataframe(totalReps, totalAngs, lengths, rmCols=None):
+def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
     goodNum = lengths[0]
     repsList=[]
     for i in range(len(totalReps)): # for each video

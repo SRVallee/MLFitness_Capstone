@@ -138,12 +138,15 @@ def getKeyFramesFromVideo(video, show = False):
 def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
-        modelName, importantJoints, repNumber = setupNewWorkout()
+        modelName, importantJoints, repNumber, excludeJoints = setupNewWorkout()
         importantAngles = convertJoints(importantJoints)
+        excludeAngles = convertJoints(excludeJoints)
     else:
         modelName = workout
         model = Workout().loadModel(f"models/{workout}.json")
         importantAngles = model.getImportantAngles()
+        excludeAngles = model.getExcludeAngles()
+        
     nFrames = len(keyFrames)
     reptypes = [[] for i in range(nFrames)] 
     cycles = [[] for i in range(len(importantAngles))] #[start, turning point, end, angle]
@@ -240,7 +243,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
 
     #print(f"cycles: {parallel}")
 
-    return parallel, modelName, importantAngles
+    return parallel, modelName, importantAngles, excludeAngles
 
 def getTrend(cycles, allAngles, repNumber = 9999):
     #cycle [start, turning point, end, angle]
@@ -482,9 +485,13 @@ def setupNewWorkout():
 Please provide a new name of new workout: ").strip()
 
     print(MENU)
-    choices = input("Choice(s): ").split(",")
+    importantAngs = input("Choice(s): ").split(",")
 
-    return name, choices, reps
+    print("Please enter joints to exclude")
+    print(MENU)
+    excludeAngs = input("Choice(s): ").split(",")
+
+    return name, importantAngs, reps, excludeAngs
 
 def get_average(data):
     return mean(data)
@@ -505,11 +512,11 @@ def getRepsFromVideo(videoPath, modelName):
 
 def makeNewModelV1(extracted, allAngles, debug = False):
     keypointAngles = []
-    
+
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
-    reps, modelName, importantAngles = getReps(extracted, allAngles)
+    reps, modelName, importantAngles, excludeAngles = getReps(extracted, allAngles)
     #print(f"Reps: {reps}")
     model = {}
     listOfTop = []
@@ -531,6 +538,7 @@ def makeNewModelV1(extracted, allAngles, debug = False):
     model["Top"] = [averageTop, StdevOfTop, len(listOfTop[0])*2]
     model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
     model["ImportantAngles"] = importantAngles
+    model["ExcludeAngles"] = excludeAngles
     path = "ComputerVisionTest/models/" + modelName + ".json"
     with open(path, 'w') as f:
         json.dump(model, f)
@@ -555,13 +563,13 @@ def getAverageAndStdvOfList(list):
     return averages, stdvs
 
 def updateModelV1(videoPath, modelName, repNumber, debug = False):
-    extracted, allAngles, importangles = getKeyFramesFromVideo(videoPath)
+    extracted, allAngles, _ = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
 
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
-    reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
+    reps, modelName, _, _ = getReps(extracted, allAngles, repNumber, modelName)
     #print(f"Reps: {reps}")
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
@@ -591,7 +599,7 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
-    reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
+    reps, modelName, _, _ = getReps(extracted, allAngles, repNumber, modelName)
     path = f"ComputerVisionTest/models/{modelName}.json"
     model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
     right = []
