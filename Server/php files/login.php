@@ -11,12 +11,14 @@ if($conn){                                                       //if connection
         $row = mysqli_fetch_assoc($res);
         if($email == $row["email"] && password_verify($password, $row["password"])){ //verify password
             //maybe use api keys later
+
             $result = array("status" => "success",     //return the user info
                             "user_id" => $row["user_id"],
                             "username" => $row["username"], 
                             "name" => $row["name"], 
                             "email" => $row["email"], 
-                            "isTrainer" =>  $row["is_trainer"] );
+                            "isTrainer" =>  $row["is_trainer"],
+                            "api_key" => $row["api_key"]);
         }else{
             $result = array("status" => "Wrong Password");
         }
