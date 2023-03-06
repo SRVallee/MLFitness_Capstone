@@ -162,9 +162,7 @@ def train_model(df, importantAngles, rounds=20):
     #tf.random.set_seed(42)
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(48, activation='relu'),
-        tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.Dense(48, activation='relu'),
-        tf.keras.layers.Dropout(0.2),
+        #tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
     model.compile(
@@ -210,7 +208,7 @@ def do_ml(df, importantAngles):
     print("MODEL LOSS(CROSS-ENTROPY LOSS): ", test_loss) #measures the performance of a classification model 
     #whose output is a probability value between 0 and 1. Cross-entropy loss increases as the 
     # predicted probability diverges from the actual label
-    if (true_pos/(true_pos + false_neg) != 0):
+    if ((true_pos + false_neg) > 0):
         recall = true_pos/(true_pos + false_neg)
         print("Recall: ", recall) #measures how good the model is at correctly predicting positive classes
         #this is determined by # of true positives/(# of true positives + # of false negatives)
