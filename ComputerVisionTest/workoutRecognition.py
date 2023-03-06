@@ -685,7 +685,7 @@ if __name__ == "__main__":
             path = input("video path: ")
             vidsDir = Path.cwd()
             try:
-                model_path = str(vidsDir) + "\\ML_Trained_Models\\"+ str(name)+"_trained"
+                model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(name)+"_trained"
                 load_model = tf.keras.models.load_model(model_path)
                 y_pred, acutal_frame_list =vid_ML_eval(name,load_model, path)
                 print(f"actual_frame_list: {acutal_frame_list}")

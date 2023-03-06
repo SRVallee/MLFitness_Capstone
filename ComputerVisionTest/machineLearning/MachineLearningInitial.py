@@ -18,7 +18,7 @@ from pathlib import Path
 # 8   left knee = [13]
 # 9   right elbow = [14]
 # 10  right knee = [15]
-#these are all the points of the body. 49 points for 3 reps and form. UD = UP down, FB = Face Back
+#these are all the points of the body. 49 points for 1 rep and form. UD = UP down, FB = Face Back
 COLS = [
         #up postion
         'headLR1', 'headFB1',#[0,1]
@@ -178,7 +178,7 @@ def train_model(df, importantAngles,modelName, rounds=20):
     print(model.summary())
     #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
     vidsDir = Path.cwd()
-    model_path = str(vidsDir) + "\\ML_Trained_Models\\"+ str(modelName)+"_trained"
+    model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(modelName)+"_trained"
     model.save(model_path)
     return model, X_test, y_test
 
