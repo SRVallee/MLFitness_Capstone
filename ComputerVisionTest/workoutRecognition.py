@@ -2,6 +2,7 @@
 
 '''
 import cv2
+import tensorflow as tf
 import mediapipe as mp
 import numpy as np
 import math
@@ -589,9 +590,11 @@ def trainML(modelName):
             else:
                 lengths.append(len(allReps) - lengths[0])
         results.wait()
+    pool.close()
+    pool.join()
     df = mli.repsToDataframe(allReps, totalAngles, lengths)
     
-    return mli.do_ml(df, importantAngles)
+    return mli.do_ml(df, importantAngles,modelName)
 
 def process_divider(path,filename,modelName):
     allReps = []
@@ -649,10 +652,9 @@ if __name__ == "__main__":
     1. Create New Rep Model
     2. Update Existing Rep Model
     3. Evaluate Video
-    4. Train and Test Machine Learning Analysis 
-    5. Machine learning video input
+    4. Train,Test, and save Machine Learning Analysis 
+    5. load existing Machine learning model for video input
     6. Quit\nChoice: """
-    model_created = 0
     while True:
         choice = input(MENU2)
         if choice == "1":
@@ -662,7 +664,7 @@ if __name__ == "__main__":
             print(f"New workout added\n")
         
         elif choice == "2":
-            name = input("Workout name: ")
+            name = input("Workout name(no spaces): ")
             #numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
             updateModelV1(video, name, True)
@@ -677,19 +679,25 @@ if __name__ == "__main__":
         elif choice == "4":
             name = input("Workout name: ")
             trained_model = trainML(name)
-            model_created = 1
 
-        elif choice == "5" and model_created == 1:
+        elif choice == "5":
             name = input("workout name: ")
             path = input("video path: ")
-            y_pred, acutal_frame_list =vid_ML_eval(name,trained_model, path)
-            print(f"actual_frame_list: {acutal_frame_list}")
-            poseDisplay.capture_feed(path, acutal_frame_list)
+            vidsDir = Path.cwd()
+            try:
+                model_path = str(vidsDir) + "\\ML_Trained_Models\\"+ str(name)+"_trained"
+                load_model = tf.keras.models.load_model(model_path)
+                y_pred, acutal_frame_list =vid_ML_eval(name,load_model, path)
+                print(f"actual_frame_list: {acutal_frame_list}")
+                poseDisplay.capture_feed(path, acutal_frame_list)
+            except:
+                print("\nModel name does not exist. create model using option 4")
+                print("Models that exist are:")
+                model_path = str(vidsDir) + "\\ML_Trained_Models\\"
+                count = 1
+                for filename in os.listdir(model_path):
+                    print(f"{count}: {filename}")
             #mli.vid_ml_eval(name, path)
-
-        elif choice == "5" and model_created == 0:
-            print("Error No trained model")
-            print("choice 4 of training model has not yet been made")
 
         elif choice == "6" or choice == "q":
             break

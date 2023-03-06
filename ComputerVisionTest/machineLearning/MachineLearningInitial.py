@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from keras.preprocessing.text import Tokenizer
 from keras.utils.vis_utils import plot_model
+from pathlib import Path
 
 #refrence between
 # 1   head angle = [0,1]
@@ -134,7 +135,7 @@ def split(df, ratio=0.2):
 #
 #
 #
-def train_model(df, importantAngles, rounds=20):
+def train_model(df, importantAngles,modelName, rounds=20):
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
     print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
@@ -175,7 +176,10 @@ def train_model(df, importantAngles, rounds=20):
     
     model.fit(x=X_train, y=y_train, epochs = rounds)
     print(model.summary())
-    #plot_model(model,to_file='model_plot.png',show_shapes=True, show_layer_names=True)
+    #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
+    vidsDir = Path.cwd()
+    model_path = str(vidsDir) + "\\ML_Trained_Models\\"+ str(modelName)+"_trained"
+    model.save(model_path)
     return model, X_test, y_test
 
 #
@@ -185,13 +189,13 @@ def train_model(df, importantAngles, rounds=20):
 #
 #
 #
-def do_ml(df, importantAngles):
+def do_ml(df, importantAngles,modelName):
     
     #print(f"df.head: {df.head}")
     
     train, test = split(df)
     
-    model, x_test, y_test = train_model(df,importantAngles)
+    model, x_test, y_test = train_model(df,importantAngles,modelName)
     
     testy = test.pop('GoodForm').values.tolist()
     testx = test.values.tolist()
@@ -268,8 +272,9 @@ def vid_ml_eval(trained_model, df, extracted, reps,imp_angles):
     print(f"this is the new_df: {new_df}")
     scaler = StandardScaler()
     new_df = np.array(df)
+    print(f"\nnew_df = {new_df}")
     scaled_new_df = scaler.fit_transform(new_df)
-    y_pred = trained_model.predict(x=scaled_new_df)
+    y_pred = trained_model.predict(x = scaled_new_df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
     print(f"this is the actual frame numbers [up, down, up, degree]: {acutal_frame_num}")
     for confidence in range(len(acutal_frame_num)):
