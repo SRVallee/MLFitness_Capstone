@@ -244,12 +244,11 @@ def capture_feed(path, frame_rep_list):
     frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     success = True
     new_angle = 360
-    print(f"{frame_rep_list}, length: {len(frame_rep_list)}")
-    for i in range(len(frame_rep_list)):
-        start_frame_id = frame_rep_list[i][0]
-        end_frame_id = frame_rep_list[i][2]
-        amount_frames = end_frame_id - start_frame_id
-        cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id)
+    print(f"frame_rep_list: {frame_rep_list}, length: {len(frame_rep_list)}")# length is the amount of reps in video
+    for rep in range(len(frame_rep_list)):
+        start_frame_id = frame_rep_list[rep][0]# start up
+        end_frame_id = frame_rep_list[rep][2]# end up
+        cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id) # setting video to the up position
         while success:
             #this sees if it can read the frame that it is given
             success, img = cap.read()
@@ -358,12 +357,12 @@ def capture_feed(path, frame_rep_list):
                 angle2 = detector.findkneeAngle(annotated_img,23, 25, 27) #delete
                 hip_angle = detector.findhipAngle(annotated_img,12, 24, 26) #delete
                 #print(f"lowest angle; {angle}")
-            cv2.putText(annotated_img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, {end_frame_id}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+            cv2.putText(annotated_img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, {end_frame_id}, rep #: {rep}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
             #resize is width than height
             resize = cv2.resize(annotated_img, (modded_width, constant_height))
             #print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
             cv2.imshow("Image", resize)
-            key = cv2.waitKey(1)  # millisecond delays
+            key = cv2.waitKey(1)  #millisecond delays
             if key == 27: #esc
                 cv2.destroyWindow("Image")
                 break

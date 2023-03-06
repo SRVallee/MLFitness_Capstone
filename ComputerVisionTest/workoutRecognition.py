@@ -15,6 +15,8 @@ import mp_drawing_modified
 import evalPoseDisplay as poseDisplay
 from Workout import Workout
 from WorkoutPose import WorkoutPose
+import multiprocessing as mproc
+
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
@@ -216,7 +218,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
             parallel.remove(cycle)
         elif not cycle[2]:
             cycle[2] = len(keyFrames)-1
-    print(f"important Angles from get rep {importantAngles}")
+    #print(f"important Angles from get rep {importantAngles}")
     return parallel, modelName, importantAngles
 
 def getTrend(cycles, repNumber = 9999):
@@ -570,25 +572,43 @@ def trainML(modelName):
     #          vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
     paths = [str(vidsDir) + "\\ML_training\\correct_trainML\\angle_squat\\", # good reps folder
              str(vidsDir) + "\\ML_training\\incorrect_trainML\\angle_squat\\"] # bad reps folder
+    #put threads or mulitprocessing here
     allReps = []
     totalAngles = []
     lengths = [] # lengths of good reps, bad reps
+    num_workers = mproc.cpu_count()
+    pool = mproc.Pool(num_workers)
     for path in paths: #first good paths, then bad paths
         for filename in os.listdir(path):
-            videoPath = path + filename
-            extracted, allAngles, keyAngs = getKeyFramesFromVideo(videoPath)
-            totalAngles.append(keyAngs)
-            reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
-            allReps.append(reps)
-            
-        if len(lengths) < 1:
-            lengths.append(len(allReps))
-        else:
-            lengths.append(len(allReps) - lengths[0])
-            
+            results =  pool.apply_async(process_divider, args = (path,filename,modelName))
+            importantAngles,allReps_vid,totalAngles_vid, lengths_vid= results.get()
+            allReps.append(allReps_vid)
+            totalAngles.append(totalAngles_vid)
+            if len(lengths) < 1:
+                lengths.append(len(allReps))
+            else:
+                lengths.append(len(allReps) - lengths[0])
+        results.wait()
     df = mli.repsToDataframe(allReps, totalAngles, lengths)
     
     return mli.do_ml(df, importantAngles)
+
+def process_divider(path,filename,modelName):
+    allReps = []
+    totalAngles = []
+    lengths = [] # lengths of good reps, bad reps
+    videoPath = path + filename
+    extracted, allAngles, keyAngs = getKeyFramesFromVideo(videoPath)
+    totalAngles.append(keyAngs)
+    reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
+    allReps.append(reps)
+    lengths.append(len(allReps))
+    # if len(lengths) < 1:
+    #     lengths.append(len(allReps))
+    # else:
+    #     lengths.append(len(allReps) - lengths[0])
+    
+    return importantAngles,reps,keyAngs, lengths
 
 # This function will grab video path from user and what model it is for key extraction
 # and the trained model to evaluate the video if the reps are correct or not
@@ -603,7 +623,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
     print(f"amount of reps: {reps}")
     df =mli.dataframeforeval(reps, allAngles)
-    y_pred, frame_rep_list= mli.vid_ml_eval(trained_MLmodel, df, extracted, reps)
+    y_pred, frame_rep_list= mli.vid_ml_eval(trained_MLmodel, df, extracted, reps, importantAngles)
     return y_pred, frame_rep_list
 
 def demo1():
@@ -663,8 +683,8 @@ if __name__ == "__main__":
             name = input("workout name: ")
             path = input("video path: ")
             y_pred, acutal_frame_list =vid_ML_eval(name,trained_model, path)
-            for i in range(len(acutal_frame_list)):
-                poseDisplay.capture_feed(path, acutal_frame_list)
+            print(f"actual_frame_list: {acutal_frame_list}")
+            poseDisplay.capture_feed(path, acutal_frame_list)
             #mli.vid_ml_eval(name, path)
 
         elif choice == "5" and model_created == 0:
@@ -677,5 +697,4 @@ if __name__ == "__main__":
         else:
             print("Incorrect input, try again.")
             continue
-
         

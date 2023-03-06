@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from keras.preprocessing.text import Tokenizer
+from keras.utils.vis_utils import plot_model
 
 #refrence between
 # 1   head angle = [0,1]
@@ -29,24 +30,24 @@ COLS = [
         'rElb1', 'rKnee1', #[14],[15]
         
         #down position
-        'headLR2', 'headFB2',
-        'backLR2', 'backFB2',
-        'lShoulderFB2', 'lShoulderUD2',
-        'lHipLR2', 'lHipFB2',
-        'rShoulderFB2', 'rShoulderUD2',
-        'rHipLR2', 'rHipFB2',
-        'lElb2', 'lKnee2',
-        'rElb2', 'rKnee2',
+        'headLR2', 'headFB2',#
+        'backLR2', 'backFB2',#
+        'lShoulderFB2', 'lShoulderUD2',#
+        'lHipLR2', 'lHipFB2',#
+        'rShoulderFB2', 'rShoulderUD2',#
+        'rHipLR2', 'rHipFB2',#
+        'lElb2', 'lKnee2',#
+        'rElb2', 'rKnee2',#
         
         #up position
-        'headLR3', 'headFB3',
-        'backLR3', 'backFB3',
-        'lShoulderFB3', 'lShoulderUD3',
-        'lHipLR3', 'lHipFB3',
-        'rShoulderFB3', 'rShoulderUD3',
-        'rHipLR3', 'rHipFB3',
-        'lElb3', 'lKnee3',
-        'rElb3', 'rKnee3',
+        'headLR3', 'headFB3',#
+        'backLR3', 'backFB3',#
+        'lShoulderFB3', 'lShoulderUD3',#
+        'lHipLR3', 'lHipFB3',#
+        'rShoulderFB3', 'rShoulderUD3',#
+        'rHipLR3', 'rHipFB3',#
+        'lElb3', 'lKnee3',#
+        'rElb3', 'rKnee3',#
         'GoodForm'
     ]
 
@@ -67,7 +68,7 @@ def repsToDataframe(totalReps, totalAngs, lengths):
                 continue
             else:
                 rowList = []
-                for j in range(3): # for keyuframes in rep
+                for j in range(3): # for keyframes in rep
                     # concat angles of top, bottom, top into one list
                     if j == 0:
                         rowList = totalAngs[i][j].tolist()
@@ -133,12 +134,23 @@ def split(df, ratio=0.2):
 #
 #
 #
-def train_model(df, importantAngles, epochs=10):
+def train_model(df, importantAngles, rounds=20):
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
-    print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}")
+    print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
     x = df.values.tolist()
-    #print(f"x(df.values.tolist): {x}.")
+    input_list = []
+    for repper in range(3):
+        for ang in importantAngles:
+            input_list.append(ang+(16*repper))
+    new_df = [[x for i, x in enumerate(n) if i in input_list] for n in x]
+    # for df_list in x:
+    #     rep_imp_angles = []
+    #     for rep_angles in input_list:
+    #         rep_imp_angles.append(df_list[rep_angles])
+    #     new_df.append(rep_imp_angles)
+    print(f"df[13, 15]!!!: {new_df}.")
+    #new_df is inclusion of specific points df is for the whole thing
     X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=0)
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -150,10 +162,11 @@ def train_model(df, importantAngles, epochs=10):
     #tf.random.set_seed(42)
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(48, activation='relu'),
+        tf.keras.layers.Dropout(0.3),
         tf.keras.layers.Dense(48, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
-    
     model.compile(
         optimizer='adam',
         loss=tf.keras.losses.binary_crossentropy,
@@ -162,10 +175,11 @@ def train_model(df, importantAngles, epochs=10):
                  tf.keras.metrics.FalseNegatives()]
     )
     
-    model.fit(X_train, y_train, epochs)
+    model.fit(x=X_train, y=y_train, epochs = rounds)
+    print(model.summary())
+    #plot_model(model,to_file='model_plot.png',show_shapes=True, show_layer_names=True)
     return model, X_test, y_test
 
-#
 #
 #
 #
@@ -196,10 +210,10 @@ def do_ml(df, importantAngles):
     print("MODEL LOSS(CROSS-ENTROPY LOSS): ", test_loss) #measures the performance of a classification model 
     #whose output is a probability value between 0 and 1. Cross-entropy loss increases as the 
     # predicted probability diverges from the actual label
-    
-    recall = true_pos/(true_pos + false_neg)
-    print("Recall: ", recall) #measures how good the model is at correctly predicting positive classes
-    #this is determined by # of true positives/(# of true positives + # of false negatives)
+    if (true_pos/(true_pos + false_neg) != 0):
+        recall = true_pos/(true_pos + false_neg)
+        print("Recall: ", recall) #measures how good the model is at correctly predicting positive classes
+        #this is determined by # of true positives/(# of true positives + # of false negatives)
     
     if (test_prec + recall) > 0:
         f1 = 2*((test_prec * recall)/(test_prec + recall))
@@ -228,8 +242,8 @@ def do_ml(df, importantAngles):
 #           df = is the list of reps. the reps are list of top bottom top angle in raidens
 #
 #Return:
-#           nothing
-def vid_ml_eval(trained_model, df, extracted, reps):
+#           y_pred_list, acutal_frame_num
+def vid_ml_eval(trained_model, df, extracted, reps,imp_angles):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
     acutal_frame_num = []
@@ -241,7 +255,22 @@ def vid_ml_eval(trained_model, df, extracted, reps):
     for j in reps:
         print(f"j in reps: {j}")
         acutal_frame_num.append([rep_frame_list[j[0]], rep_frame_list[j[1]], rep_frame_list[j[2]],j[3]])
-    y_pred = trained_model.predict(df)
+    new_df = []
+    input_list = []
+    for repper in range(3):
+        for ang in imp_angles:
+            input_list.append(ang+(16*repper))
+    for df_list in df:
+        rep_imp_angles = []
+        for rep_angles in input_list:
+            rep_imp_angles.append(df_list[rep_angles])
+        new_df.append(rep_imp_angles)
+        
+    print(f"this is the new_df: {new_df}")
+    scaler = StandardScaler()
+    new_df = np.array(df)
+    scaled_new_df = scaler.fit_transform(new_df)
+    y_pred = trained_model.predict(x=scaled_new_df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
     print(f"this is the actual frame numbers [up, down, up, degree]: {acutal_frame_num}")
     for confidence in range(len(acutal_frame_num)):
