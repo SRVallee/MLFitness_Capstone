@@ -246,7 +246,7 @@ def do_ml(df, importantAngles,modelName):
 #
 #Return:
 #           y_pred_list, acutal_frame_num
-def vid_ml_eval(trained_model, df, extracted, reps,imp_angles):
+def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
     acutal_frame_num = []
@@ -274,6 +274,11 @@ def vid_ml_eval(trained_model, df, extracted, reps,imp_angles):
     new_df = np.array(df)
     print(f"\nnew_df = {new_df}")
     scaled_new_df = scaler.fit_transform(new_df)
+    print(trained_model.summary())
+    vidsDir = Path.cwd()
+    print(vidsDir)
+    model_path = str(vidsDir)+"\\ComputerVisionTest\\machineLearning\\" + str(modelName)+"_diagram.png"
+    tf.keras.utils.plot_model(trained_model, to_file= model_path,show_shapes=True)
     y_pred = trained_model.predict(x = scaled_new_df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
     print(f"this is the actual frame numbers [up, down, up, degree]: {acutal_frame_num}")

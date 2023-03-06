@@ -626,7 +626,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
     print(f"amount of reps: {reps}")
     df =mli.dataframeforeval(reps, allAngles)
-    y_pred, frame_rep_list= mli.vid_ml_eval(trained_MLmodel, df, extracted, reps, importantAngles)
+    y_pred, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
     return y_pred, frame_rep_list
 
 def demo1():
