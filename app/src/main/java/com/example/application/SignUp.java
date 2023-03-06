@@ -20,6 +20,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.chip.Chip;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -135,35 +138,41 @@ public class SignUp extends AppCompatActivity {
         }
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = "http://[2604:3d09:6d85:cb00:4b5:1d8f:c2f0:3f7e]/ml_fitness/register.php"; //local network for now
+        String url = "http://[2604:3d09:6d85:cb00:b164:c779:3675:8d7b]/ml_fitness/register.php"; //local network for now
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        if (!response.equals("Connection to database failed")) { //or email already exists if when implemented
-                            //Log.d("Response: ", response);
-                            SocketFunctions.user.setId(Integer.parseInt(response));
-                            SocketFunctions.user.setEmail(email);
-                            SocketFunctions.user.setName(name);
-                            SocketFunctions.user.setTrainer(isTrainer);
-                            Log.d("User id: ", "was returned");
-                            Intent i;
-                            if (isTrainer) {
-                                //User has entered all inputs and has indicated to signup as trainee
-                                i = new Intent(getApplicationContext(), TrainerHomePage.class);
-                                startActivity(i);
-                                finish();
-                            } else{
-                                //User has entered all inputs and has indicated to signup as trainee
-                                //makeUser(username, name, email, passwordOne, isTrainer);
-                                i = new Intent(getApplicationContext(), TraineeHomePage.class);
-                                startActivity(i);
-                                finish();
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            if (!jsonResponse.getString("user_id").equals("Connection to database failed")) { //or email already exists if when implemented
+                                //Log.d("Response: ", response);
+                                SocketFunctions.user.setId(Integer.parseInt(jsonResponse.getString("user_id")));
+                                SocketFunctions.user.setEmail(email);
+                                SocketFunctions.user.setName(name);
+                                SocketFunctions.user.setTrainer(isTrainer);
+                                SocketFunctions.apiKey = jsonResponse.getString("api_key");
+                                Log.d("User id: ", "was returned");
+                                Intent i;
+                                if (isTrainer) {
+                                    //User has entered all inputs and has indicated to signup as trainee
+                                    i = new Intent(getApplicationContext(), TrainerHomePage.class);
+                                    startActivity(i);
+                                    finish();
+                                } else{
+                                    //User has entered all inputs and has indicated to signup as trainee
+                                    //makeUser(username, name, email, passwordOne, isTrainer);
+                                    i = new Intent(getApplicationContext(), TraineeHomePage.class);
+                                    startActivity(i);
+                                    finish();
+                                }
                             }
-                        }
-                        else{
-                            Log.d("User id: ", "was not returned");
+                            else{
+                                Log.d("User id: ", "was not returned");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
                     }, new Response.ErrorListener() {

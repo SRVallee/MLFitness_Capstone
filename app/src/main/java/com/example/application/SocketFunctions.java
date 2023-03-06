@@ -25,6 +25,7 @@ public class SocketFunctions {
     private boolean isTrainer;
 
     static public User user = new User();
+    static public String apiKey = null;
 
     /**
      * Used for login. This will only be called if there is both user inputted username and

@@ -97,6 +97,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                                 SocketFunctions.user.setEmail(jsonResponse.getString("email"));
                                 SocketFunctions.user.setName(jsonResponse.getString("name"));
                                 SocketFunctions.user.setTrainer(jsonResponse.getString("isTrainer").equals("1"));
+                                SocketFunctions.apiKey = jsonResponse.getString("api_key");
                                 Log.d("User id: ", "successful login");
                                 Intent i;
                                 if (SocketFunctions.user.isTrainer()) {
