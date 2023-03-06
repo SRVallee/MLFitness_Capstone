@@ -162,7 +162,7 @@ def train_model(df, importantAngles, rounds=20):
     #tf.random.set_seed(42)
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(48, activation='relu'),
-        #tf.keras.layers.Dense(48, activation='relu'),
+        tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
     model.compile(
@@ -212,12 +212,13 @@ def do_ml(df, importantAngles):
         recall = true_pos/(true_pos + false_neg)
         print("Recall: ", recall) #measures how good the model is at correctly predicting positive classes
         #this is determined by # of true positives/(# of true positives + # of false negatives)
+        if (test_prec + recall) > 0:
+            f1 = 2*((test_prec * recall)/(test_prec + recall))
+            print("F1-Score: ", f1)# is the harmonic mean of precision and recall
+            # harmonic mean is an alternative metric for the more common arithmetic mean. It is often useful when computing an average rate.
+            # F1 score = 2 * ((precision * recall)/ (precision + recall))
     
-    if (test_prec + recall) > 0:
-        f1 = 2*((test_prec * recall)/(test_prec + recall))
-        print("F1-Score: ", f1)# is the harmonic mean of precision and recall
-    # harmonic mean is an alternative metric for the more common arithmetic mean. It is often useful when computing an average rate.
-    # F1 score = 2 * ((precision * recall)/ (precision + recall))
+    
     
     #the F1 score gives equal weight to Precision and Recall
     #   A model will obtain a high F1 score if both Precision and Recall are high
