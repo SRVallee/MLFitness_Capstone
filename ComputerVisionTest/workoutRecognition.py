@@ -657,47 +657,53 @@ def trainML(modelName):
     paths = [str(vidsDir) + "\\ML_training\\correct_trainML\\angle_squat\\", # good reps folder
              str(vidsDir) + "\\ML_training\\incorrect_trainML\\angle_squat\\"] # bad reps folder
     #put threads or mulitprocessing here
-    allReps = []
-    totalAngles = []
+    
     lengths = 1 # lengths of good reps
     frames =[]
-    num_workers = mproc.cpu_count()
-    pool = mproc.Pool(num_workers)
     for path in paths: #first good paths, then bad paths
+        items = []
+        allReps = []
+        totalAngles = []
         for filename in os.listdir(path):
-            results =  pool.apply_async(process_divider, args = (path,filename,modelName))
-            importantAngles,allReps_vid,totalAngles_vid, lengths_vid= results.get()
-            allReps.append(allReps_vid)
-            totalAngles.append(totalAngles_vid)
-        results.wait()
+            args = (path, filename, modelName)
+            items.append(args)
+        print(f"items(path, filename, modelName): {len(items)}")
+        with mproc.Pool() as pool:
+            results = pool.map(process_divider, items)
+            print(f"results: {len(results)}")
+            for all_items in results:
+                importantAngles, allReps_vids, totalAngles_vid = all_items
+                #print(f"importantAngles: {importantAngles}, allReps_vid: {allReps_vid}, totalAngles_vid: {totalAngles_vid}")
+                print(f"this is all reps vids no append: {allReps_vids}")
+                allReps.append(allReps_vids)#list of reps per vid
+                totalAngles.append(totalAngles_vid)
+        print(f"this is all reps: {allReps}. length is {len(allReps)}")
+        print(f"this is all angles no append: {totalAngles}")
+        print(f"\ntotalAngles: {len(totalAngles)}\n")
+        print(f"\nallreps: {len(allReps)}. aprox total = {len(items)*5}\n")
+        
         df = mli.repsToDataframe(allReps, totalAngles, lengths)
+        shaper = tf.shape(df)
+        print(f"\nthis is df.shape before merge: {shaper}\n")
+        #print(f"\nthis is df before merge: {df}\n")
         frames.append(df)
         lengths = 0
-    pool.close()
-    pool.join()
+        pool.close()
+        pool.join()
+        items = []
+        allReps = []
+        totalAngles = []
     merged_df = pd.concat(frames)
     print(f"this is the merged df: {merged_df}")
     return mli.do_ml(merged_df, importantAngles,modelName)
 
-def process_divider(path,filename,modelName):
-    allReps = []
-    totalAngles = []
-    lengths = [] # lengths of good reps, bad reps
+def process_divider(items):
+    path, filename, modelName = items
     videoPath = path + filename
     extracted, allAngles, keyAngs = getKeyFramesFromVideo(videoPath)
-    totalAngles.append(keyAngs)
     reps, modelName, importantAngles, excludeAngles = getReps(extracted, allAngles, workout=modelName)
-    allReps.append(reps)
-    lengths.append(len(allReps))
-    print(f"this is filename: {filename}")
-    # if len(lengths) < 1:
-    #     lengths.append(len(allReps))
-    # else:
-    #     lengths.append(len(allReps) - lengths[0])
-            
-    df = mli.repsToDataframe(allReps, totalAngles, lengths, excludeAngles)
-    
-    return importantAngles,reps,keyAngs, lengths
+    print(f"this is filename: {filename}. this is the current reps: {reps}")
+    return importantAngles, reps, keyAngs
 
 # This function will grab video path from user and what model it is for key extraction
 # and the trained model to evaluate the video if the reps are correct or not

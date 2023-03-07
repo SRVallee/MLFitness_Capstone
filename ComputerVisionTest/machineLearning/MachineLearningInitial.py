@@ -67,6 +67,7 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
     colsList = COLS.copy() # copy list of all possible cols names
     colNamesRemoved = False
     for i in range(len(totalReps)): # for each video
+        print(f"rep i in totalreps[i]: {totalReps[i]}")
         for rep in totalReps[i]: # for each rep in video
             if None in rep:
                 continue
@@ -147,10 +148,10 @@ def split(df, ratio=0.2):
 #
 #
 #
-def train_model(df, importantAngles,modelName, rounds=50):
+def train_model(df, importantAngles,modelName, rounds=10):
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
-    print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
+    #print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
     x = df.values.tolist()
     shaper = tf.shape(x)
     print(f"this is the shape: {shaper}")
