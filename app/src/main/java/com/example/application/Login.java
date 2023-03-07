@@ -82,7 +82,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         //At this point have user input, thus check with server if the values entered are correct
         //Check email and password with database
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = "http://[2605:fd00:4:1001:f816:3eff:fef6:cbb4]/MLFitness/login.php";
+        String url = "http://162.246.157.128/MLFitness/login.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
