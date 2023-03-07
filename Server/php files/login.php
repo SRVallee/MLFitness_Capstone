@@ -2,7 +2,7 @@
 $email = $_POST['email'];
 $password = $_POST['password'];
 $result = array();
-$conn = mysqli_connect("localhost", "root", "", "ml_fitness"); //connect
+$conn = mysqli_connect("localhost", "root", "MLFitness@123", "ml_fitness"); //connect
 
 if($conn){                                                       //if connection
     $sql = "select * from user where email = '".$email."'";
