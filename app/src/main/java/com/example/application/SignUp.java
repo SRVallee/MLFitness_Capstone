@@ -138,7 +138,7 @@ public class SignUp extends AppCompatActivity {
         }
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = "http://[2605:fd00:4:1001:f816:3eff:fef6:cbb4]/MLFitness/register.php"; //local network for now
+        String url = "http://[2605:fd00:4:1001:f816:3eff:fef6:cbb4]/MLFitness/register.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -146,7 +146,7 @@ public class SignUp extends AppCompatActivity {
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
-                            if (!jsonResponse.getString("user_id").equals("Connection to database failed")) { //or email already exists if when implemented
+                            if (jsonResponse.getString("status").equals("Success")) { //or email already exists if when implemented
                                 //Log.d("Response: ", response);
                                 SocketFunctions.user.setId(Integer.parseInt(jsonResponse.getString("user_id")));
                                 SocketFunctions.user.setEmail(email);
@@ -169,7 +169,7 @@ public class SignUp extends AppCompatActivity {
                                 }
                             }
                             else{
-                                Log.d("User id: ", "was not returned");
+                                Log.d("User id: ", jsonResponse.getString("status"));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
