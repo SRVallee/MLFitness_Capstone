@@ -1,15 +1,30 @@
 package com.example.application;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.chip.Chip;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUp extends AppCompatActivity {
 
@@ -116,22 +131,6 @@ public class SignUp extends AppCompatActivity {
         isTrainee = traineeChipSignup.isChecked();
         isTrainer = trainerChipSignup.isChecked();
 
-        Intent i;
-
-        if (isTrainee) {
-            //User has entered all inputs and has indicated to signup as trainee
-            //makeUser(username, name, email, passwordOne, isTrainer);
-            i = new Intent(getApplicationContext(), TraineeHomePage.class);
-            startActivity(i);
-            this.finish();
-        }
-        if (isTrainer) {
-            //User has entered all inputs and has indicated to signup as trainee
-            //makeUser(username, name, email, passwordOne, isTrainer);
-            i = new Intent(getApplicationContext(), TrainerHomePage.class);
-            startActivity(i);
-            this.finish();
-        }
         if (!isTrainee && !isTrainer) {
             //Non selected
             alertDialog.setTitle("No role selected");
@@ -139,6 +138,69 @@ public class SignUp extends AppCompatActivity {
             alertDialog.show();
             return;
         }
+
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://[2605:fd00:4:1001:f816:3eff:fef6:cbb4]/MLFitness/register.php"; //local network for now
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            if (!jsonResponse.getString("user_id").equals("Connection to database failed")) { //or email already exists if when implemented
+                                //Log.d("Response: ", response);
+                                SocketFunctions.user.setId(Integer.parseInt(jsonResponse.getString("user_id")));
+                                SocketFunctions.user.setEmail(email);
+                                SocketFunctions.user.setName(name);
+                                SocketFunctions.user.setTrainer(isTrainer);
+                                SocketFunctions.apiKey = jsonResponse.getString("api_key");
+                                Log.d("User id: ", "was returned");
+                                Intent i;
+                                if (isTrainer) {
+                                    //User has entered all inputs and has indicated to signup as trainee
+                                    i = new Intent(getApplicationContext(), TrainerHomePage.class);
+                                    startActivity(i);
+                                    finish();
+                                } else{
+                                    //User has entered all inputs and has indicated to signup as trainee
+                                    //makeUser(username, name, email, passwordOne, isTrainer);
+                                    i = new Intent(getApplicationContext(), TraineeHomePage.class);
+                                    startActivity(i);
+                                    finish();
+                                }
+                            }
+                            else{
+                                Log.d("User id: ", "was not returned");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("User id: ", error.getLocalizedMessage());
+                        }
+                    }) {
+                        protected Map<String, String> getParams() {
+                            Map<String, String> paramV = new HashMap<>();
+                            paramV.put("username", username);
+                            paramV.put("name", name);
+                            paramV.put("email", email);
+                            paramV.put("password", passwordOne);
+                            if(isTrainer) {
+                                paramV.put("isTrainer", "1");
+                            }else{
+                                paramV.put("isTrainer", "0");
+                            }
+                            return paramV;
+                        }
+        };
+        queue.add(stringRequest);
+
+
+
     }
 
     private boolean emailIsValid(String email){
