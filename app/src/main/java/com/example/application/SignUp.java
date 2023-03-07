@@ -138,7 +138,7 @@ public class SignUp extends AppCompatActivity {
         }
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = "http://[2604:3d09:6d85:cb00:b164:c779:3675:8d7b]/ml_fitness/register.php"; //local network for now
+        String url = "http://[2605:fd00:4:1001:f816:3eff:fef6:cbb4]/MLFitness/register.php"; //local network for now
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
