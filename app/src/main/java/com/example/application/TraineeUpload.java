@@ -321,7 +321,10 @@ public class TraineeUpload extends AppCompatActivity {
      * ***/
 
     public void storageButtonPressed(View view) {
-
+        Intent i = new Intent(getApplicationContext(), TraineeTrim.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
+        finish();
     }
 
     /***

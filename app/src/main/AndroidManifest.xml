@@ -64,6 +64,12 @@
             android:name=".FriendsPage" >
         </activity>
         <activity
+            android:name=".TraineeTrim" >
+        </activity>
+        <activity
+            android:name=".Trimmer" >
+        </activity>
+        <activity
             android:name=".TraineeProfile" >
         </activity>
         <activity
