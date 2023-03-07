@@ -115,7 +115,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                                 }
                             }
                             else{
-                                Log.d("User id: ", status);
+                                alertDialog.setTitle("Error!");
+                                alertDialog.setMessage(jsonResponse.getString("status"));
+                                alertDialog.show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

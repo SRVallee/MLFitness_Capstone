@@ -148,7 +148,7 @@ public class SignUp extends AppCompatActivity {
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
-                            if (jsonResponse.getString("status").equals("Success")) { //or email already exists if when implemented
+                            if (jsonResponse.getString("status").equals("success")) { //or email already exists if when implemented
                                 //Log.d("Response: ", response);
                                 SocketFunctions.user.setId(Integer.parseInt(jsonResponse.getString("user_id")));
                                 SocketFunctions.user.setEmail(email);
@@ -171,7 +171,9 @@ public class SignUp extends AppCompatActivity {
                                 }
                             }
                             else{
-                                Log.d("User id: ", jsonResponse.getString("status"));
+                                alertDialog.setTitle("Error!");
+                                alertDialog.setMessage(jsonResponse.getString("status"));
+                                alertDialog.show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
