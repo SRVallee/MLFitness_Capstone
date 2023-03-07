@@ -144,11 +144,13 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
     allAngles = []
     keyList = []
     keyAngles = []
-    n = len(frames)
     for frame in frames: #fills list with lists of angles
         if frame.pose_world_landmarks:
             allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
+            frames.remove(frame)
         # allAngles.append(getAllAngles(frame))
+    n = len(frames)
+    keyList.append((frames[0],0))
 
     simpleModel = simplifiedCurveModel(allAngles)
     f = []
@@ -191,7 +193,11 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
         else:
             break
     print(f"looped: {count} times")
-    print(f"key list {keyList[1]}")
+    keyList.append((frames[-1],len(frames)-1))
+    if keyList[0] == keyList[1]:
+        keyList.pop(0)
+    if keyList[-1] == keyList[-2]:
+        keyList.pop(-1)
     if getAngles:
         return keyList, allAngles, keyAngles
         # return keyList, keyAngles
@@ -220,7 +226,7 @@ def getSmallestRSquared(simpleModel, f, start, end):
         
         if rSq < smallest:
             smallest = rSq
-            print(f"smallest R at frame {i+1}")
+            #print(f"smallest R at frame {i+1}")
         
     return smallest
 

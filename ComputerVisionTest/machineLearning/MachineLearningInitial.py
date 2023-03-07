@@ -61,9 +61,11 @@ COLS = [
 #
 #
 #
-def repsToDataframe(totalReps, totalAngs, lengths):
-    goodNum = lengths
+def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
+    goodNum = lengths[0]
     repsList=[]
+    colsList = COLS.copy() # copy list of all possible cols names
+    colNamesRemoved = False
     for i in range(len(totalReps)): # for each video
         for rep in totalReps[i]: # for each rep in video
             if None in rep:
@@ -72,11 +74,22 @@ def repsToDataframe(totalReps, totalAngs, lengths):
                 rowList = []
                 for j in range(3): # for keyframes in rep
                     # concat angles of top, bottom, top into one list
-                    if j == 0:
-                        rowList = totalAngs[i][j].tolist()
-                    else:
-                        rowList = rowList + totalAngs[i][j].tolist()
-                
+                    
+                    currList = totalAngs[i][j].tolist() # all angles for keyframe
+                    if rmCols: # if there are cols to delete
+                        rmCols.sort(reverse=True) # desceneding
+                        for num in rmCols: 
+                            if not colNamesRemoved:
+                                colIndex = num + (2-j) * 16
+                                del colsList[colIndex] # delete exclude column name
+                            del currList[num] # delete col index
+                            
+                    if j == 0: # first 16
+                        rowList = currList
+                    else: # next 32
+                        rowList = rowList + currList
+                        
+                colNamesRemoved = True
                 # add if is a good rep (for training)
                 
                 rowList.append(lengths)
@@ -84,7 +97,7 @@ def repsToDataframe(totalReps, totalAngs, lengths):
                 # append rep angles to reps list
                 repsList.append(rowList) 
     #convert to dataframe
-    df = pd.DataFrame(repsList, columns=COLS)
+    df = pd.DataFrame(repsList, columns=colsList)
         
     return df #df.sample(frac=1).reset_index(drop=True) # shuffle dataframe and return
 
@@ -192,7 +205,7 @@ def train_model(df, importantAngles,modelName, rounds=50):
 #
 def do_ml(df, importantAngles,modelName):
     
-    #print(f"df.head: {df.head}")
+    print(f"df.head: {df.head}")
     
     train, test = split(df)
     
