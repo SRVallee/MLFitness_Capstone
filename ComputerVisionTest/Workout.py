@@ -4,73 +4,69 @@ import json
 class Workout:
     def __init__(self, model : list = None) -> None:
         if model:
-            self._top = WorkoutPose(model["Top"][0], model["Top"][1], model["Top"][2])
-            self._bottom = WorkoutPose(model["Top"][0], model["Top"][1], model["Top"][2])
             self._impAng = model["ImportantAngles"]
             self._exclAng = model["ExcludeAngles"]
 
     def loadModel(self, path):
         with open(path, "r") as f:
             model = json.load(f)
-        self._top = WorkoutPose(model["Top"][0], model["Top"][1], model["Top"][2])
-        self._bottom = WorkoutPose(model["Top"][0], model["Top"][1], model["Top"][2])
         self._impAng = model["ImportantAngles"]
         self._exclAng = model["ExcludeAngles"]
         return self
             
-    def updateModel(self, newPose : WorkoutPose, poseType : str):
-        if poseType == "Top":
-            #print("Updating top")
-            newAngles = self._top.getAngles()
-            newStdvs = self._top.getStdv()
-            for i in range(len(newAngles)):
-                newAngle = UpdateStats.update_average_with_one_value(
-                    newAngles[i], 
-                    self._top.getPopulationNumber(), 
-                    newPose.getAngles()[i])
+    # def updateModel(self, newPose : WorkoutPose, poseType : str):
+        # if poseType == "Top":
+        #     #print("Updating top")
+        #     newAngles = self._top.getAngles()
+        #     newStdvs = self._top.getStdv()
+        #     for i in range(len(newAngles)):
+        #         newAngle = UpdateStats.update_average_with_one_value(
+        #             newAngles[i], 
+        #             self._top.getPopulationNumber(), 
+        #             newPose.getAngles()[i])
 
-                newStdv = UpdateStats.update_stdev(
-                    newAngles[i],
-                    self._top.getStdvSingle(i),
-                    self._top.getPopulationNumber(),
-                    newPose.getAngle(i)
-                )
+        #         newStdv = UpdateStats.update_stdev(
+        #             newAngles[i],
+        #             self._top.getStdvSingle(i),
+        #             self._top.getPopulationNumber(),
+        #             newPose.getAngle(i)
+        #         )
 
-                newAngles[i] = newAngle
-                newStdvs[i] = newStdv
+        #         newAngles[i] = newAngle
+        #         newStdvs[i] = newStdv
 
-            #print("Saving updated top")
-            self._top.setAngles(newAngles)
-            self._top.setStdv(newStdvs)
-            self._top.plusPopulation(1)
+        #     #print("Saving updated top")
+        #     self._top.setAngles(newAngles)
+        #     self._top.setStdv(newStdvs)
+        #     self._top.plusPopulation(1)
                     
-        elif poseType == "Bottom":
-            #print("Updating bottom")
-            newAngles = self._bottom.getAngles()
-            newStdvs = self._bottom.getAngles()
-            for i in range(len(newAngles)):
-                newAngle = UpdateStats.update_average_with_one_value(
-                    newAngles[i], 
-                    self._bottom.getPopulationNumber(), 
-                    newPose.getAngle(i)
-                )
+        # elif poseType == "Bottom":
+        #     #print("Updating bottom")
+        #     newAngles = self._bottom.getAngles()
+        #     newStdvs = self._bottom.getAngles()
+        #     for i in range(len(newAngles)):
+        #         newAngle = UpdateStats.update_average_with_one_value(
+        #             newAngles[i], 
+        #             self._bottom.getPopulationNumber(), 
+        #             newPose.getAngle(i)
+        #         )
 
-                newStdv = UpdateStats.update_stdev(
-                    newAngles[i],
-                    self._bottom.getStdvSingle(i),
-                    self._bottom.getPopulationNumber(),
-                    newPose.getAngle(i)
-                )
-                newAngles[i] = newAngle
-                newStdvs[i] = newStdv
+        #         newStdv = UpdateStats.update_stdev(
+        #             newAngles[i],
+        #             self._bottom.getStdvSingle(i),
+        #             self._bottom.getPopulationNumber(),
+        #             newPose.getAngle(i)
+        #         )
+        #         newAngles[i] = newAngle
+        #         newStdvs[i] = newStdv
             
-            #print("Saving updated bottom")
-            self._bottom.setAngles(newAngles)
-            self._bottom.setStdv(newStdvs)
-            self._bottom.plusPopulation(1)
+        #     #print("Saving updated bottom")
+        #     self._bottom.setAngles(newAngles)
+        #     self._bottom.setStdv(newStdvs)
+        #     self._bottom.plusPopulation(1)
 
     def saveModel(self, path):
-        model = {"Top": self._top.toList(), "Bottom": self._bottom.toList(), "ImportantAngles": self._impAng, "ExcludeAngles":self._exclAng}
+        model = {"ImportantAngles": self._impAng, "ExcludeAngles":self._exclAng}
         with open(path, "w") as f:
             json.dump(model, f)
 

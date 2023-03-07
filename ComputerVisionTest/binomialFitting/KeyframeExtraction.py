@@ -194,6 +194,7 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
             break
     print(f"looped: {count} times")
     keyList.append((frames[-1],len(frames)-1))
+    
     if keyList[0] == keyList[1]:
         keyList.pop(0)
     if keyList[-1] == keyList[-2]:

@@ -68,7 +68,7 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
                 for j in range(3): # for keyframes in rep
                     # concat angles of top, bottom, top into one list
                     
-                    currList = totalAngs[i][j].tolist() # all angles for keyframe
+                    currList = totalAngs[i][rep[j]].tolist() # all angles for keyframe
                     if rmCols: # if there are cols to delete
                         rmCols.sort(reverse=True) # desceneding
                         for num in rmCols: 

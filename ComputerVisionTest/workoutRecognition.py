@@ -161,7 +161,7 @@ def getKeyFramesFromVideo(video, show = False):
 def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
-        modelName, importantJoints, repNumber, excludeJoints = setupNewWorkout()
+        modelName, importantJoints, excludeJoints = setupNewWorkout()
         importantAngles = convertJoints(importantJoints)
         excludeAngles = convertJoints(excludeJoints)
     else:
@@ -275,7 +275,6 @@ def getTrend(cycles, allAngles, repNumber = 9999):
     #cycle [start, turning point, end, angle]
 
     reps = []
-
 
     for cycleJoint in cycles:
         
@@ -406,7 +405,6 @@ def setupNewWorkout():
     models = str(modelDir) + "\\ComputerVisionTest\\models\\"
     print(models)
     name = input("Name of new workout: ").strip()
-    reps = input("number of repetitions: ")
     while (len(name) == 0) and (name + ".json") in models:
 
         name = input("Model already exists or the name is invalid! \n\
@@ -419,7 +417,7 @@ Please provide a new name of new workout: ").strip()
     print(MENU)
     excludeAngs = input("Choice(s): ").split(",")
 
-    return name, importantAngs, reps, excludeAngs
+    return name, importantAngs, excludeAngs
 
 
 # TODO ???????
@@ -476,6 +474,24 @@ def makeNewModelV1(extracted, allAngles, debug = False):
             n = int(n)-1
             mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
             n = input("Frame to display(no to exit): ")
+
+    return model
+
+
+# TODO ??????????
+def makeNewModelV2():
+    #print(f"Reps: {reps}")
+    model = {}
+    modelName, importantJoints, excludeJoints = setupNewWorkout()
+    importantAngles = convertJoints(importantJoints)
+    excludeAngles = convertJoints(excludeJoints)
+    model["ImportantAngles"] = importantAngles
+    model["ExcludeAngles"] = excludeAngles
+    modelDir = Path.cwd() #MLFITNESS_Capstone
+    models = str(modelDir) + "\\ComputerVisionTest\\models\\"
+    path = models + modelName + ".json"
+    with open(path, 'w') as f:
+        json.dump(model, f)
 
     return model
 
@@ -614,7 +630,12 @@ def computeData(modelName):
 def process_divider(items):
     path, filename, modelName = items
     videoPath = path + filename
-    extracted, allAngles, keyAngs = getKeyFramesFromVideo(videoPath)
+    extracted, allAngles, _ = getKeyFramesFromVideo(videoPath)
+    
+    keyAngs = []
+    for frame in extracted:
+        keyAngs.append(allAngles[frame[1]])
+    
     reps, modelName, importantAngles, excludeAngles = getReps(extracted, allAngles, workout=modelName)
     print(f"this is filename: {filename}. this is the current reps: {reps}")
     return importantAngles, reps, keyAngs, excludeAngles
@@ -664,9 +685,9 @@ if __name__ == "__main__":
     while True:
         choice = input(MENU2)
         if choice == "1":
-            video = input("Path to video: ").strip("'")
-            extracted, allAngles,impangs = getKeyFramesFromVideo(video)
-            model = makeNewModelV1(extracted, allAngles, False)
+            # video = input("Path to video: ").strip("'")
+            # extracted, allAngles,impangs = getKeyFramesFromVideo(video)
+            model = makeNewModelV2()
             print(f"New workout added\n")
         
         elif choice == "2":
