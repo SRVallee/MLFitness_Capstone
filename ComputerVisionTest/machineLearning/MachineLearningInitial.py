@@ -183,7 +183,7 @@ def do_ml(df, importantAngles,modelName):
     testy = test.pop('GoodForm').values.tolist()
     testx = test.values.tolist()
     
-    test_loss, test_acc, test_prec, true_pos, false_neg = model.evaluate(x_test, y_test)
+    test_loss, test_acc, test_prec, true_pos, true_neg, false_neg = model.evaluate(x_test, y_test)
     print("MODEL ACCURACY: ", test_acc)#accuracy = how often the model predicted correctly
     #this is determined by #of correct predictions # of total predictions.
     # whereas accuracy deals with how close they are to the actual value of the measurement

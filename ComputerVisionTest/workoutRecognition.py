@@ -647,7 +647,7 @@ def open_and_train(modelName):
     dataName = str(cwd) + "/ComputerVisionTest/dataframes/" + modelName + ".csv"
     path = f"{str(cwd)}\\ComputerVisionTest\\models\\"
     model = Workout().loadModel(f"{path}{modelName}.json")
-    importantAngles = model.getImportantAngles
+    importantAngles = model.getImportantAngles()
     
     if os.path.isfile(dataName): # if dataframe exists, open
         df = pd.read_csv(dataName)
