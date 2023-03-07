@@ -61,6 +61,9 @@
             android:name=".TraineeTrainerProfile" >
         </activity>
         <activity
+            android:name=".TraineeEditProfile" >
+        </activity>
+        <activity
             android:name=".FriendsPage" >
         </activity>
         <activity

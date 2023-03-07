@@ -202,8 +202,6 @@ public class SignUp extends AppCompatActivity {
         };
         queue.add(stringRequest);
 
-
-
     }
 
     private boolean emailIsValid(String email){

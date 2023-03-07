@@ -138,28 +138,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             }
         };
         queue.add(stringRequest);
-        /*
-        if(verifyLogin(email, password)) {
-            //email and password are valid
-            //Check if user is trainee or trainer and then go to their respective home page
-            Intent i;
-            if(userIsTrainer(email)) {
-                //User is trainer
-                i = new Intent(getApplicationContext(), TrainerHomePage.class);
-            } else {
-                //User is trainee
-                i = new Intent(getApplicationContext(), TraineeHomePage.class);
-            }
-            startActivity(i);
-            this.finish();
-        } else {
-            //email and password are not valid
-            alertDialog.setTitle("Error");
-            alertDialog.setMessage("Invalid email or password");
-            alertDialog.show();
-            return;
-        }
-        */
     }
 
     /***

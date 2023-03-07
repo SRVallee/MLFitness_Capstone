@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,6 +25,8 @@ public class TraineeEditProfile extends AppCompatActivity {
     TextView traineeProfileUsernameEdit;
     TextView traineeProfileEmailEdit;
     TextView traineeProfileNameEdit;
+
+    int SELECT_IMAGE_CODE=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +139,26 @@ public class TraineeEditProfile extends AppCompatActivity {
         //        .compress(1024)			//Final image size will be less than 1 MB(Optional)
         //        .maxResultSize(1080, 1080)	//Final image resolution will be less than 1080 x 1080(Optional)
         //        .start();
+    }
+
+    public void selectProfilePic(View view) {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent.createChooser(intent,"Title"),SELECT_IMAGE_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==1) {
+            Uri uri;
+            uri = data.getData();
+            userProfilePicture.setImageURI(uri);
+            //Use uri to set in db
+        }
+
     }
 
     private boolean emailIsValid(String email){

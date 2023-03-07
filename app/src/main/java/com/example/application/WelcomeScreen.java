@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class WelcomeScreen extends AppCompatActivity implements View.OnClickListener{
 
-    Button button1, button2;
+    Button button1, button2, button3, button4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +21,12 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
         button2 = (Button) findViewById(R.id.signUpButtonWelcome);
         button2.setOnClickListener(WelcomeScreen.this);
+
+        button3 = (Button) findViewById(R.id.tempB1);
+        button3.setOnClickListener(WelcomeScreen.this);
+
+        button4 = (Button) findViewById(R.id.tempB2);
+        button4.setOnClickListener(WelcomeScreen.this);
 
     }
 
@@ -38,6 +44,16 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             //Go to signup, goes to role select first but then to signup activity
             case R.id.signUpButtonWelcome:
                 i = new Intent(getApplicationContext(), SignUp.class);
+                startActivity(i);
+                break;
+            //Trainee temp
+            case R.id.tempB1:
+                i = new Intent(getApplicationContext(), TraineeHomePage.class);
+                startActivity(i);
+                break;
+            //Trainer temp
+            case R.id.tempB2:
+                i = new Intent(getApplicationContext(), TrainerHomePage.class);
                 startActivity(i);
                 break;
             default:

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -24,8 +25,12 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
@@ -42,10 +47,15 @@ public class TraineeUpload extends AppCompatActivity {
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
 
+
+    VideoView videoPreviewer;
+
     //Permission codes that are used
     private static int CAMERA_PERMISSION_CODE = 100;
     private static int VIDEO_RECORD_CODE = 101;
     private static int WRITE_PERMISSION_CODE = 111;
+
+    private static int PICK_VIDEO_REQUEST = 1111111;
 
     //This is when the video that is recorded is being stored
     private Uri videoPath;
@@ -64,7 +74,9 @@ public class TraineeUpload extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_upload);
 
-        RecyclerView recyclerView = findViewById(R.id.videoListViewer);
+        videoPreviewer = findViewById(R.id.videoView2);
+
+        //RecyclerView recyclerView = findViewById(R.id.videoListViewer);
         TextView noFilesText = findViewById(R.id.noFilesTextView);
 
         //Get path to display for the video list
@@ -81,8 +93,8 @@ public class TraineeUpload extends AppCompatActivity {
 
         noFilesText.setVisibility(View.INVISIBLE);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new videoListAdapter(getApplicationContext(),filesAndFolders));
+        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //recyclerView.setAdapter(new videoListAdapter(getApplicationContext(),filesAndFolders));
 
         //Checks if device has a camera and then gets permission for it
         if (isCameraPresentInPhone()) {
@@ -228,6 +240,7 @@ public class TraineeUpload extends AppCompatActivity {
      * Also assigns the videoPath variable to the path of the video.
      * Returns nothing.
      * ***/
+    /***
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //Gets results of the video recording
@@ -248,7 +261,7 @@ public class TraineeUpload extends AppCompatActivity {
             }
         }
     }
-
+    ***/
     /***
      * This function takes the recorded video's path, and stores it in a folder for this application.
      * This function returns nothing. Does make logs if it saved the video or not.
@@ -321,10 +334,42 @@ public class TraineeUpload extends AppCompatActivity {
      * ***/
 
     public void storageButtonPressed(View view) {
-        Intent i = new Intent(getApplicationContext(), TraineeTrim.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(i);
-        finish();
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, 5);
+    }
+
+    Uri videoURI;
+
+    // startActivityForResult is used to receive the result, which is the selected video.
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 5 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            videoURI = data.getData();
+            //progressDialog.setTitle("Uploading...");
+            //progressDialog.show();
+            uploadVideo();
+            String video = String.valueOf(videoURI);
+            Log.d("video",""+videoURI);
+            videoPreviewer.setMediaController(new MediaController(this));
+            videoPreviewer.setVideoURI(Uri.parse(video));
+            videoPreviewer.requestFocus();
+            videoPreviewer.start();
+        }
+    }
+
+    private String getFileType(Uri videoURI) {
+        ContentResolver r = getContentResolver();
+        // get the file type ,in this case its mp4
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(r.getType(videoURI));
+    }
+
+    private void uploadVideo() {
+        if (videoURI != null) {
+            // save the selected video
+        }
     }
 
     /***
