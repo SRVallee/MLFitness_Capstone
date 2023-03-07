@@ -3,8 +3,11 @@ package com.example.application;
 import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,10 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.IOException;
+
 
 public class TraineeEditProfile extends AppCompatActivity {
 
     String name, username, email, passwordOld, passwordOne, passwordTwo;
+    Bitmap pfp;
 
     ImageView userProfilePicture;
     TextView traineeProfileUsernameEdit;
@@ -152,11 +158,17 @@ public class TraineeEditProfile extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==1) {
+        if(requestCode==1 && data != null) {
             Uri uri;
             uri = data.getData();
             userProfilePicture.setImageURI(uri);
             //Use uri to set in db
+            ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
+            try {
+                pfp = ImageDecoder.decodeBitmap(source);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
