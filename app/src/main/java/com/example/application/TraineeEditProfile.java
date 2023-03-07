@@ -146,8 +146,7 @@ public class TraineeEditProfile extends AppCompatActivity {
 
     public void selectProfilePic(View view) {
         Intent intent = new Intent();
-        //intent.setType("image/*");
-        intent.setType("video/*");
+        intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent.createChooser(intent,"Title"),SELECT_IMAGE_CODE);
     }
