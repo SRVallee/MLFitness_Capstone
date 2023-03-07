@@ -4,7 +4,6 @@
 import cv2
 import tensorflow as tf
 import mediapipe as mp
-import numpy as np
 import math
 import json
 import statistics
@@ -147,8 +146,8 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         excludeAngles = convertJoints(excludeJoints)
     else:
         modelName = workout
-        vidsDir = Path.cwd()
-        path = f"{str(vidsDir)}\\ComputerVisionTest\\models\\"
+        modelDir = Path.cwd()
+        path = f"{str(modelDir)}\\ComputerVisionTest\\models\\"
         model = Workout().loadModel(f"{path}{workout}.json")
         importantAngles = model.getImportantAngles()
         excludeAngles = model.getExcludeAngles()
@@ -484,8 +483,8 @@ def pickLargest(cycles):
         return largest
 
 def setupNewWorkout():
-    vidsDir = Path.cwd() #MLFITNESS_Capstone
-    models = str(vidsDir) + "\\ComputerVisionTest\\models\\"
+    modelDir = Path.cwd() #MLFITNESS_Capstone
+    models = str(modelDir) + "\\ComputerVisionTest\\models\\"
     print(models)
     name = input("Name of new workout: ").strip()
     reps = input("number of repetitions: ")
@@ -549,8 +548,8 @@ def makeNewModelV1(extracted, allAngles, debug = False):
     model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
     model["ImportantAngles"] = importantAngles
     model["ExcludeAngles"] = excludeAngles
-    vidsDir = Path.cwd() #MLFITNESS_Capstone
-    models = str(vidsDir) + "\\ComputerVisionTest\\models\\"
+    modelDir = Path.cwd() #MLFITNESS_Capstone
+    models = str(modelDir) + "\\ComputerVisionTest\\models\\"
     path = models + modelName + ".json"
     with open(path, 'w') as f:
         json.dump(model, f)
@@ -583,8 +582,8 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
 
     reps, modelName, _, _ = getReps(extracted, allAngles, repNumber, modelName)
     #print(f"Reps: {reps}")
-    vidsDir = Path.cwd() #MLFITNESS_Capstone
-    path = str(vidsDir) + "\\ComputerVisionTest\\models\\"+ modelName + ".json"
+    modelDir = Path.cwd() #MLFITNESS_Capstone
+    path = str(modelDir) + "\\ComputerVisionTest\\models\\"+ modelName + ".json"
     model = Workout().loadModel(path)
  
     for rep in reps:
@@ -613,8 +612,8 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
         keypointAngles.append(allAngles[frame[1]])
 
     reps, modelName, _, _ = getReps(extracted, allAngles, repNumber, modelName)
-    vidsDir = Path.cwd()
-    path = f"{str(vidsDir)}\\ComputerVisionTest\\models\\"
+    modelDir = Path.cwd()
+    path = f"{str(modelDir)}\\ComputerVisionTest\\models\\"
     model = Workout().loadModel(f"{path}{modelName}.json")
     right = []
     wrong = []
@@ -650,7 +649,7 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
     return right, wrong
 
 
-def trainML(modelName):
+def computeData(modelName):
     vidsDir = Path.cwd().parents[0]
     # paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
     #          vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
@@ -672,7 +671,7 @@ def trainML(modelName):
             results = pool.map(process_divider, items)
             print(f"results: {len(results)}")
             for all_items in results:
-                importantAngles, allReps_vids, totalAngles_vid = all_items
+                importantAngles, allReps_vids, totalAngles_vid, excludeAngs = all_items
                 #print(f"importantAngles: {importantAngles}, allReps_vid: {allReps_vid}, totalAngles_vid: {totalAngles_vid}")
                 print(f"this is all reps vids no append: {allReps_vids}")
                 allReps.append(allReps_vids)#list of reps per vid
@@ -682,7 +681,7 @@ def trainML(modelName):
         print(f"\ntotalAngles: {len(totalAngles)}\n")
         print(f"\nallreps: {len(allReps)}. aprox total = {len(items)*5}\n")
         
-        df = mli.repsToDataframe(allReps, totalAngles, lengths)
+        df = mli.repsToDataframe(allReps, totalAngles, lengths, excludeAngs)
         shaper = tf.shape(df)
         print(f"\nthis is df.shape before merge: {shaper}\n")
         #print(f"\nthis is df before merge: {df}\n")
@@ -693,9 +692,12 @@ def trainML(modelName):
         items = []
         allReps = []
         totalAngles = []
+        
     merged_df = pd.concat(frames)
     print(f"this is the merged df: {merged_df}")
-    return mli.do_ml(merged_df, importantAngles,modelName)
+    filename = str(Path.cwd()) + "/ComputerVisionTest/dataframes/" + modelName + ".csv"
+    merged_df.to_csv(filename, index=False)
+    return merged_df
 
 def process_divider(items):
     path, filename, modelName = items
@@ -703,13 +705,24 @@ def process_divider(items):
     extracted, allAngles, keyAngs = getKeyFramesFromVideo(videoPath)
     reps, modelName, importantAngles, excludeAngles = getReps(extracted, allAngles, workout=modelName)
     print(f"this is filename: {filename}. this is the current reps: {reps}")
-    return importantAngles, reps, keyAngs
+    return importantAngles, reps, keyAngs, excludeAngles
+
+def open_and_train(modelName):
+    cwd = Path.cwd()
+    dataName = str(cwd) + "/ComputerVisionTest/dataframes/" + modelName + ".csv"
+    path = f"{str(cwd)}\\ComputerVisionTest\\models\\"
+    model = Workout().loadModel(f"{path}{modelName}.json")
+    importantAngles = model.getImportantAngles
+    if os.path.isfile(dataName):
+        df = pd.read_csv(dataName)
+        
+    else:
+        df = computeData(modelName)
+        
+    return mli.do_ml(df, importantAngles, modelName)
 
 # This function will grab video path from user and what model it is for key extraction
 # and the trained model to evaluate the video if the reps are correct or not
-#
-#
-#
 #
 def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     totalAngles = []
@@ -721,32 +734,17 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     y_pred, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
     return y_pred, frame_rep_list
 
-def demo1():
-
-    print("Analyzing video 1...")
-    extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
-
-    model = makeNewModelV1(extracted, allAngles)
-    n = input("Frame to display: ")
-    while n != "no":
-    
-        n = int(n)
-        mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-        n = input("Frame to display: ")
-
-    print("Analyzing video 2...")
-    updateModelV1("ComputerVisionTest/videos/pushup.mp4", "pushups")
 
 if __name__ == "__main__":
-    #demo1()
     MENU2 = """
     Choices:
     1. Create New Rep Model
     2. Update Existing Rep Model
     3. Evaluate Video
-    4. Train,Test, and save Machine Learning Analysis 
-    5. load existing Machine learning model for video input
-    6. Quit\nChoice: """
+    4. Compute dataframe from videos
+    5. Train,Test, and save Machine Learning Analysis 
+    6. load existing Machine learning model for video input
+    7. Quit\nChoice: """
     while True:
         choice = input(MENU2)
         if choice == "1":
@@ -770,14 +768,18 @@ if __name__ == "__main__":
 
         elif choice == "4":
             name = input("Workout name: ")
-            trained_model = trainML(name)
-
+            computeData(name)
+            
         elif choice == "5":
+            name = input("Workout name: ")
+            trained_model = open_and_train(name)
+
+        elif choice == "6":
             name = input("workout name: ")
             path = input("video path: ")
-            vidsDir = Path.cwd()
+            cwd = Path.cwd()
             # try:
-            model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(name)+"_trained"
+            model_path = str(cwd) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
             y_pred, acutal_frame_list =vid_ML_eval(name,load_model, path)
             print(f"actual_frame_list: {acutal_frame_list}")
@@ -791,7 +793,7 @@ if __name__ == "__main__":
             #         print(f"{count}: {filename}")
             #mli.vid_ml_eval(name, path)
 
-        elif choice == "6" or choice == "q":
+        elif choice == "7" or choice == "q":
             break
 
         else:

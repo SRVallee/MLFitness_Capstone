@@ -52,14 +52,6 @@ COLS = [
         'rElb3', 'rKnee3',#
         'GoodForm'
     ]
-
-#
-#
-#
-#
-#
-#
-#
 #
 def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
     goodNum = lengths
@@ -103,10 +95,6 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
     return df #df.sample(frac=1).reset_index(drop=True) # shuffle dataframe and return
 
 #
-#
-#
-#
-#
 def dataframeforeval(totalreps, totalAngs):
     repsList=[] # is a list of reps. reps is a list of [top, bottom, top] angles
     print(f"\ntotal reps: {len(totalreps)}")
@@ -121,14 +109,6 @@ def dataframeforeval(totalreps, totalAngs):
         repsList.append(rowList) #appends the list of (top, bottom, top) angles in raidens
     return repsList
                 
-
-#
-#
-#
-#
-#
-#
-#
 #
 def split(df, ratio=0.2):
     train = pd.DataFrame(columns=COLS) 
@@ -141,20 +121,13 @@ def split(df, ratio=0.2):
     return train, test
 
 #
-#
-#
-#
-#
-#
-#
-#
 def train_model(df, importantAngles,modelName, rounds=10):
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
     #print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
     x = df.values.tolist()
-    shaper = tf.shape(x)
-    print(f"this is the shape: {shaper}")
+
+    print(f"this is the shape: {tf.shape(x)}")
     input_list = []
     for repper in range(3):
         for ang in importantAngles:
@@ -186,7 +159,8 @@ def train_model(df, importantAngles,modelName, rounds=10):
         loss=tf.keras.losses.binary_crossentropy,
         metrics=['accuracy',tf.keras.metrics.Precision(), 
                   tf.keras.metrics.TruePositives(),
-                 tf.keras.metrics.FalseNegatives()]
+                  tf.keras.metrics.FalsePositives(),
+                  tf.keras.metrics.FalseNegatives()]
     )
     
     model.fit(x=X_train, y=y_train, epochs = rounds)
@@ -197,12 +171,6 @@ def train_model(df, importantAngles,modelName, rounds=10):
     model.save(model_path)
     return model, X_test, y_test
 
-#
-#
-#
-#
-#
-#
 #
 def do_ml(df, importantAngles,modelName):
     
@@ -244,6 +212,7 @@ def do_ml(df, importantAngles,modelName):
     #   A model will obtain a low F1 score if both Precision and Recall are low
     #   A model will obtain a medium F1 score if one of Precision and Recall is low and the other is high
     return model
+
 
 
 #this evaluate a user inputted video from key frame extraction
