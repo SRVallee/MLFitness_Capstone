@@ -147,7 +147,9 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         excludeAngles = convertJoints(excludeJoints)
     else:
         modelName = workout
-        model = Workout().loadModel(f"./models/{workout}.json")
+        vidsDir = Path.cwd()
+        path = f"{str(vidsDir)}\\ComputerVisionTest\\models\\"
+        model = Workout().loadModel(f"{path}{workout}.json")
         importantAngles = model.getImportantAngles()
         excludeAngles = model.getExcludeAngles()
         
@@ -482,8 +484,8 @@ def pickLargest(cycles):
         return largest
 
 def setupNewWorkout():
-    
-    models = os.listdir("./models")
+    vidsDir = Path.cwd() #MLFITNESS_Capstone
+    models = str(vidsDir) + "\\ComputerVisionTest\\models\\"
     print(models)
     name = input("Name of new workout: ").strip()
     reps = input("number of repetitions: ")
@@ -547,17 +549,19 @@ def makeNewModelV1(extracted, allAngles, debug = False):
     model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
     model["ImportantAngles"] = importantAngles
     model["ExcludeAngles"] = excludeAngles
-    path = "./models/" + modelName + ".json"
+    vidsDir = Path.cwd() #MLFITNESS_Capstone
+    models = str(vidsDir) + "\\ComputerVisionTest\\models\\"
+    path = models + modelName + ".json"
     with open(path, 'w') as f:
         json.dump(model, f)
 
     if debug:
-        n = input("Frame to display: ")
+        n = input("Frame to display (no to exit): ")
         while n != "no":
   
             n = int(n)-1
             mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-            n = input("Frame to display: ")
+            n = input("Frame to display(no to exit): ")
 
     return model
 
@@ -579,8 +583,9 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
 
     reps, modelName, _, _ = getReps(extracted, allAngles, repNumber, modelName)
     #print(f"Reps: {reps}")
-    path = f"ComputerVisionTest/models/{modelName}.json"
-    model = Workout().loadModel(f"./models/{modelName}.json")
+    vidsDir = Path.cwd() #MLFITNESS_Capstone
+    path = str(vidsDir) + "\\ComputerVisionTest\\models\\"+ modelName + ".json"
+    model = Workout().loadModel(path)
  
     for rep in reps:
         if not None in rep:
@@ -608,8 +613,9 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
         keypointAngles.append(allAngles[frame[1]])
 
     reps, modelName, _, _ = getReps(extracted, allAngles, repNumber, modelName)
-    path = f"ComputerVisionTest/models/{modelName}.json"
-    model = Workout().loadModel(f"./models/{modelName}.json")
+    vidsDir = Path.cwd()
+    path = f"{str(vidsDir)}\\ComputerVisionTest\\models\\"
+    model = Workout().loadModel(f"{path}{modelName}.json")
     right = []
     wrong = []
     for rep in reps:
@@ -703,7 +709,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     totalAngles = []
     extracted, allAngles, keyAngs = getKeyFramesFromVideo(vid_path)
     totalAngles.append(keyAngs)
-    reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
+    reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
     print(f"amount of reps: {reps}")
     df =mli.dataframeforeval(reps, allAngles)
     y_pred, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
@@ -740,14 +746,14 @@ if __name__ == "__main__":
         if choice == "1":
             video = input("Path to video: ").strip("'")
             extracted, allAngles,impangs = getKeyFramesFromVideo(video)
-            model = makeNewModelV1(extracted, allAngles, True)
+            model = makeNewModelV1(extracted, allAngles, False)
             print(f"New workout added\n")
         
         elif choice == "2":
             name = input("Workout name(no spaces): ")
             #numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
-            updateModelV1(video, name, True)
+            updateModelV1(video, name, False)
             print(f"{name} updated\n")
 
         elif choice == "3":
@@ -764,19 +770,19 @@ if __name__ == "__main__":
             name = input("workout name: ")
             path = input("video path: ")
             vidsDir = Path.cwd()
-            try:
-                model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(name)+"_trained"
-                load_model = tf.keras.models.load_model(model_path)
-                y_pred, acutal_frame_list =vid_ML_eval(name,load_model, path)
-                print(f"actual_frame_list: {acutal_frame_list}")
-                poseDisplay.capture_feed(path, acutal_frame_list)
-            except:
-                print("\nModel name does not exist. create model using option 4")
-                print("Models that exist are:")
-                model_path = str(vidsDir) + "\\ML_Trained_Models\\"
-                count = 1
-                for filename in os.listdir(model_path):
-                    print(f"{count}: {filename}")
+            # try:
+            model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(name)+"_trained"
+            load_model = tf.keras.models.load_model(model_path)
+            y_pred, acutal_frame_list =vid_ML_eval(name,load_model, path)
+            print(f"actual_frame_list: {acutal_frame_list}")
+            poseDisplay.capture_feed(path, acutal_frame_list)
+            # except:
+            #     print("\nModel name does not exist. create model using option 4")
+            #     print("Models that exist are:")
+            #     model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"
+            #     count = 1
+            #     for filename in os.listdir(model_path):
+            #         print(f"{count}: {filename}")
             #mli.vid_ml_eval(name, path)
 
         elif choice == "6" or choice == "q":

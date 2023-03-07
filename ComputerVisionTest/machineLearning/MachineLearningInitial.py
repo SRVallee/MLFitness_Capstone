@@ -62,7 +62,7 @@ COLS = [
 #
 #
 def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
-    goodNum = lengths[0]
+    goodNum = lengths
     repsList=[]
     colsList = COLS.copy() # copy list of all possible cols names
     colNamesRemoved = False
@@ -176,7 +176,7 @@ def train_model(df, importantAngles,modelName, rounds=50):
     y_test = np.array(y_test)
     #tf.random.set_seed(42)
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(48,input_shape = (shaper[0],shaper[1]), activation='relu'),
+        tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
