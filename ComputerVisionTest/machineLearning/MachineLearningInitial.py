@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from keras.preprocessing.text import Tokenizer
 from keras.utils.vis_utils import plot_model
 from pathlib import Path
+from keras_visualizer import visualizer
 
 #refrence between
 # 1   head angle = [0,1]
@@ -61,7 +62,7 @@ COLS = [
 #
 #
 def repsToDataframe(totalReps, totalAngs, lengths):
-    goodNum = lengths[0]
+    goodNum = lengths
     repsList=[]
     for i in range(len(totalReps)): # for each video
         for rep in totalReps[i]: # for each rep in video
@@ -77,10 +78,8 @@ def repsToDataframe(totalReps, totalAngs, lengths):
                         rowList = rowList + totalAngs[i][j].tolist()
                 
                 # add if is a good rep (for training)
-                if i < goodNum:
-                    rowList.append(1)
-                else: 
-                    rowList.append(0)
+                
+                rowList.append(lengths)
                     
                 # append rep angles to reps list
                 repsList.append(rowList) 
@@ -135,11 +134,13 @@ def split(df, ratio=0.2):
 #
 #
 #
-def train_model(df, importantAngles,modelName, rounds=20):
+def train_model(df, importantAngles,modelName, rounds=50):
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
     print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
     x = df.values.tolist()
+    shaper = tf.shape(x)
+    print(f"this is the shape: {shaper}")
     input_list = []
     for repper in range(3):
         for ang in importantAngles:
@@ -162,7 +163,7 @@ def train_model(df, importantAngles,modelName, rounds=20):
     y_test = np.array(y_test)
     #tf.random.set_seed(42)
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(48, activation='relu'),
+        tf.keras.layers.Dense(48,input_shape = (shaper[0],shaper[1]), activation='relu'),
         tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
@@ -277,8 +278,10 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     print(trained_model.summary())
     vidsDir = Path.cwd()
     print(vidsDir)
-    model_path = str(vidsDir)+"\\ComputerVisionTest\\machineLearning\\" + str(modelName)+"_diagram.png"
-    tf.keras.utils.plot_model(trained_model, to_file= model_path,show_shapes=True)
+    model_diagram = str(vidsDir)+"\\ComputerVisionTest\\machineLearning\\" + str(modelName)+"_diagram.png"
+    model_nerual_network = str(vidsDir)+"\\ComputerVisionTest\\machineLearning\\" + str(modelName)+"_neural_network"
+    tf.keras.utils.plot_model(trained_model, to_file= model_diagram,show_shapes=True)
+    visualizer(trained_model, filename= model_nerual_network, format= 'png', view= True)
     y_pred = trained_model.predict(x = scaled_new_df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
     print(f"this is the actual frame numbers [up, down, up, degree]: {acutal_frame_num}")

@@ -17,6 +17,7 @@ import evalPoseDisplay as poseDisplay
 from Workout import Workout
 from WorkoutPose import WorkoutPose
 import multiprocessing as mproc
+import pandas as pd
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -576,7 +577,8 @@ def trainML(modelName):
     #put threads or mulitprocessing here
     allReps = []
     totalAngles = []
-    lengths = [] # lengths of good reps, bad reps
+    lengths = 1 # lengths of good reps
+    frames =[]
     num_workers = mproc.cpu_count()
     pool = mproc.Pool(num_workers)
     for path in paths: #first good paths, then bad paths
@@ -585,16 +587,15 @@ def trainML(modelName):
             importantAngles,allReps_vid,totalAngles_vid, lengths_vid= results.get()
             allReps.append(allReps_vid)
             totalAngles.append(totalAngles_vid)
-            if len(lengths) < 1:
-                lengths.append(len(allReps))
-            else:
-                lengths.append(len(allReps) - lengths[0])
         results.wait()
+        df = mli.repsToDataframe(allReps, totalAngles, lengths)
+        frames.append(df)
+        lengths = 0
     pool.close()
     pool.join()
-    df = mli.repsToDataframe(allReps, totalAngles, lengths)
-    
-    return mli.do_ml(df, importantAngles,modelName)
+    merged_df = pd.concat(frames)
+    print(f"this is the merged df: {merged_df}")
+    return mli.do_ml(merged_df, importantAngles,modelName)
 
 def process_divider(path,filename,modelName):
     allReps = []
@@ -606,6 +607,7 @@ def process_divider(path,filename,modelName):
     reps, modelName, importantAngles = getReps(extracted, allAngles, workout=modelName)
     allReps.append(reps)
     lengths.append(len(allReps))
+    print(f"this is filename: {filename}")
     # if len(lengths) < 1:
     #     lengths.append(len(allReps))
     # else:
