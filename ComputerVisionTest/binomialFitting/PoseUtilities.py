@@ -167,7 +167,7 @@ def vector_angles(angleVec, vecI, vecJ, right=0):
     projIK = angleVec - projIKNormal 
     
     # Compute angle between Vec J and angleVec projection
-    threshold = 0.01
+    threshold = 0.00
     if np.linalg.norm(projIJ) > threshold: # if projection passes threshold
         angleJ = angle_between(projIJ, vecJ)
     else:

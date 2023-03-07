@@ -22,6 +22,9 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
+from statistics import mean
+from statistics import stdev
+
 #body angle 
 MENU = "Select the joints that cycle separated by commas \n\
     Ex. for push ups: 4,5\n\n\
@@ -81,10 +84,26 @@ def getParallelJoint(joint):
     elif joint == 10:
         return choiceList["9"]
 
-from statistics import mean
-from statistics import stdev
 
-#parameters
+####### STATS #######
+def get_average(data):
+    return mean(data)
+
+
+def get_standard_deviation(data):
+    return statistics.stdev(data)
+
+
+def getAverageAndStdvOfList(list):
+    averages = []
+    stdvs = []
+    for i in range(len(list)):
+        averages.append(get_average(list[i]))
+        stdvs.append(get_standard_deviation(list[i]))
+
+    return averages, stdvs
+
+# REP COMPUTATION
 def getKeyFramesFromVideo(video, show = False):
     cap = cv2.VideoCapture(video)
     allFrames = []
@@ -138,6 +157,7 @@ def getKeyFramesFromVideo(video, show = False):
     return extracted, allangles, keyAngs
 
 
+# TODO: EXPLAIN THIS
 def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
@@ -244,16 +264,13 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
     else:
         parallel = getTrend(allCycles, anglesFromExtracted, int(repNumber))
         
-    # else:
-    #     if repNumber:
-    #         parallel = getCloser(allCycles, anglesFromExtracted, model, int(repNumber))
-    #     else:
-    #         parallel = getCloser(allCycles, anglesFromExtracted, model)
 
     #print(f"cycles: {parallel}")
 
     return parallel, modelName, importantAngles, excludeAngles
 
+
+# TODO EXPLAIN THIS
 def getTrend(cycles, allAngles, repNumber = 9999):
     #cycle [start, turning point, end, angle]
 
@@ -292,6 +309,8 @@ def getTrend(cycles, allAngles, repNumber = 9999):
     
     return reps
 
+
+# TODO EXPLAIN THIS
 def getParallelCycleAngle(cycle, allAngles):
     if not cycle[0] or not cycle[1] or not cycle[2]:
         return
@@ -316,6 +335,8 @@ def getParallelCycleAngle(cycle, allAngles):
         return max(maxAngles)
     return
 
+
+# TODO EXPLAIN THIS
 def insertRep(reps, rep): #assums rep is valid
 
     if len(reps) == 0:
@@ -333,6 +354,7 @@ def insertRep(reps, rep): #assums rep is valid
             return reps
         
 
+# TODO EXPLAIN THIS
 def checkValidRange(cycle, reps):
     if None in cycle:
         return False
@@ -346,8 +368,7 @@ def checkValidRange(cycle, reps):
     return True
 
 
-
-
+# TODO EXPLAIN THIS
 def getPairs(cycles):
     pairs = []
     visited = []
@@ -368,112 +389,8 @@ def getPairs(cycles):
 
     return pairs
 
-#getCloser
-#checks if keyframe before and current keyframe are a larger difference than 10 degrees
-#if so than append it as a rep if not removes from keyframe list
-#
-#parameters: cycles()
-#
-#
-def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = 9999):
 
-    reps = []
-
-    for cycleJoint in cycles:
-        
-        if cycleJoint[3] < math.radians(10): #remove cycles under 10 degrees
-            cycles.remove(cycleJoint)
-    
-    #print(cycles)        
-
-    pairs = getPairs(cycles)
-    pairList = []
-    for pair in pairs:
-        pairList.append(cycles[pair[0]])
-
-    if len(pairList) == repNumber:
-        return pairList 
-    
-    for cycle in cycles:  #Temporary until I fixed commented code
-        if cycle in pairList:
-            cycles.remove(cycle)
-
-    reps = pairList
-    
-    for i in range(len(cycles)):
-        cycle = pickLargest(cycles)
-        cycles.remove(cycle) 
-        if len(reps) < repNumber and checkValidRange(cycle, reps):
-            reps = insertRep(reps, cycle)
-
-
-    # for joint in  cycles:
-    #     n = 0
-    #     for cycleJoint in joint:
-    #         potentialReps[n].append(cycleJoint)
-    #         n = n + 1
-    
-    # for cycleGroup in potentialReps: #Take the best values
-    #     lastEnd = 0
-    #     starts = {}
-    #     middle = {}
-    #     end = {} 
-    #     for cycle in cycleGroup:
-            
-    #         if str(cycle[0]) in starts.keys():
-    #             starts[str(cycle[0])] = starts[str(cycle[0])] + 1
-    #         else:
-    #             starts[str(cycle[0])] = 1
-
-    #         if str(cycle[1]) in middle.keys():
-    #             middle[str(cycle[1])] = middle[str(cycle[1])] + 1
-    #         else:
-    #             middle[str(cycle[1])] = 1
-
-    #         if str(cycle[2]) in end.keys():
-    #             end[str(cycle[2])] = end[str(cycle[2])] + 1
-    #         else:
-    #             end[str(cycle[2])] = 1
-    #         #print(starts)
-    #     finalStart = None
-    #     finalMiddle = None
-    #     finalEnd = None
-    #     for start in starts.keys():#TODO Use standard deviation comparasion to not skip reps
-    #         if not finalStart or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(start)][1]]))\
-    #                                     < \
-    #                               model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalStart)][1]]))):
-    #            #if difference to the model is less than what we have 
-    #             if int(start) >= lastEnd:
-    #                 finalStart = int(start)
-    #                 lastEnd = int(start)
-
-    #     for mid in middle.keys():
-    #         if mid == "None":
-    #             finalMiddle = None
-    #         elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
-    #                                     <= \
-    #                                model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
-    #             if int(mid) > lastEnd:
-    #                 finalMiddle = int(mid)
-    #                 lastEnd = int(mid)
-                
-
-    #     for ending in end.keys():
-    #         if ending == "None":
-    #             finalEnd = None
-    #         elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
-    #                                     <= \
-    #                             model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
-    #             if int(ending) > lastEnd:
-    #                 finalEnd = int(ending)
-    #                 lastEnd = int(ending)
-
-    #     reps.append([finalStart, finalMiddle, finalEnd])
-    #     lastEnd = finalEnd
-
-    return reps
-
-
+# TODO EXPLAIN THIS
 def pickLargest(cycles):
     largest = [0,0,0,0]
     for cycle in cycles:
@@ -482,6 +399,8 @@ def pickLargest(cycles):
     if largest != [0,0,0,0]:
         return largest
 
+
+# Set up a new workout
 def setupNewWorkout():
     modelDir = Path.cwd() #MLFITNESS_Capstone
     models = str(modelDir) + "\\ComputerVisionTest\\models\\"
@@ -502,13 +421,8 @@ Please provide a new name of new workout: ").strip()
 
     return name, importantAngs, reps, excludeAngs
 
-def get_average(data):
-    return mean(data)
 
-
-def get_standard_deviation(data):
-    return statistics.stdev(data)
-
+# TODO ???????
 def getRepsFromVideo(videoPath, modelName):
     extracted, allAngles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
@@ -519,6 +433,7 @@ def getRepsFromVideo(videoPath, modelName):
     return getReps(extracted, allAngles, modelName)
 
 
+# TODO ??????????
 def makeNewModelV1(extracted, allAngles, debug = False):
     keypointAngles = []
 
@@ -564,15 +479,8 @@ def makeNewModelV1(extracted, allAngles, debug = False):
 
     return model
 
-def getAverageAndStdvOfList(list):
-    averages = []
-    stdvs = []
-    for i in range(len(list)):
-        averages.append(get_average(list[i]))
-        stdvs.append(get_standard_deviation(list[i]))
 
-    return averages, stdvs
-
+# Update a workout model
 def updateModelV1(videoPath, modelName, repNumber, debug = False):
     extracted, allAngles, _ = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
@@ -603,7 +511,7 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
     model.saveModel(path)
     return model
 
-
+# Evaluate model for idea 1 -- NOT USED in ML
 def evaluateVideo(videoPath, modelName, repNumber, debug = None):
     extracted, allAngles,impotantangs = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
@@ -649,6 +557,7 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
     return right, wrong
 
 
+# Compute a dataframe from the provided videos and then save it
 def computeData(modelName):
     vidsDir = Path.cwd().parents[0]
     # paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
@@ -695,10 +604,13 @@ def computeData(modelName):
         
     merged_df = pd.concat(frames)
     print(f"this is the merged df: {merged_df}")
+    
     filename = str(Path.cwd()) + "/ComputerVisionTest/dataframes/" + modelName + ".csv"
     merged_df.to_csv(filename, index=False)
     return merged_df
 
+
+# Multi-Processing function
 def process_divider(items):
     path, filename, modelName = items
     videoPath = path + filename
@@ -707,19 +619,23 @@ def process_divider(items):
     print(f"this is filename: {filename}. this is the current reps: {reps}")
     return importantAngles, reps, keyAngs, excludeAngles
 
+
+# Open or create a dataframe and the 
 def open_and_train(modelName):
     cwd = Path.cwd()
     dataName = str(cwd) + "/ComputerVisionTest/dataframes/" + modelName + ".csv"
     path = f"{str(cwd)}\\ComputerVisionTest\\models\\"
     model = Workout().loadModel(f"{path}{modelName}.json")
     importantAngles = model.getImportantAngles
-    if os.path.isfile(dataName):
+    
+    if os.path.isfile(dataName): # if dataframe exists, open
         df = pd.read_csv(dataName)
         
-    else:
+    else:                        # else create a dataframe and save it
         df = computeData(modelName)
         
     return mli.do_ml(df, importantAngles, modelName)
+
 
 # This function will grab video path from user and what model it is for key extraction
 # and the trained model to evaluate the video if the reps are correct or not
