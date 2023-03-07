@@ -151,6 +151,7 @@ public class SignUp extends AppCompatActivity {
                             if (jsonResponse.getString("status").equals("success")) { //or email already exists if when implemented
                                 //Log.d("Response: ", response);
                                 SocketFunctions.user.setId(Integer.parseInt(jsonResponse.getString("user_id")));
+                                SocketFunctions.user.setUserName(username);
                                 SocketFunctions.user.setEmail(email);
                                 SocketFunctions.user.setName(name);
                                 SocketFunctions.user.setTrainer(isTrainer);

@@ -41,16 +41,13 @@ public class TraineeEditProfile extends AppCompatActivity {
 
         //Assigns values to the fields in the xml
 
-        //String trainee_profile_username = user.getUsername();
-        String trainee_profile_username = "test username";
+        String trainee_profile_username = SocketFunctions.user.getUserName();
         traineeProfileUsernameEdit.setText(trainee_profile_username);
 
-        //String trainee_profile_email = user.getEmail();
-        String trainee_profile_email = "test email";
+        String trainee_profile_email = SocketFunctions.user.getEmail();
         traineeProfileEmailEdit.setText(trainee_profile_email);
 
-        //String trainee_profile_name = user.getName();
-        String trainee_profile_name = "test name";
+        String trainee_profile_name = SocketFunctions.user.getName();
         traineeProfileNameEdit.setText(trainee_profile_name);
 
         //Won't display password for security reasons

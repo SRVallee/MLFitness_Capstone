@@ -95,6 +95,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                             if (status.equals("success")) { //or email already exists if when implemented
                                 //Log.d("Response: ", response.toString());
                                 SocketFunctions.user.setId(Integer.parseInt(jsonResponse.getString("user_id")));
+                                SocketFunctions.user.setUserName(jsonResponse.getString("username"));
                                 SocketFunctions.user.setEmail(jsonResponse.getString("email"));
                                 SocketFunctions.user.setName(jsonResponse.getString("name"));
                                 SocketFunctions.user.setTrainer(jsonResponse.getString("isTrainer").equals("1"));
