@@ -7,7 +7,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.utils.vis_utils import plot_model
 from pathlib import Path
 from keras_visualizer import visualizer
-
+import pickle
 #refrence between
 # 1   head angle = [0,1]
 # 2   body angle = [2,3]
@@ -134,7 +134,7 @@ def split(df, ratio=0.2):
     return train, test
 
 #
-def train_model(df, importantAngles,modelName, rounds=10):
+def train_model(df, importantAngles,modelName, rounds=50):
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
     #print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
@@ -182,6 +182,9 @@ def train_model(df, importantAngles,modelName, rounds=10):
     vidsDir = Path.cwd()
     model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(modelName)+"_trained"
     model.save(model_path)
+    current_vids = Path.cwd()
+    scaler_path = str(current_vids) +"\\ComputerVisionTest\\scalers\\"+ str(modelName)+"_scaler.pkl"
+    pickle.dump(scaler, open(scaler_path, 'wb'))
     return model, X_test, y_test
 
 #
@@ -246,12 +249,14 @@ def do_ml(df, importantAngles,modelName):
 def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
+    current_vids = Path.cwd()
+    scaler_path = str(current_vids) +"\\ComputerVisionTest\\scalers\\"+ str(modelName)+"_scaler.pkl"
     acutal_frame_num = []
     y_pred_list =[]
-    scaler = StandardScaler()
+    scaler = pickle.load(open(scaler_path,'rb'))
     new_df = np.array(df)
     print(f"\nnew_df = {new_df}")
-    scaled_new_df = scaler.fit_transform(new_df)
+    scaled_new_df = scaler.transform(new_df)
     print(trained_model.summary())
     vidsDir = Path.cwd()
     print(vidsDir)
