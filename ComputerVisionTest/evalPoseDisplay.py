@@ -252,7 +252,6 @@ def capture_feed(path, frame_rep_list):
         while success:
             #this sees if it can read the frame that it is given
             success, img = cap.read()
-            
             constant_height = 700
             slope = 0
             perp_slope = 0

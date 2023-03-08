@@ -672,8 +672,9 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
     print(f"these are excluded values: {exclude_angles}\n the df with excluding angles: {df}")
     print(f"amount of reps: {reps}")
-    y_pred, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
-    return y_pred, frame_rep_list
+    rep_list, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
+    print(f"extracted: {extracted}")
+    return rep_list, extracted
 
 
 if __name__ == "__main__":
@@ -722,9 +723,16 @@ if __name__ == "__main__":
             # try:
             model_path = str(cwd) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
-            y_pred, acutal_frame_list =vid_ML_eval(name,load_model, path)
-            print(f"actual_frame_list: {acutal_frame_list}")
-            poseDisplay.capture_feed(path, acutal_frame_list)
+            acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
+            print(f"actual_frame_list: {acutal_frame_list}\n\n extracted: {extracted}")
+            n = 1
+            all_frame_list = [x[n] for x in extracted]
+            final_frame_list = []
+            for i in range(0,len(all_frame_list),3):
+                final_frame_list.append(all_frame_list[i:i+3])
+            print(f"all_frame_list: {all_frame_list}")
+            print(f"final_frame_list: {final_frame_list}")
+            poseDisplay.capture_feed(path, final_frame_list)
             # except:
             #     print("\nModel name does not exist. create model using option 4")
             #     print("Models that exist are:")
