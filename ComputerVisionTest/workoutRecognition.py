@@ -134,7 +134,6 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         model = Workout().loadModel(f"ComputerVisionTest/models/{workout}.json")
         importantAngles = model.getImportantAngles()
     nFrames = len(keyFrames)
-    reptypes = [[] for i in range(nFrames)] 
     cycles = [[] for i in range(len(importantAngles))] #[start, turning point, end, angle]
 
     for curve in range(len(importantAngles)): #Only include important Joint angles
@@ -153,9 +152,8 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                 #if last frame was a decrese and now it's increasing
                 if (angle1 < angle2) and increase == False: #can be None
                     increase = True
-                    reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
 
-                    if not increaseGiven:
+                    if increaseGiven:
                         cycles[curve][-1][2] = frame
                         if cycles[curve][-1][3] < (angle2 - angle1):
                             cycles[curve][-1][3] = angle2 - angle1
@@ -170,9 +168,8 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                 #if last frame was an increase and now it's a decrease
                 elif (angle1 > angle2) and increase:
                     increase = False
-                    reptypes[frame].append([angle2, curve, increase, angle1 - angle2])
                     
-                    if increaseGiven:
+                    if not increaseGiven:
                         cycles[curve][-1][2] = frame
                         if cycles[curve][-1][3] < (angle1 - angle2):
                             cycles[curve][-1][3] = angle1 - angle2
@@ -186,21 +183,11 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
 
                 #if comparing with first frame
                 elif (increase == None):
-                    if angle1 < angle2:
-                        increase = True
-                        reptypes[frame].append([angle2, curve, increase, angle2 - angle1])
-                        reptypes[0].append([angle1, curve, False, 0])
-                        cycles[curve].append([0, frame, None, angle2 - angle1, importantAngles[curve]]) #Set Values for first time setup.
-
-                        angle1 = angle2
-
                     
-                    else:
-                        increase = False
-                        reptypes[frame].append([angle2, curve, increase, angle1 - angle2])
-                        reptypes[0].append([angle1, curve, True, 0])
-                        cycles[curve].append([0, frame, None, angle1 - angle2, importantAngles[curve]]) #Set Values for first time setup.
-                        angle1 = angle2
+                    increase = increaseGiven
+                    cycles[curve].append([0, 0, 0, 0, 0]) #Set Values for first time setup.
+
+                    angle1 = angle2
                     
     #check important joint changes
     i = 1
@@ -212,15 +199,33 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         anglesFromExtracted.append(anglesPerFrame[frame[1]])
 
     for cycle in allCycles:
+        checkAngle = True
         if not cycle[1]:
             allCycles.remove(cycle)
+            checkAngle = False
         elif not cycle[2]:
-            cycle[2] = len(keyFrames)-1
+            if cycle[1] == (len(keyFrames)-1):
+                allCycles.remove(cycle)
+                checkAngle = False
+            else:
+                cycle[2] = len(keyFrames)-1
+        
+        #angle difference correction (Not touching the mess I made above)
+        if checkAngle:
+            angle1 = abs(anglesPerFrame[keyFrames[cycle[0]][1]][cycle[4]] - anglesPerFrame[keyFrames[cycle[1]][1]][cycle[4]])
+            angle2 = abs(anglesPerFrame[keyFrames[cycle[1]][1]][cycle[4]] - anglesPerFrame[keyFrames[cycle[2]][1]][cycle[4]])
+
+            if angle1 > angle2:
+                cycle[3] = angle1
+            else: 
+                cycle[3] = angle2
+
+    print(allCycles)
 
 
     #get reps without model           #Not using getCloser for now
     #if not workout:
-        parallel = getTrend(allCycles, anglesFromExtracted, int(repNumber))
+    parallel = getTrend(allCycles, anglesFromExtracted, int(repNumber))
     # else:
     #     if repNumber:
     #         parallel = getCloser(allCycles, anglesFromExtracted, model, int(repNumber))
@@ -514,8 +519,9 @@ def makeNewModelV1(extracted, allAngles, debug = False):
         n = input("Frame to display: ")
         while n != "no":
   
-            n = int(n)-1
+            n = int(n)
             mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+            print(f"knee angles at {n}: {allAngles[extracted[n][1]][15]}, {allAngles[extracted[n][1]][13]}")
             n = input("Frame to display: ")
 
     return model
@@ -552,8 +558,9 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
         n = input("Frame to display: ")
         while n != "no":
   
-            n = int(n)-1
+            n = int(n)
             mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+            print(f"knee angles at {n}: {allAngles[extracted[n][1]][15]}, {allAngles[extracted[n][1]][13]}")
             n = input("Frame to display: ")
 
     model.saveModel(path)
@@ -595,8 +602,9 @@ def evaluateVideo(videoPath, modelName, repNumber, debug = None):
         
         while n != "no":
   
-            n = int(n)-1
+            n = int(n)
             mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+            print(f"knee angles at {n}: {allAngles[extracted[n][1]][15]}, {allAngles[extracted[n][1]][13]}")
             n = input("Frame to display: ")
     
 
@@ -613,6 +621,7 @@ def demo1():
     
         n = int(n)
         mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
+        print(f"knee angles at {n}: {allAngles[extracted[n][1]][15]}, {allAngles[extracted[n][1]][13]}")
         n = input("Frame to display: ")
 
     print("Analyzing video 2...")
@@ -637,7 +646,7 @@ if __name__ == "__main__":
             name = input("Workout name: ")
             #numberOfReps = input("Number of reps: ")
             video = input("Path to video: ").strip("'")
-            updateModelV1(video, name, True)
+            updateModelV1(video, name, True, True)
             print(f"{name} updated\n")
 
         elif choice == "3":
