@@ -247,26 +247,7 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
     acutal_frame_num = []
-    rep_frame_list = []
     y_pred_list =[]
-    for i in range(len(extracted)):
-        (temp_class_extract, temp_frame_extract) = extracted[i]
-        rep_frame_list.append(temp_frame_extract)
-    for j in reps:
-        print(f"j in reps: {j}")
-        acutal_frame_num.append([rep_frame_list[j[0]], rep_frame_list[j[1]], rep_frame_list[j[2]],j[3]])
-    new_df = []
-    input_list = []
-    for repper in range(3):
-        for ang in imp_angles:
-            input_list.append(ang+(16*repper))
-    for df_list in df:
-        rep_imp_angles = []
-        for rep_angles in input_list:
-            rep_imp_angles.append(df_list[rep_angles])
-        new_df.append(rep_imp_angles)
-        
-    print(f"this is the new_df: {new_df}")
     scaler = StandardScaler()
     new_df = np.array(df)
     print(f"\nnew_df = {new_df}")

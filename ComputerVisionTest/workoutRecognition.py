@@ -669,8 +669,9 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
         keyAngs.append(allAngles[frame[1]])
     
     reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
-    print(f"amount of reps: {reps}")
     df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
+    print(f"these are excluded values: {exclude_angles}\n the df with excluding angles: {df}")
+    print(f"amount of reps: {reps}")
     y_pred, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
     return y_pred, frame_rep_list
 
