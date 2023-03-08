@@ -100,7 +100,7 @@ def dataframeforeval(totalReps, totalAngs, rmCols=[]):
     print(f"\ntotal reps: {len(totalReps)}")
     
     for rep in totalReps: # for each rep in video
-        if None in rep:
+        if None in rep or len(rep) <5:
             continue
         else:
             rowList = []
