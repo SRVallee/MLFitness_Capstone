@@ -7,6 +7,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.utils.vis_utils import plot_model
 from pathlib import Path
 from keras_visualizer import visualizer
+import os
 import pickle
 #refrence between
 # 1   head angle = [0,1]
@@ -20,6 +21,8 @@ import pickle
 # 9   right elbow = [14]
 # 10  right knee = [15]
 #these are all the points of the body. 49 points for 1 rep and form. UD = UP down, FB = Face Back
+#can onnly exclude a max of 6 joints. each elbow and knee is counted as one. Everything else is 
+# counted as 2 
 COLS = [
         #up postion
         'headLR1', 'headFB1',#[0,1]
@@ -141,6 +144,9 @@ def train_model(df, importantAngles,modelName, rounds=50):
     x = df.values.tolist()
 
     print(f"this is the shape: {tf.shape(x)}")
+    shaper = tf.shape(x)
+    features_amnt = shaper[1]
+    print(f"features_amnt: {features_amnt}")
     input_list = []
     for repper in range(3):
         for ang in importantAngles:
@@ -151,7 +157,6 @@ def train_model(df, importantAngles,modelName, rounds=50):
     #     for rep_angles in input_list:
     #         rep_imp_angles.append(df_list[rep_angles])
     #     new_df.append(rep_imp_angles)
-    print(f"df[13, 15]!!!: {new_df}.")
     #new_df is inclusion of specific points df is for the whole thing
     X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=0)
     # scaler = StandardScaler()
@@ -163,6 +168,7 @@ def train_model(df, importantAngles,modelName, rounds=50):
     y_test = np.array(y_test)
     #tf.random.set_seed(42)
     model = tf.keras.Sequential([
+        #tf.keras.Input(shape=(None,features_amnt)),
         tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(48, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
@@ -179,11 +185,12 @@ def train_model(df, importantAngles,modelName, rounds=50):
     model.fit(x=X_train, y=y_train, epochs = rounds)
     print(model.summary())
     #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
-    vidsDir = Path.cwd()
-    model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(modelName)+"_trained"
+    vidsDir = str(os.path.dirname(__file__))
+    model_path = str(vidsDir) + "\\ML_Trained_Models\\"+ str(modelName)+"_trained"
+    print(model_path)
     model.save(model_path)
-    current_vids = Path.cwd()
-    # scaler_path = str(current_vids) +"\\ComputerVisionTest\\scalers\\"+ str(modelName)+"_scaler.pkl"
+    current_vids = str(os.path.dirname(__file__))
+    # scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
     # pickle.dump(scaler, open(scaler_path, 'wb'))
     return model, X_test, y_test
 
@@ -249,8 +256,8 @@ def do_ml(df, importantAngles,modelName):
 def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
-    current_vids = Path.cwd()
-    # scaler_path = str(current_vids) +"\\ComputerVisionTest\\scalers\\"+ str(modelName)+"_scaler.pkl"
+    current_vids = str(os.path.dirname(__file__))
+    # scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
     acutal_frame_num = []
     y_pred_list =[]
     # scaler = pickle.load(open(scaler_path,'rb'))
@@ -258,10 +265,10 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     print(f"\nnew_df = {new_df}")
     # scaled_new_df = scaler.transform(new_df)
     print(trained_model.summary())
-    vidsDir = Path.cwd()
+    vidsDir = str(os.path.dirname(__file__))
     print(vidsDir)
-    model_diagram = str(vidsDir)+"\\ComputerVisionTest\\machineLearning\\" + str(modelName)+"_diagram.png"
-    model_nerual_network = str(vidsDir)+"\\ComputerVisionTest\\machineLearning\\" + str(modelName)+"_neural_network"
+    model_diagram = str(vidsDir) + str(modelName)+"_diagram.png"
+    model_nerual_network = str(vidsDir) + str(modelName)+"_neural_network"
     tf.keras.utils.plot_model(trained_model, to_file= model_diagram,show_shapes=True)
     visualizer(trained_model, filename= model_nerual_network, format= 'png', view= False)
     y_pred = trained_model.predict(x = new_df)
