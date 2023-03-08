@@ -11,7 +11,6 @@ import os
 from pathlib import Path
 import binomialFitting.KeyframeExtraction as KeyframeExtraction
 import machineLearning.MachineLearningInitial as mli
-import mp_drawing_modified
 import evalPoseDisplay as poseDisplay
 from Workout import Workout
 from WorkoutPose import WorkoutPose
@@ -166,8 +165,8 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         excludeAngles = convertJoints(excludeJoints)
     else:
         modelName = workout
-        modelDir = Path.cwd()
-        path = f"{str(modelDir)}\\ComputerVisionTest\\models\\"
+        modelDir = str(os.path.dirname(__file__))
+        path = f"{str(modelDir)}\\models\\"
         model = Workout().loadModel(f"{path}{workout}.json")
         importantAngles = model.getImportantAngles()
         excludeAngles = model.getExcludeAngles()
@@ -401,8 +400,8 @@ def pickLargest(cycles):
 
 # Set up a new workout
 def setupNewWorkout():
-    modelDir = Path.cwd() #MLFITNESS_Capstone
-    models = str(modelDir) + "\\ComputerVisionTest\\models\\"
+    modelDir = str(os.path.dirname(__file__)) #MLFITNESS_Capstone
+    models = str(modelDir) + "\\models\\"
     print(models)
     name = input("Name of new workout: ").strip()
     while (len(name) == 0) and (name + ".json") in models:
@@ -440,8 +439,8 @@ def makeNewModelV2():
     excludeAngles = convertJoints(excludeJoints)
     model["ImportantAngles"] = importantAngles
     model["ExcludeAngles"] = excludeAngles
-    modelDir = Path.cwd() #MLFITNESS_Capstone
-    models = str(modelDir) + "\\ComputerVisionTest\\models\\"
+    modelDir = str(os.path.dirname(__file__)) #MLFITNESS_Capstone
+    models = str(modelDir) + "\\models\\"
     path = models + modelName + ".json"
     with open(path, 'w') as f:
         json.dump(model, f)
@@ -497,7 +496,7 @@ def computeData(modelName):
     merged_df = pd.concat(frames)
     print(f"this is the merged df: {merged_df}")
     
-    filename = str(Path.cwd()) + "/ComputerVisionTest/dataframes/" + modelName + ".csv"
+    filename = str(os.path.dirname(__file__)) + "\\dataframes\\" + modelName + ".csv"
     merged_df.to_csv(filename, index=False)
     return merged_df
 
@@ -519,9 +518,9 @@ def process_divider(items):
 
 # Open or create a dataframe and the 
 def open_and_train(modelName):
-    cwd = Path.cwd()
-    dataName = str(cwd) + "/ComputerVisionTest/dataframes/" + modelName + ".csv"
-    path = f"{str(cwd)}\\ComputerVisionTest\\models\\"
+    cwd = cwd = str(os.path.dirname(__file__))
+    dataName = str(cwd) + "/dataframes/" + modelName + ".csv"
+    path = f"{str(cwd)}\\models\\"
     model = Workout().loadModel(f"{path}{modelName}.json")
     importantAngles = model.getImportantAngles()
     
@@ -561,6 +560,8 @@ if __name__ == "__main__":
     3. Train,Test, and save Machine Learning Analysis 
     4. load existing Machine learning model for video input
     5. Quit\nChoice: """
+    print(f"os.getcwd(): {os.getcwd()}")
+    print(f"str(os.path.dirname(__file__)): {str(os.path.dirname(__file__))}")
     while True:
         choice = input(MENU2)
         if choice == "1":
@@ -580,9 +581,9 @@ if __name__ == "__main__":
         elif choice == "4":
             name = input("workout name: ")
             path = input("video path: ")
-            cwd = Path.cwd()
+            cwd = str(os.path.dirname(__file__))
             # try:
-            model_path = str(cwd) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(name)+"_trained"
+            model_path = str(cwd) + "\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
             acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
             print(f"actual_frame_list: {acutal_frame_list}\n\n extracted: {extracted}")
@@ -598,7 +599,7 @@ if __name__ == "__main__":
             # except:
             #     print("\nModel name does not exist. create model using option 4")
             #     print("Models that exist are:")
-            #     model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"
+            #     model_path = str(vidsDir) + "\\ML_Trained_Models\\"
             #     count = 1
             #     for filename in os.listdir(model_path):
             #         print(f"{count}: {filename}")
