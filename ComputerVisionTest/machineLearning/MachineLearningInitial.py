@@ -95,17 +95,30 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
     return df #df.sample(frac=1).reset_index(drop=True) # shuffle dataframe and return
 
 #
-def dataframeforeval(totalreps, totalAngs):
+def dataframeforeval(totalReps, totalAngs, rmCols=[]):
     repsList=[] # is a list of reps. reps is a list of [top, bottom, top] angles
-    print(f"\ntotal reps: {len(totalreps)}")
-    for i in range(len(totalreps)):
-        rowList = []
-        for j in range(3):
-            # concat angles of top, bottom, top into one list radiens
-            if j == 0:
-                rowList = totalAngs[j].tolist()
-            else:
-                rowList = rowList + totalAngs[j].tolist()
+    print(f"\ntotal reps: {len(totalReps)}")
+    
+    for rep in totalReps: # for each rep in video
+        if None in rep:
+            continue
+        else:
+            rowList = []
+            for j in range(3): # for keyframes in rep
+                # concat angles of top, bottom, top into one list
+                
+                currList = totalAngs[rep[j]].tolist() # all angles for keyframe
+                if rmCols: # if there are cols to delete
+                    rmCols.sort(reverse=True) # desceneding
+                    for num in rmCols: 
+                        # colIndex = num + (2-j) * 16
+                        # del colsList[colIndex] # delete exclude column name
+                        del currList[num] # delete col index
+                        
+                if j == 0: # first 16
+                    rowList = currList
+                else: # next 32
+                    rowList = rowList + currList
         repsList.append(rowList) #appends the list of (top, bottom, top) angles in raidens
     return repsList
                 

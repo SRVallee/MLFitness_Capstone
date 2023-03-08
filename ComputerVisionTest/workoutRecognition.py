@@ -662,12 +662,15 @@ def open_and_train(modelName):
 # and the trained model to evaluate the video if the reps are correct or not
 #
 def vid_ML_eval(modelName,trained_MLmodel, vid_path):
-    totalAngles = []
-    extracted, allAngles, keyAngs = getKeyFramesFromVideo(vid_path)
-    totalAngles.append(keyAngs)
+
+    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path)
+    keyAngs = []
+    for frame in extracted:
+        keyAngs.append(allAngles[frame[1]])
+    
     reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
     print(f"amount of reps: {reps}")
-    df =mli.dataframeforeval(reps, allAngles)
+    df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
     y_pred, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
     return y_pred, frame_rep_list
 
