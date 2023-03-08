@@ -154,9 +154,9 @@ def train_model(df, importantAngles,modelName, rounds=50):
     print(f"df[13, 15]!!!: {new_df}.")
     #new_df is inclusion of specific points df is for the whole thing
     X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=0)
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    # scaler = StandardScaler()
+    # X_train = scaler.fit_transform(X_train)
+    # X_test = scaler.transform(X_test)
     X_train = np.array(X_train)
     y_train = np.array(y_train)
     X_test = np.array(X_test)
@@ -183,8 +183,8 @@ def train_model(df, importantAngles,modelName, rounds=50):
     model_path = str(vidsDir) + "\\ComputerVisionTest\\ML_Trained_Models\\"+ str(modelName)+"_trained"
     model.save(model_path)
     current_vids = Path.cwd()
-    scaler_path = str(current_vids) +"\\ComputerVisionTest\\scalers\\"+ str(modelName)+"_scaler.pkl"
-    pickle.dump(scaler, open(scaler_path, 'wb'))
+    # scaler_path = str(current_vids) +"\\ComputerVisionTest\\scalers\\"+ str(modelName)+"_scaler.pkl"
+    # pickle.dump(scaler, open(scaler_path, 'wb'))
     return model, X_test, y_test
 
 #
@@ -250,26 +250,26 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
     current_vids = Path.cwd()
-    scaler_path = str(current_vids) +"\\ComputerVisionTest\\scalers\\"+ str(modelName)+"_scaler.pkl"
+    # scaler_path = str(current_vids) +"\\ComputerVisionTest\\scalers\\"+ str(modelName)+"_scaler.pkl"
     acutal_frame_num = []
     y_pred_list =[]
-    scaler = pickle.load(open(scaler_path,'rb'))
+    # scaler = pickle.load(open(scaler_path,'rb'))
     new_df = np.array(df)
     print(f"\nnew_df = {new_df}")
-    scaled_new_df = scaler.transform(new_df)
+    # scaled_new_df = scaler.transform(new_df)
     print(trained_model.summary())
     vidsDir = Path.cwd()
     print(vidsDir)
     model_diagram = str(vidsDir)+"\\ComputerVisionTest\\machineLearning\\" + str(modelName)+"_diagram.png"
     model_nerual_network = str(vidsDir)+"\\ComputerVisionTest\\machineLearning\\" + str(modelName)+"_neural_network"
     tf.keras.utils.plot_model(trained_model, to_file= model_diagram,show_shapes=True)
-    visualizer(trained_model, filename= model_nerual_network, format= 'png', view= True)
-    y_pred = trained_model.predict(x = scaled_new_df)
+    visualizer(trained_model, filename= model_nerual_network, format= 'png', view= False)
+    y_pred = trained_model.predict(x = new_df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
-    print(f"this is the actual frame numbers [up, down, up, degree]: {acutal_frame_num}")
-    for confidence in range(len(acutal_frame_num)):
-        y_pred_list.append(y_pred[confidence][0])
-    return y_pred_list, acutal_frame_num
+    print(f"this is the actual frame numbers [up, down, up, degree]: {reps}")
+    # for confidence in range(reps):
+    #     y_pred_list.append(confidence[1])
+    return reps, acutal_frame_num
 
 #correct testing vids reps
 #squatorfiangle.mp4 = 5 reps
