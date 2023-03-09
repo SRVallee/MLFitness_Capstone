@@ -8,6 +8,7 @@ import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,6 +34,7 @@ public class TraineeEditProfile extends AppCompatActivity {
     TextView traineeProfileNameEdit;
 
     int SELECT_IMAGE_CODE=1;
+    private ImageDecoder.Source newProfilePicture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,17 @@ public class TraineeEditProfile extends AppCompatActivity {
             return;
         }
 
+        if(newProfilePicture != null){
+            Log.d("User id: ", "newPfp not null");
+            try {
+                pfp = ImageDecoder.decodeBitmap(newProfilePicture);
+                SocketFunctions.uploadPfp(getApplicationContext(), pfp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
 
         //Set values
         //user.setName(name);
@@ -164,11 +177,7 @@ public class TraineeEditProfile extends AppCompatActivity {
             userProfilePicture.setImageURI(uri);
             //Use uri to set in db
             ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
-            try {
-                pfp = ImageDecoder.decodeBitmap(source);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            newProfilePicture = source;
         }
 
     }

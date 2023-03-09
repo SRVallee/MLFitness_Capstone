@@ -150,6 +150,7 @@
         android:layout_marginTop="530dp"
         android:background="@drawable/ic_rounding"
         android:backgroundTint="#30ffffff"
+        android:onClick="saveEmployeeButton"
         android:text="Confirm"
         app:layout_constraintBottom_toTopOf="@+id/cancel_update_button"
         app:layout_constraintEnd_toEndOf="parent"
