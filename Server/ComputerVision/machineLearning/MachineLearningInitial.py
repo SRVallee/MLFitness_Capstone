@@ -262,15 +262,12 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     y_pred_list =[]
     # scaler = pickle.load(open(scaler_path,'rb'))
     new_df = np.array(df)
-    print(f"\nnew_df = {new_df}")
     # scaled_new_df = scaler.transform(new_df)
     print(trained_model.summary())
     vidsDir = str(os.path.dirname(__file__))
     print(vidsDir)
-    model_diagram = str(vidsDir) + str(modelName)+"_diagram.png"
-    model_nerual_network = str(vidsDir) + str(modelName)+"_neural_network"
-    tf.keras.utils.plot_model(trained_model, to_file= model_diagram,show_shapes=True)
-    visualizer(trained_model, filename= model_nerual_network, format= 'png', view= False)
+    tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir) + str(modelName)+"_diagram.png",show_shapes=True)
+    visualizer(trained_model, filename= str(vidsDir) + str(modelName)+"_neural_network.png", view= False)
     y_pred = trained_model.predict(x = new_df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
     print(f"this is the actual frame numbers [up, down, up, degree]: {reps}")

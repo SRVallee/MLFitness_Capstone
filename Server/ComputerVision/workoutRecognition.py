@@ -545,10 +545,8 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     
     reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
     df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
-    print(f"these are excluded values: {exclude_angles}\n the df with excluding angles: {df}")
     print(f"amount of reps: {reps}")
     rep_list, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
-    print(f"extracted: {extracted}")
     return rep_list, extracted
 
 
@@ -586,7 +584,6 @@ if __name__ == "__main__":
             model_path = str(cwd) + "\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
             acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
-            print(f"actual_frame_list: {acutal_frame_list}\n\n extracted: {extracted}")
             n = 1
             all_frame_list = [x[n] for x in extracted]
             final_frame_list = []
