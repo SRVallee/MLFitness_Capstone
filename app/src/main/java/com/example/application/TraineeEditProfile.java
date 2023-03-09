@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,6 +20,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
@@ -64,8 +67,18 @@ public class TraineeEditProfile extends AppCompatActivity {
         //Won't display password for security reasons
 
         //Check line to get from db
-        int trainee_profile_image = R.drawable.ic_baseline_tag_faces_24;
-        userProfilePicture.setImageResource(trainee_profile_image);
+        try {
+            if (SocketFunctions.user.hasPfp()) {
+                userProfilePicture.setImageBitmap(SocketFunctions.user.getPfp());
+            } else {
+                Picasso.get().load("http://162.246.157.128/MLFitness/pfps/" + SocketFunctions.user.getId() + ".jpg").into(userProfilePicture);
+                Drawable pfp = userProfilePicture.getDrawable();
+                SocketFunctions.user.setPfp(Bitmap.createBitmap(pfp.getIntrinsicWidth(), pfp.getIntrinsicHeight(), Bitmap.Config.ARGB_8888));
+            }
+        }catch (Exception e){
+            int trainee_profile_image = R.drawable.ic_baseline_tag_faces_24;
+            userProfilePicture.setImageResource(trainee_profile_image);
+        }
 
     }
 
@@ -178,6 +191,13 @@ public class TraineeEditProfile extends AppCompatActivity {
             //Use uri to set in db
             ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
             newProfilePicture = source;
+            try {
+                SocketFunctions.user.setPfp(ImageDecoder.decodeBitmap(source));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
         }
 
     }

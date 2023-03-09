@@ -1,9 +1,11 @@
 package com.example.application;
+import static android.os.FileUtils.copy;
 import static androidx.core.content.ContextCompat.startActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
@@ -17,11 +19,18 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SocketFunctions {
+    private static final int IO_BUFFER_SIZE = 1000000;
     private String ServerIP;
     private String Port;
     private String username;
@@ -121,6 +130,7 @@ public class SocketFunctions {
 //        return user;
 //
 //    }
+
 
     public static void uploadPfp(Context context, Bitmap pfp){
         Log.d("uploadPfp ", "initiated");
