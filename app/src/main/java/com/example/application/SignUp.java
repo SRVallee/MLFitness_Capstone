@@ -44,9 +44,8 @@ public class SignUp extends AppCompatActivity {
         nameSignup = findViewById(R.id.nameSignUpEditText);
         emailSignup = findViewById(R.id.emailEditText);
         passwordOneSignup = findViewById(R.id.passwordEditText);
-        passwordOneSignup.setTransformationMethod(new AsteriskPasswordTransformationMethod());
         passwordTwoSignup = findViewById(R.id.passwordReEditText);
-        passwordTwoSignup.setTransformationMethod(new AsteriskPasswordTransformationMethod());
+
 
         traineeChipSignup = findViewById(R.id.traineeChip);
         trainerChipSignup = findViewById(R.id.trainerChip);

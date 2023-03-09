@@ -44,7 +44,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         //Init fields in xml
         usernameLogin = findViewById(R.id.userNameEditText);
         passwordLogin = findViewById(R.id.passwordEditText);
-        passwordLogin.setTransformationMethod(new AsteriskPasswordTransformationMethod());
 
     }
 
