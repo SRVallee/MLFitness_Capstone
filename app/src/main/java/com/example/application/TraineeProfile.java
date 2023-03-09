@@ -51,10 +51,10 @@ public class TraineeProfile extends AppCompatActivity{
 
         //Assigns values to the fields in the xml
         //String trainee_profile_username = user.getUsername();
-        String trainee_profile_username = "test username";
+        String trainee_profile_username = SocketFunctions.user.getUserName();
         trainee_profile_username_textview.setText(trainee_profile_username);
         //String trainee_profile_email = user.getEmail();
-        String trainee_profile_email = "test email";
+        String trainee_profile_email = SocketFunctions.user.getEmail();
         trainee_profile_email_textview.setText(trainee_profile_email);
 
         //Check line to get from db

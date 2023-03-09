@@ -21,9 +21,20 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class TraineeEditProfile extends AppCompatActivity {
@@ -31,10 +42,15 @@ public class TraineeEditProfile extends AppCompatActivity {
     String name, username, email, passwordOld, passwordOne, passwordTwo;
     Bitmap pfp;
 
+    boolean wait = false;
+
     ImageView userProfilePicture;
     TextView traineeProfileUsernameEdit;
     TextView traineeProfileEmailEdit;
     TextView traineeProfileNameEdit;
+    TextView editPasswordOld;
+    TextView editPasswordOne;
+    TextView editPasswordTwo;
 
     int SELECT_IMAGE_CODE=1;
     private ImageDecoder.Source newProfilePicture;
@@ -55,16 +71,20 @@ public class TraineeEditProfile extends AppCompatActivity {
 
         //Assigns values to the fields in the xml
 
-        String trainee_profile_username = SocketFunctions.user.getUserName();
-        traineeProfileUsernameEdit.setText(trainee_profile_username);
+        String username = SocketFunctions.user.getUserName();
+        traineeProfileUsernameEdit.setText(username);
 
-        String trainee_profile_email = SocketFunctions.user.getEmail();
-        traineeProfileEmailEdit.setText(trainee_profile_email);
+        String email = SocketFunctions.user.getEmail();
+        traineeProfileEmailEdit.setText(email);
 
-        String trainee_profile_name = SocketFunctions.user.getName();
-        traineeProfileNameEdit.setText(trainee_profile_name);
+        name = SocketFunctions.user.getName();
+        traineeProfileNameEdit.setText(name);
 
         //Won't display password for security reasons
+        editPasswordOld = findViewById(R.id.trainee_profile_old_password);
+        editPasswordOne = findViewById(R.id.trainee_profile_password_one);
+        editPasswordTwo = findViewById(R.id.trainee_profile_password_two);
+
 
         //Check line to get from db
         try {
@@ -102,8 +122,15 @@ public class TraineeEditProfile extends AppCompatActivity {
 
         //Set user to then put into the db
         //User Object
-        name = traineeProfileUsernameEdit.getText().toString();
+        username = traineeProfileUsernameEdit.getText().toString();
+        if(username.isEmpty()){
+            alertDialog.setTitle("No username");
+            alertDialog.setMessage("A username is required");
+            alertDialog.show();
+            return;
+        }
 
+        name = traineeProfileNameEdit.getText().toString();
         if(name.isEmpty()){
             alertDialog.setTitle("No name");
             alertDialog.setMessage("A name is required");
@@ -119,11 +146,27 @@ public class TraineeEditProfile extends AppCompatActivity {
             return;
         }
 
-        if(!email.isEmpty() && !emailIsValid(email)){
+        else if(!emailIsValid(email)){
             alertDialog.setTitle("Invalid email: " + email);
             alertDialog.setMessage("Please enter a valid email");
             alertDialog.show();
             return;
+        }
+
+        passwordOld = editPasswordOld.getText().toString();
+        passwordOne = editPasswordOne.getText().toString();
+        passwordTwo = editPasswordTwo.getText().toString();
+        if(!passwordOld.isEmpty()){
+
+            if(passwordOne.isEmpty() || passwordTwo.isEmpty()){
+                alertDialog.setTitle("Missing Fields");
+                alertDialog.setMessage("You must fill both boxes to change password");
+                alertDialog.show();
+            }else if(!passwordOne.equals(passwordTwo)){
+                alertDialog.setTitle("Passwords do not match");
+                alertDialog.setMessage("Password reentered must match the previous");
+                alertDialog.show();
+            }
         }
 
         if(newProfilePicture != null){
@@ -138,6 +181,50 @@ public class TraineeEditProfile extends AppCompatActivity {
 
 
 
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://162.246.157.128/MLFitness/update_profile.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response.equals("success")) { //or email already exists if when implemented
+                            //Log.d("Response: ", response);
+                            SocketFunctions.user.setUserName(username);
+                            SocketFunctions.user.setEmail(email);
+                            SocketFunctions.user.setName(name);
+                            Intent i;
+                            i = new Intent(getApplicationContext(), TraineeProfile.class);
+                            startActivity(i);
+                            finish();
+                        }
+                        else{
+                            alertDialog.setTitle("Error!");
+                            alertDialog.setMessage(response);
+                            alertDialog.show();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("username", username);
+                paramV.put("name", name);
+                paramV.put("email", email);
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("old_password", passwordOld);
+                paramV.put("new_password", passwordOne);
+
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
         //Set values
         //user.setName(name);
         //if(!email.isEmpty()){
@@ -148,12 +235,6 @@ public class TraineeEditProfile extends AppCompatActivity {
 
         //Replace Employee
         //int rowNum = db.addOrReplaceUser(user);
-
-
-        Intent i;
-        i = new Intent(getApplicationContext(), TraineeProfile.class);
-        startActivity(i);
-        finish();
     }
 
     @Override
