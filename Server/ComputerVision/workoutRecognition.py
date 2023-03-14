@@ -174,6 +174,7 @@ def getKeyFramesFromVideo(video, show = False, debug = False):
             width = img.shape[1]
             height_percentage = float(constant_height/int(height))
             modded_width = int(float(width)*height_percentage)
+            cv2.putText(img, f"keyframe extraction, frame #: {frame_num}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
             resize = cv2.resize(img, (modded_width, constant_height))
             cv2.imshow("Image", resize)
             key = cv2.waitKey(0)  #millisecond delays
@@ -609,6 +610,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
     print(f"amount of reps: {reps}")
     rep_list, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
+    print(f"rep_list: {rep_list}\n\n frame_rep_list: {frame_rep_list}")
     return rep_list, extracted
 
 
@@ -654,12 +656,41 @@ if __name__ == "__main__":
             acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
             n = 1
             all_frame_list = [x[n] for x in extracted]
+            #framer is using rep list to get the indexes of all frames needed
+            framer = []
+            for rep_set in acutal_frame_list:
+                print(f"rep_set: {rep_set}")
+                framer.append(all_frame_list[rep_set[0]])
+                framer.append(all_frame_list[rep_set[1]])
+                framer.append(all_frame_list[rep_set[2]])
+            print(f"framer: {framer}")
             final_frame_list = []
-            for i in range(0,len(all_frame_list),3):
-                if len(all_frame_list[i:i+3]) == 3:
-                    final_frame_list.append(all_frame_list[i:i+3])
-            print(f"all_frame_list: {all_frame_list}")
+            for i in range(0,len(framer),3):
+                if len(framer[i:i+3]) == 3:
+                    final_frame_list.append(framer[i:i+3])
+            print(f"framer: {framer}")
             print(f"final_frame_list: {final_frame_list}")
+            #this is for debugging
+            cap = cv2.VideoCapture(path)
+            max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            print(f"max_frames: {max_frames}")
+            constant_height = 700
+            for i in framer:
+
+                cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+                success, img = cap.read()
+                height = img.shape[0]
+                width = img.shape[1]
+                height_percentage = float(constant_height/int(height))
+                modded_width = int(float(width)*height_percentage)
+                cv2.putText(img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, framer, frame #: {i}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+                resize = cv2.resize(img, (modded_width, constant_height))
+                cv2.imshow("Image", resize)
+                key = cv2.waitKey(0)  #millisecond delays
+                if key == 27: #esc
+                    cv2.destroyWindow("Image")
+            cap.release()
+            #end of debuggin
             poseDisplay.capture_feed(path, final_frame_list)
             # except:
             #     print("\nModel name does not exist. create model using option 4")
