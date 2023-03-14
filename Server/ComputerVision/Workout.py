@@ -10,6 +10,7 @@ class Workout:
     def loadModel(self, path):
         with open(path, "r") as f:
             model = json.load(f)
+
         self._impAng = model["ImportantAngles"]
         self._exclAng = model["ExcludeAngles"]
         return self
@@ -96,9 +97,10 @@ class Workout:
 
     def getImportantAngles(self):
         return self._impAng
-    
+        
     def getExcludeAngles(self):
         return self._exclAng
+
 
     def validateWorkout(self, start : WorkoutPose, middle : WorkoutPose, end = WorkoutPose):
 
