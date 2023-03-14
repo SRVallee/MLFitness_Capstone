@@ -157,6 +157,8 @@ def getKeyFramesFromVideo(video, show = False):
 
 
 # TODO: EXPLAIN THIS
+#this functions gets all the changes in in angle direction and sends it to get trend
+# this goes through all key frame angles and sets them to increasing or decreasing angle changes
 def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
@@ -173,7 +175,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         
     nFrames = len(keyFrames)
     reptypes = [[] for i in range(nFrames)] 
-    cycles = [[] for i in range(len(importantAngles))] #[start, turning point, end, angle]
+    cycles = [[] for i in range(len(importantAngles))] #its a list of lists of these items[start, turning point, end, angle]
 
     for curve in range(len(importantAngles)): #Only include important Joint angles
         angle1, angle2, increase = None, None, None
@@ -242,7 +244,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                     
     #check important joint changes
     i = 1
-
+    print(f"this is the reptypes{reptypes}")
     allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     anglesFromExtracted = []
@@ -439,9 +441,23 @@ def makeNewModelV2():
     excludeAngles = convertJoints(excludeJoints)
     model["ImportantAngles"] = importantAngles
     model["ExcludeAngles"] = excludeAngles
-    modelDir = str(os.path.dirname(__file__)) #MLFITNESS_Capstone
+    modelDir = str(os.path.dirname(__file__)) # to ComputerVisionTest
+    modelName = modelName.replace(" ","_")
     models = str(modelDir) + "\\models\\"
     path = models + modelName + ".json"
+    #this is to the directory outside the commit of git to get to videos for ml_traing
+    vid_dir = str(Path(modelDir).resolve().parents[2]) + "\\ML_training\\"
+    correct_dir =  vid_dir + f"\\correct_trainML\\{modelName}"
+    incorrect_dir = vid_dir + f"\\incorrect_trainML\\{modelName}" 
+    if os.path.exists(correct_dir) == False:
+        os.mkdir(correct_dir)
+    else:
+        print("the directory for this workout exists")
+    
+    if os.path.exists(incorrect_dir) == False:
+        os.mkdir(incorrect_dir)
+    else:
+        print("the directory for this workout exists")
     with open(path, 'w') as f:
         json.dump(model, f)
 
@@ -453,8 +469,8 @@ def computeData(modelName):
     vidsDir = Path.cwd().parents[0]
     # paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
     #          vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
-    paths = [str(vidsDir) + "\\ML_training\\correct_trainML\\angle_squat\\", # good reps folder
-             str(vidsDir) + "\\ML_training\\incorrect_trainML\\angle_squat\\"] # bad reps folder
+    paths = [str(vidsDir) + f"\\ML_training\\correct_trainML\\{modelName}\\", # good reps folder
+             str(vidsDir) + f"\\ML_training\\incorrect_trainML\\{modelName}\\"] # bad reps folder
     #put threads or mulitprocessing here
     
     lengths = 1 # lengths of good reps
@@ -545,10 +561,8 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     
     reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
     df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
-    print(f"these are excluded values: {exclude_angles}\n the df with excluding angles: {df}")
     print(f"amount of reps: {reps}")
     rep_list, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
-    print(f"extracted: {extracted}")
     return rep_list, extracted
 
 
@@ -561,7 +575,10 @@ if __name__ == "__main__":
     4. load existing Machine learning model for video input
     5. Quit\nChoice: """
     print(f"os.getcwd(): {os.getcwd()}")
-    print(f"str(os.path.dirname(__file__)): {str(os.path.dirname(__file__))}")
+    dir_name = str(os.path.dirname(__file__))
+    print(dir_name)
+    dir_up = Path(dir_name).resolve().parents[2]
+    print(f"str(os.path.dirname(__file__)): {dir_up}")
     while True:
         choice = input(MENU2)
         if choice == "1":
@@ -576,17 +593,19 @@ if __name__ == "__main__":
             
         elif choice == "3":
             name = input("Workout name: ")
+            name = name.replace(" ","_")
             trained_model = open_and_train(name)
 
         elif choice == "4":
             name = input("workout name: ")
+            name = name.replace(" ","_")
             path = input("video path: ")
             cwd = str(os.path.dirname(__file__))
+            print(cwd)
             # try:
-            model_path = str(cwd) + "\\ML_Trained_Models\\"+ str(name)+"_trained"
+            model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
             acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
-            print(f"actual_frame_list: {acutal_frame_list}\n\n extracted: {extracted}")
             n = 1
             all_frame_list = [x[n] for x in extracted]
             final_frame_list = []
