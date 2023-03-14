@@ -2,19 +2,33 @@
 
 '''
 import cv2
+
+import tensorflow as tf
 import mediapipe as mp
-import numpy as np
+
 import math
 import json
 import statistics
 import os
+
+from pathlib import Path
 import binomialFitting.KeyframeExtraction as KeyframeExtraction
-import mp_drawing_modified
+import machineLearning.MachineLearningInitial as mli
+import evalPoseDisplay as poseDisplay
 from Workout import Workout
 from WorkoutPose import WorkoutPose
+import multiprocessing as mproc
+import pandas as pd
+
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
+
+
+from statistics import mean
+from statistics import stdev
+
+#body angle 
 
 MENU = "Select the joints that cycle separated by commas \n\
     Ex. for push ups: 4,5\n\n\
@@ -74,16 +88,37 @@ def getParallelJoint(joint):
     elif joint == 10:
         return choiceList["9"]
 
-from statistics import mean
-from statistics import stdev
+####### STATS #######
+def get_average(data):
+    return mean(data)
 
-#parameters
+
+def get_standard_deviation(data):
+    return statistics.stdev(data)
+
+
+def getAverageAndStdvOfList(list):
+    averages = []
+    stdvs = []
+    for i in range(len(list)):
+        averages.append(get_average(list[i]))
+        stdvs.append(get_standard_deviation(list[i]))
+
+    return averages, stdvs
+
+# REP COMPUTATION
 def getKeyFramesFromVideo(video, show = False):
     cap = cv2.VideoCapture(video)
     allFrames = []
-    with mp_pose.Pose(
-        min_detection_confidence=0.1,
-        min_tracking_confidence=0.1) as pose:
+    frameTime = 0
+    with mp_pose.Pose(static_image_mode=False,
+               model_complexity=2,
+               smooth_landmarks=True,
+               enable_segmentation=False,
+               smooth_segmentation=True,
+               min_detection_confidence=0.1,
+               min_tracking_confidence=0.1) as pose:
+
         while cap.isOpened():
             success, image = cap.read()
             if not success:
@@ -98,6 +133,9 @@ def getKeyFramesFromVideo(video, show = False):
             results = pose.process(image)
             allFrames.append(results)
             if show:
+
+                frameTime = 5
+
                 # Draw the pose annotation on the image.
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -108,31 +146,41 @@ def getKeyFramesFromVideo(video, show = False):
                     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
                 # Flip the image horizontally for a selfie-view display.
                 cv2.imshow('MediaPipe Pose', cv2.flip(image, 2))
-            if cv2.waitKey(5) & 0xFF == 27:
+
+            if cv2.waitKey(frameTime) & 0xFF == 27:
+
                 break
 
     fps = cap.get(cv2.CAP_PROP_FPS)
     cap.release()
-    print(f"frames: {len(allFrames)}")
-    print(f"framerate: {fps}")
+
+    #print(f"frames: {len(allFrames)}")
+    #print(f"framerate: {fps}")
+
 
     rSquared = 0.5
 
     print(f"RSquared: {rSquared}")
-    extracted, allangles = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
+    #extracted is a list of tuples with class Solution outputs and the actual frame
+    extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
     print(f"{len(extracted)} frames extracted")
-    return extracted, allangles
+    return extracted, allangles, keyAngs
 
-
+# TODO: EXPLAIN THIS
+#this functions gets all the changes in in angle direction and sends it to get trend
 def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
-        modelName, importantJoints, repNumber = setupNewWorkout()
+        modelName, importantJoints, excludeJoints = setupNewWorkout()
         importantAngles = convertJoints(importantJoints)
+        excludeAngles = convertJoints(excludeJoints)
     else:
         modelName = workout
-        model = Workout().loadModel(f"ComputerVisionTest/models/{workout}.json")
+        modelDir = str(os.path.dirname(__file__))
+        path = f"{str(modelDir)}\\models\\"
+        model = Workout().loadModel(f"{path}{workout}.json")
         importantAngles = model.getImportantAngles()
+        excludeAngles = model.getExcludeAngles()
     nFrames = len(keyFrames)
     cycles = [[] for i in range(len(importantAngles))] #[start, turning point, end, angle]
 
@@ -149,6 +197,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                 angle1 = angle2
 
             else: #get direction change and angle difference
+
                 #if last frame was a decrese and now it's increasing
                 if (angle1 < angle2) and increase == False: #can be None
                     increase = True
@@ -156,6 +205,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                     if increaseGiven:
                         cycles[curve][-1][2] = frame
                         if cycles[curve][-1][3] < (angle2 - angle1):
+
                             cycles[curve][-1][3] = angle2 - angle1
                         cycles[curve].append([frame, None, None, angle2 - angle1, importantAngles[curve]])
                     else:
@@ -168,8 +218,10 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
                 #if last frame was an increase and now it's a decrease
                 elif (angle1 > angle2) and increase:
                     increase = False
+
                     
                     if not increaseGiven:
+
                         cycles[curve][-1][2] = frame
                         if cycles[curve][-1][3] < (angle1 - angle2):
                             cycles[curve][-1][3] = angle1 - angle2
@@ -183,6 +235,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
 
                 #if comparing with first frame
                 elif (increase == None):
+
                     
                     increase = increaseGiven
                     cycles[curve].append([0, 0, 0, 0, 0]) #Set Values for first time setup.
@@ -192,6 +245,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
     #check important joint changes
     i = 1
 
+
     allCycles = cycles[0] + cycles[1]  #TODO Include more angles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     anglesFromExtracted = []
@@ -199,6 +253,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         anglesFromExtracted.append(anglesPerFrame[frame[1]])
 
     for cycle in allCycles:
+
         checkAngle = True
         if not cycle[1]:
             allCycles.remove(cycle)
@@ -225,22 +280,23 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
 
     #get reps without model           #Not using getCloser for now
     #if not workout:
-    parallel = getTrend(allCycles, anglesFromExtracted, int(repNumber))
-    # else:
-    #     if repNumber:
-    #         parallel = getCloser(allCycles, anglesFromExtracted, model, int(repNumber))
-    #     else:
-    #         parallel = getCloser(allCycles, anglesFromExtracted, model)
+
+    if not repNumber:
+        parallel = getTrend(allCycles, anglesFromExtracted)
+    else:
+        parallel = getTrend(allCycles, anglesFromExtracted, int(repNumber))
+        
 
     #print(f"cycles: {parallel}")
 
-    return parallel, modelName, importantAngles
+    return parallel, modelName, importantAngles, excludeAngles
 
+
+# TODO EXPLAIN THIS
 def getTrend(cycles, allAngles, repNumber = 9999):
     #cycle [start, turning point, end, angle]
 
     reps = []
-
 
     for cycleJoint in cycles:
         
@@ -274,6 +330,8 @@ def getTrend(cycles, allAngles, repNumber = 9999):
     
     return reps
 
+
+# TODO EXPLAIN THIS
 def getParallelCycleAngle(cycle, allAngles):
     if not cycle[0] or not cycle[1] or not cycle[2]:
         return
@@ -298,6 +356,8 @@ def getParallelCycleAngle(cycle, allAngles):
         return max(maxAngles)
     return
 
+
+# TODO EXPLAIN THIS
 def insertRep(reps, rep): #assums rep is valid
 
     if len(reps) == 0:
@@ -315,6 +375,8 @@ def insertRep(reps, rep): #assums rep is valid
             return reps
         
 
+
+# TODO EXPLAIN THIS
 def checkValidRange(cycle, reps):
     if None in cycle:
         return False
@@ -329,7 +391,7 @@ def checkValidRange(cycle, reps):
 
 
 
-
+# TODO EXPLAIN THIS
 def getPairs(cycles):
     pairs = []
     visited = []
@@ -351,105 +413,8 @@ def getPairs(cycles):
     return pairs
 
 
-def getCloser(cycles, keyFrames, anglesInkeyframes, model : Workout, repNumber:int = 9999):
 
-    reps = []
-
-    for cycleJoint in cycles:
-        
-        if cycleJoint[3] < math.radians(10): #remove cycles under 10 degrees
-            cycles.remove(cycleJoint)
-    
-    print(cycles)        
-
-    pairs = getPairs(cycles)
-    pairList = []
-    for pair in pairs:
-        pairList.append(cycles[pair[0]])
-
-    if len(pairList) == repNumber:
-        return pairList 
-    
-    for cycle in cycles:  #Temporary until I fixed commented code
-        if cycle in pairList:
-            cycles.remove(cycle)
-
-    reps = pairList
-    
-    for i in range(len(cycles)):
-        cycle = pickLargest(cycles)
-        cycles.remove(cycle) 
-        if len(reps) < repNumber and checkValidRange(cycle, reps):
-            reps = insertRep(reps, cycle)
-
-
-    # for joint in  cycles:
-    #     n = 0
-    #     for cycleJoint in joint:
-    #         potentialReps[n].append(cycleJoint)
-    #         n = n + 1
-    
-    # for cycleGroup in potentialReps: #Take the best values
-    #     lastEnd = 0
-    #     starts = {}
-    #     middle = {}
-    #     end = {} 
-    #     for cycle in cycleGroup:
-            
-    #         if str(cycle[0]) in starts.keys():
-    #             starts[str(cycle[0])] = starts[str(cycle[0])] + 1
-    #         else:
-    #             starts[str(cycle[0])] = 1
-
-    #         if str(cycle[1]) in middle.keys():
-    #             middle[str(cycle[1])] = middle[str(cycle[1])] + 1
-    #         else:
-    #             middle[str(cycle[1])] = 1
-
-    #         if str(cycle[2]) in end.keys():
-    #             end[str(cycle[2])] = end[str(cycle[2])] + 1
-    #         else:
-    #             end[str(cycle[2])] = 1
-    #         #print(starts)
-    #     finalStart = None
-    #     finalMiddle = None
-    #     finalEnd = None
-    #     for start in starts.keys():#TODO Use standard deviation comparasion to not skip reps
-    #         if not finalStart or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(start)][1]]))\
-    #                                     < \
-    #                               model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalStart)][1]]))):
-    #            #if difference to the model is less than what we have 
-    #             if int(start) >= lastEnd:
-    #                 finalStart = int(start)
-    #                 lastEnd = int(start)
-
-    #     for mid in middle.keys():
-    #         if mid == "None":
-    #             finalMiddle = None
-    #         elif not finalMiddle or (model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(mid)][1]]))\
-    #                                     <= \
-    #                                model.compareToBottom(WorkoutPose(anglesInkeyframes[keyFrames[int(finalMiddle)][1]]))):
-    #             if int(mid) > lastEnd:
-    #                 finalMiddle = int(mid)
-    #                 lastEnd = int(mid)
-                
-
-    #     for ending in end.keys():
-    #         if ending == "None":
-    #             finalEnd = None
-    #         elif not finalEnd or (model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(ending)][1]]))\
-    #                                     <= \
-    #                             model.compareToTop(WorkoutPose(anglesInkeyframes[keyFrames[int(finalEnd)][1]]))):
-    #             if int(ending) > lastEnd:
-    #                 finalEnd = int(ending)
-    #                 lastEnd = int(ending)
-
-    #     reps.append([finalStart, finalMiddle, finalEnd])
-    #     lastEnd = finalEnd
-
-    return reps
-
-
+# TODO EXPLAIN THIS
 def pickLargest(cycles):
     largest = [0,0,0,0]
     for cycle in cycles:
@@ -458,206 +423,237 @@ def pickLargest(cycles):
     if largest != [0,0,0,0]:
         return largest
 
+
+# Set up a new workout
 def setupNewWorkout():
-    
-    models = os.listdir("ComputerVisionTest/models")
+    modelDir = str(os.path.dirname(__file__)) #MLFITNESS_Capstone
+    models = str(modelDir) + "\\models\\"
     print(models)
     name = input("Name of new workout: ").strip()
-    reps = input("number of repetitions: ")
     while (len(name) == 0) and (name + ".json") in models:
 
         name = input("Model already exists or the name is invalid! \n\
 Please provide a new name of new workout: ").strip()
 
     print(MENU)
-    choices = input("Choice(s): ").split(",")
 
-    return name, choices, reps
+    importantAngs = input("Choice(s): ").split(",")
 
-def get_average(data):
-    return mean(data)
+    print("Please enter joints to exclude")
+    print(MENU)
+    excludeAngs = input("Choice(s): ").split(",")
 
-
-def get_standard_deviation(data):
-    return statistics.stdev(data)
+    return name, importantAngs, excludeAngs
 
 
-def makeNewModelV1(extracted, allAngles, debug = False):
+# TODO ???????
+def getRepsFromVideo(videoPath, modelName):
+    extracted, allAngles = getKeyFramesFromVideo(videoPath)
     keypointAngles = []
-    
+
     for frame in extracted:
         keypointAngles.append(allAngles[frame[1]])
 
-    reps, modelName, importantAngles = getReps(extracted, allAngles)
-    print(f"Reps: {reps}")
+    return getReps(extracted, allAngles, modelName)
+
+
+# TODO ??????????
+def makeNewModelV2():
+    #print(f"Reps: {reps}")
     model = {}
-    listOfTop = []
-    listOfBottom = []
-    
-    for i in range(len(reps)):
-        rep = reps[i]
-        listOfTop.append(keypointAngles[rep[0]]) 
-        listOfBottom.append(keypointAngles[rep[1]])
-        listOfTop.append(keypointAngles[rep[2]])
-    
-    listOfTop = KeyframeExtraction.simplifiedCurveModel(listOfTop)
-    listOfBottom = KeyframeExtraction.simplifiedCurveModel(listOfBottom)
-            
-
-    averageTop, StdevOfTop = getAverageAndStdvOfList(listOfTop)
-    averageBottom, StdevOfBottom = getAverageAndStdvOfList(listOfBottom)
-    #print(f"Sdv returned: {StdevOfBottom}")
-
-    model["Top"] = [averageTop, StdevOfTop, len(listOfTop[0])*2]
-    model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
+    modelName, importantJoints, excludeJoints = setupNewWorkout()
+    importantAngles = convertJoints(importantJoints)
+    excludeAngles = convertJoints(excludeJoints)
     model["ImportantAngles"] = importantAngles
-    path = "ComputerVisionTest/models/" + modelName + ".json"
+    model["ExcludeAngles"] = excludeAngles
+    modelDir = str(os.path.dirname(__file__)) # to ComputerVisionTest
+    modelName = modelName.replace(" ","_")
+    models = str(modelDir) + "\\models\\"
+    path = models + modelName + ".json"
+    #this is to the directory outside the commit of git to get to videos for ml_traing
+    vid_dir = str(Path(modelDir).resolve().parents[2]) + "\\ML_training\\"
+    correct_dir =  vid_dir + f"\\correct_trainML\\{modelName}"
+    incorrect_dir = vid_dir + f"\\incorrect_trainML\\{modelName}" 
+    if os.path.exists(correct_dir) == False:
+        os.mkdir(correct_dir)
+    else:
+        print("the directory for this workout exists")
+    
+    if os.path.exists(incorrect_dir) == False:
+        os.mkdir(incorrect_dir)
+    else:
+        print("the directory for this workout exists")
     with open(path, 'w') as f:
         json.dump(model, f)
 
-    if debug:
-        n = input("Frame to display: ")
-        while n != "no":
-  
-            n = int(n)
-            mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-            print(f"knee angles at {n}: {allAngles[extracted[n][1]][15]}, {allAngles[extracted[n][1]][13]}")
-            n = input("Frame to display: ")
-
     return model
 
-def getAverageAndStdvOfList(list):
-    averages = []
-    stdvs = []
-    for i in range(len(list)):
-        averages.append(get_average(list[i]))
-        stdvs.append(get_standard_deviation(list[i]))
+
+# Compute a dataframe from the provided videos and then save it
+def computeData(modelName):
+    vidsDir = Path.cwd().parents[0]
+    # paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
+    #          vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
+    paths = [str(vidsDir) + f"\\ML_training\\correct_trainML\\{modelName}\\", # good reps folder
+             str(vidsDir) + f"\\ML_training\\incorrect_trainML\\{modelName}\\"] # bad reps folder
+    #put threads or mulitprocessing here
     
-    return averages, stdvs
-
-def updateModelV1(videoPath, modelName, repNumber, debug = False):
-    extracted, allAngles = getKeyFramesFromVideo(videoPath)
-    keypointAngles = []
-
-    for frame in extracted:
-        keypointAngles.append(allAngles[frame[1]])
-
-    reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
-    print(f"Reps: {reps}")
-    path = f"ComputerVisionTest/models/{modelName}.json"
-    model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
-    
-    for rep in reps:
-        if not None in rep:
-            model.updateModel(WorkoutPose(keypointAngles[rep[0]]), "Top")
-            model.updateModel(WorkoutPose(keypointAngles[rep[2]]), "Top")
-            model.updateModel(WorkoutPose(keypointAngles[rep[1]]), "Bottom")
-
-
-    if debug:
-        n = input("Frame to display: ")
-        while n != "no":
-  
-            n = int(n)
-            mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-            print(f"knee angles at {n}: {allAngles[extracted[n][1]][15]}, {allAngles[extracted[n][1]][13]}")
-            n = input("Frame to display: ")
-
-    model.saveModel(path)
-    return model
-
-def evaluateVideo(videoPath, modelName, repNumber, debug = None):
-    extracted, allAngles = getKeyFramesFromVideo(videoPath)
-    keypointAngles = []
-
-    for frame in extracted:
-        keypointAngles.append(allAngles[frame[1]])
-
-    reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
-    path = f"ComputerVisionTest/models/{modelName}.json"
-    model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
-    right = []
-    wrong = []
-    for rep in reps:
-        pose1, pose2, pose3 = model.validateWorkout(WorkoutPose(keypointAngles[rep[0]]), WorkoutPose(keypointAngles[rep[1]]), WorkoutPose(keypointAngles[rep[2]]))
-        if pose1 == 0:
-            wrong.append(rep[0])
-        else:
-            right.append(rep[0])
-
-        if pose2 == 0:
-            wrong.append(rep[1])
-        else:
-            right.append(rep[1])
-
-        if pose3 == 0:
-            wrong.append(rep[2])
-        else:
-            right.append(rep[2])
-
-    if debug:
-        print(f"Right Reps: {right}")
-        print(f"wrong Reps: {wrong}")
-        n = input("Frame to display: ")
+    lengths = 1 # lengths of good reps
+    frames =[]
+    for path in paths: #first good paths, then bad paths
+        items = []
+        allReps = []
+        totalAngles = []
+        for filename in os.listdir(path):
+            args = (path, filename, modelName)
+            items.append(args)
+        print(f"items(path, filename, modelName): {len(items)}")
+        with mproc.Pool() as pool:
+            results = pool.map(process_divider, items)
+            print(f"results: {len(results)}")
+            for all_items in results:
+                importantAngles, allReps_vids, totalAngles_vid, excludeAngs = all_items
+                #print(f"importantAngles: {importantAngles}, allReps_vid: {allReps_vid}, totalAngles_vid: {totalAngles_vid}")
+                print(f"this is all reps vids no append: {allReps_vids}")
+                allReps.append(allReps_vids)#list of reps per vid
+                totalAngles.append(totalAngles_vid)
+        print(f"this is all reps: {allReps}. length is {len(allReps)}")
+        print(f"this is all angles no append: {totalAngles}")
+        print(f"\ntotalAngles: {len(totalAngles)}\n")
+        print(f"\nallreps: {len(allReps)}. aprox total = {len(items)*5}\n")
         
-        while n != "no":
-  
-            n = int(n)
-            mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-            print(f"knee angles at {n}: {allAngles[extracted[n][1]][15]}, {allAngles[extracted[n][1]][13]}")
-            n = input("Frame to display: ")
+        df = mli.repsToDataframe(allReps, totalAngles, lengths, excludeAngs)
+        shaper = tf.shape(df)
+        print(f"\nthis is df.shape before merge: {shaper}\n")
+        #print(f"\nthis is df before merge: {df}\n")
+        frames.append(df)
+        lengths = 0
+        pool.close()
+        pool.join()
+        items = []
+        allReps = []
+        totalAngles = []
+        
+    merged_df = pd.concat(frames)
+    print(f"this is the merged df: {merged_df}")
     
+    filename = str(os.path.dirname(__file__)) + "\\dataframes\\" + modelName + ".csv"
+    merged_df.to_csv(filename, index=False)
+    return merged_df
 
-    return right, wrong
 
-def demo1():
-
-    print("Analyzing video 1...")
-    extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
-
-    model = makeNewModelV1(extracted, allAngles)
-    n = input("Frame to display: ")
-    while n != "no":
+# Multi-Processing function
+def process_divider(items):
+    path, filename, modelName = items
+    videoPath = path + filename
+    extracted, allAngles, _ = getKeyFramesFromVideo(videoPath)
     
-        n = int(n)
-        mp_drawing_modified.plot_landmarks(extracted[n][0].pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-        print(f"knee angles at {n}: {allAngles[extracted[n][1]][15]}, {allAngles[extracted[n][1]][13]}")
-        n = input("Frame to display: ")
+    keyAngs = []
+    for frame in extracted:
+        keyAngs.append(allAngles[frame[1]])
+    
+    reps, modelName, importantAngles, excludeAngles = getReps(extracted, allAngles, workout=modelName)
+    print(f"this is filename: {filename}. this is the current reps: {reps}")
+    return importantAngles, reps, keyAngs, excludeAngles
 
-    print("Analyzing video 2...")
-    updateModelV1("ComputerVisionTest/videos/pushup.mp4", "pushups")
+
+# Open or create a dataframe and the 
+def open_and_train(modelName):
+    cwd = cwd = str(os.path.dirname(__file__))
+    dataName = str(cwd) + "/dataframes/" + modelName + ".csv"
+    path = f"{str(cwd)}\\models\\"
+    model = Workout().loadModel(f"{path}{modelName}.json")
+    importantAngles = model.getImportantAngles()
+    
+    if os.path.isfile(dataName): # if dataframe exists, open
+        df = pd.read_csv(dataName)
+        
+    else:                        # else create a dataframe and save it
+        df = computeData(modelName)
+        
+    return mli.do_ml(df, importantAngles, modelName)
+
+
+# This function will grab video path from user and what model it is for key extraction
+# and the trained model to evaluate the video if the reps are correct or not
+#
+def vid_ML_eval(modelName,trained_MLmodel, vid_path):
+
+    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path)
+    keyAngs = []
+    for frame in extracted:
+        keyAngs.append(allAngles[frame[1]])
+    
+    reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
+    df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
+    print(f"amount of reps: {reps}")
+    rep_list, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
+    return rep_list, extracted
+
 
 if __name__ == "__main__":
-    #demo1()
-    MENU2 = "Choices:\n1. Create New Model\n2. Train Existing Model\n3. Evaluate workout\n4. Quit\nChoice: "
-    choice = input(MENU2)
-    while not choice in ["1","2","3","4"]:
-        print("Wrong Input!")
+    MENU2 = """
+    Choices:
+    1. Create New Rep Model
+    2. Compute dataframe from videos
+    3. Train,Test, and save Machine Learning Analysis 
+    4. load existing Machine learning model for video input
+    5. Quit\nChoice: """
+    print(f"os.getcwd(): {os.getcwd()}")
+    dir_name = str(os.path.dirname(__file__))
+    print(dir_name)
+    dir_up = Path(dir_name).resolve().parents[2]
+    print(f"str(os.path.dirname(__file__)): {dir_up}")
+    while True:
         choice = input(MENU2)
-
-    while choice != "4":
         if choice == "1":
-            video = input("Path to video: ")
-            extracted, allAngles = getKeyFramesFromVideo(video)
-            model = makeNewModelV1(extracted, allAngles, True)
+            # video = input("Path to video: ").strip("'")
+            # extracted, allAngles,impangs = getKeyFramesFromVideo(video)
+            model = makeNewModelV2()
             print(f"New workout added\n")
-        
+
         elif choice == "2":
             name = input("Workout name: ")
-            #numberOfReps = input("Number of reps: ")
-            video = input("Path to video: ").strip("'")
-            updateModelV1(video, name, True, True)
-            print(f"{name} updated\n")
-
+            computeData(name)
+            
         elif choice == "3":
             name = input("Workout name: ")
-            numberOfReps = input("Number of reps: ")
-            video = input("Path to video: ").strip("'")
-            right, wrong = evaluateVideo(video, name, numberOfReps, True)
-            
+            name = name.replace(" ","_")
+            trained_model = open_and_train(name)
 
-        choice = input(MENU2)
-        while not choice in ["1","2","3","4"]:
-            print("Wrong Input!")
-            choice = input(MENU2)
+        elif choice == "4":
+            name = input("workout name: ")
+            name = name.replace(" ","_")
+            path = input("video path: ")
+            cwd = str(os.path.dirname(__file__))
+            print(cwd)
+            # try:
+            model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
+            load_model = tf.keras.models.load_model(model_path)
+            acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
+            n = 1
+            all_frame_list = [x[n] for x in extracted]
+            final_frame_list = []
+            for i in range(0,len(all_frame_list),3):
+                if len(all_frame_list[i:i+3]) == 3:
+                    final_frame_list.append(all_frame_list[i:i+3])
+            print(f"all_frame_list: {all_frame_list}")
+            print(f"final_frame_list: {final_frame_list}")
+            poseDisplay.capture_feed(path, final_frame_list)
+            # except:
+            #     print("\nModel name does not exist. create model using option 4")
+            #     print("Models that exist are:")
+            #     model_path = str(vidsDir) + "\\ML_Trained_Models\\"
+            #     count = 1
+            #     for filename in os.listdir(model_path):
+            #         print(f"{count}: {filename}")
+            #mli.vid_ml_eval(name, path)
+
+        elif choice == "5" or choice == "q":
+            break
+
+        else:
+            print("Incorrect input, try again.")
+            continue
+
         

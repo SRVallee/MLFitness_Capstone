@@ -1,6 +1,9 @@
 import numpy as np
 import json
 
+
+
+
 """
    y
    |
@@ -15,6 +18,8 @@ class Point:
         self.x = x
         self.y = y
         self.z = z
+
+
 
 
 KEYPOINT_DICT = {
@@ -165,7 +170,9 @@ def vector_angles(angleVec, vecI, vecJ, right=0):
     projIK = angleVec - projIKNormal 
     
     # Compute angle between Vec J and angleVec projection
-    threshold = 0.01
+
+    threshold = 0.00
+
     if np.linalg.norm(projIJ) > threshold: # if projection passes threshold
         angleJ = angle_between(projIJ, vecJ)
     else:
@@ -226,26 +233,3 @@ def compute_body_angles(landmarks):
     #         angleArr[i] = np.pi - angleArr
     return angleArr
 
-def compute_body_ang(landmarks):
-    angleArr = np.zeros(24)
-    # -- Head --
-    j = 0
-    shoulders = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 0]], 
-                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 1]])
-    pointI = landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 0]]
-    pointJ = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 2]], 
-                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 3]])
-    head = midpoint(landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 4]], 
-                        landmarks.landmark[COMPLEX_ANGLE_ARRAY[0, 5]])
-    angle, angle2 = vector_angles(
-        vectorize(shoulders, head),
-        vectorize(shoulders, pointI),
-        vectorize(shoulders, pointJ)
-    )
-    angleArr[j] = angle
-    angleArr[j+1] = angle2
-    j += 2
-    
-    # -- Body -- 
-    
-    return
