@@ -19,6 +19,7 @@ from Workout import Workout
 from WorkoutPose import WorkoutPose
 import multiprocessing as mproc
 import pandas as pd
+from PIL import Image
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -55,7 +56,7 @@ choiceList = {
     "9":    [14],
     "10":   [15]
 }
-
+#what is this
 def getJoint(angle):
     a = int(angle)
     if a in range(12):
@@ -107,7 +108,7 @@ def getAverageAndStdvOfList(list):
     return averages, stdvs
 
 # REP COMPUTATION
-def getKeyFramesFromVideo(video, show = False):
+def getKeyFramesFromVideo(video, show = False, debug = False):
     cap = cv2.VideoCapture(video)
     allFrames = []
     frameTime = 0
@@ -151,8 +152,7 @@ def getKeyFramesFromVideo(video, show = False):
 
                 break
 
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    cap.release()
+    
 
     #print(f"frames: {len(allFrames)}")
     #print(f"framerate: {fps}")
@@ -163,11 +163,32 @@ def getKeyFramesFromVideo(video, show = False):
     print(f"RSquared: {rSquared}")
     #extracted is a list of tuples with class Solution outputs and the actual frame
     extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
+    print(extracted)
+    if debug == True:
+        constant_height = 700
+        for tup in extracted:
+            media, frame_num = tup
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+            success, img = cap.read()
+            height = img.shape[0]
+            width = img.shape[1]
+            height_percentage = float(constant_height/int(height))
+            modded_width = int(float(width)*height_percentage)
+            resize = cv2.resize(img, (modded_width, constant_height))
+            cv2.imshow("Image", resize)
+            key = cv2.waitKey(0)  #millisecond delays
+            if key == 27: #esc
+                cv2.destroyWindow("Image")
+    
     print(f"{len(extracted)} frames extracted")
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.release()
     return extracted, allangles, keyAngs
 
 # TODO: EXPLAIN THIS
 #this functions gets all the changes in in angle direction and sends it to get trend
+#also i believe that checking last frame is too small of variation to decide up and down
+#how the code seems to work rn is that once the first frame of increase is detected that is top
 def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increaseGiven = True):
     allAngles = KeyframeExtraction.simplifiedCurveModel(anglesPerFrame)
     if not workout:
@@ -579,7 +600,7 @@ def open_and_train(modelName):
 #
 def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
-    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path)
+    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path, debug= True)
     keyAngs = []
     for frame in extracted:
         keyAngs.append(allAngles[frame[1]])
