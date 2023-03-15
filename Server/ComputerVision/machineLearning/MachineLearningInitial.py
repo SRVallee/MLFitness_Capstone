@@ -101,7 +101,7 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
 def dataframeforeval(totalReps, totalAngs, rmCols=[]):
     repsList=[] # is a list of reps. reps is a list of [top, bottom, top] angles
     print(f"\ntotal reps: {len(totalReps)}")
-    
+    print(f"\ntotal ang lengths: {len(totalAngs)}")
     for rep in totalReps: # for each rep in video
         if None in rep or len(rep) <5:
             continue

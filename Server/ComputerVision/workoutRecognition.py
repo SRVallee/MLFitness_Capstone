@@ -29,8 +29,15 @@ mp_pose = mp.solutions.pose
 from statistics import mean
 from statistics import stdev
 
-#body angle 
+###### DEBUGGING VARIABLES ######
+#this is for display original untocuhed video 
+show_original_beginning_video = False
 
+#this display every frame that key frame extraction returns
+debug_Keyframe_extraction_vid = False
+
+##############################################################
+#body angle 
 MENU = "Select the joints that cycle separated by commas \n\
     Ex. for push ups: 4,5\n\n\
 1   head angle \n\
@@ -108,7 +115,7 @@ def getAverageAndStdvOfList(list):
     return averages, stdvs
 
 # REP COMPUTATION
-def getKeyFramesFromVideo(video, show = False, debug = False):
+def getKeyFramesFromVideo(video):
     cap = cv2.VideoCapture(video)
     allFrames = []
     frameTime = 0
@@ -133,7 +140,7 @@ def getKeyFramesFromVideo(video, show = False, debug = False):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = pose.process(image)
             allFrames.append(results)
-            if show:
+            if show_original_beginning_video:
 
                 frameTime = 5
 
@@ -164,8 +171,9 @@ def getKeyFramesFromVideo(video, show = False, debug = False):
     #it literally halves the vid
     #extracted is a list of tuples with class Solution outputs and the actual frame
     extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
-    print(f"extracted frames: {extracted}, \nlen: {len(extracted)}")
-    if debug == True:
+    
+    #change var at top of file
+    if debug_Keyframe_extraction_vid == True:
         constant_height = 700
         count = 1
         for tup in extracted:
@@ -216,8 +224,8 @@ def getReps(keyFrames, anglesPerFrame, repNumber = 9999, workout = None, increas
         for frame in range(nFrames):
 
             angle1 = angle2
-            print(f"len of all angles{len(allAngles)} index: {importantAngles[curve]}")
-            print(f"len of all keyFrames{len(keyFrames)} index: {frame}")
+            #print(f"importantAngles[curve]: {importantAngles[curve]}, keyFrames[frame][1]: {keyFrames[frame][1]}")
+            #print(f"allAngles[importantAngles[curve]][keyFrames[frame][1]]: {allAngles[importantAngles[curve]][keyFrames[frame][1]]}\n")
             angle2 = allAngles[importantAngles[curve]][keyFrames[frame][1]] #all angles includes all Frames, not just keyframes
 
             if(angle1 != 0 and not angle1): #if first angle
@@ -296,7 +304,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = 9999, workout = None, increas
             else: 
                 cycle[3] = angle2
 
-    print(allCycles)
+    print(f"allCycles: {allCycles}")
 
 
     #get reps without model           #Not using getCloser for now
@@ -625,7 +633,7 @@ def open_and_train(modelName):
 #
 def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
-    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path, debug= False)
+    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path)
     keyAngs = []
     print(f"this is extracted: {extracted}and len is {len(extracted)}")
     print(f"these are the all angles: {len(allAngles)}")
@@ -643,6 +651,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
 
 if __name__ == "__main__":
+    
     MENU2 = """
     Choices:
     1. Create New Rep Model
@@ -686,6 +695,8 @@ if __name__ == "__main__":
             all_frame_list = [x[n] for x in extracted]
             #framer is using rep list to get the indexes of all frames needed
             framer = []
+            #this for loop grab the 3 first iteams in actual frames which are the frame number
+            #last number is the angle
             for rep_set in acutal_frame_list:
                 print(f"rep_set: {rep_set}")
                 framer.append(all_frame_list[rep_set[0]])
@@ -693,12 +704,15 @@ if __name__ == "__main__":
                 framer.append(all_frame_list[rep_set[2]])
             print(f"framer: {framer}")
             final_frame_list = []
+            #this than makes the list into a list of list
+            #eg. [[up frame, down frame, up frame], [up frame,down frame,up frame]]
             for i in range(0,len(framer),3):
                 if len(framer[i:i+3]) == 3:
                     final_frame_list.append(framer[i:i+3])
+            
             print(f"framer: {framer}")
             print(f"final_frame_list: {final_frame_list}")
-            #this is for debugging
+            #start of debugging
             cap = cv2.VideoCapture(path)
             max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
             print(f"max_frames: {max_frames}")
@@ -719,6 +733,8 @@ if __name__ == "__main__":
                     cv2.destroyWindow("Image")
             cap.release()
             #end of debuggin
+            #using fianl frame which are the list of list of each rep we can 
+            #than dpisplay each rep as its own video through another py file function
             poseDisplay.capture_feed(path, final_frame_list)
             # except:
             #     print("\nModel name does not exist. create model using option 4")

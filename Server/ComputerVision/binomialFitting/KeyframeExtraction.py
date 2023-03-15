@@ -154,8 +154,7 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
     print(f"frames length recv from get keyframes before for loop: {len(frames)}")
     for index in range(len(frames)): #fills list with lists of angles
         frame = frames[index]
-        print(index)
-        loop_counter = loop_counter + 1
+        loop_counter = loop_counter +1
         if frame.pose_world_landmarks:
             count = count +1
             allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
@@ -202,6 +201,7 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
                 
                 
             else:
+                #i believe it is no saving correctly
                 #save keyframe, change start, and get new binomials
                 #print("saving...")
                 keyList.append((frames[end], end))
