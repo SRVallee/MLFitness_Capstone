@@ -201,6 +201,7 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
                 
                 
             else:
+                #i believe it is no saving correctly
                 #save keyframe, change start, and get new binomials
                 #print("saving...")
                 keyList.append((frames[end], end))
