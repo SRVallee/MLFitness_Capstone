@@ -310,7 +310,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = 9999, workout = None, increas
 
     #print(f"cycles: {parallel}")
 
-    return parallel, modelName, importantAngles
+    return parallel, modelName, importantAngles, excludeAngles
 
 
 # TODO EXPLAIN THIS
@@ -625,7 +625,7 @@ def open_and_train(modelName):
 #
 def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
-    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path, debug= True)
+    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path, debug= False)
     keyAngs = []
     print(f"this is extracted: {extracted}and len is {len(extracted)}")
     print(f"these are the all angles: {len(allAngles)}")

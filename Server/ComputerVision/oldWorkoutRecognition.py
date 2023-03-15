@@ -131,7 +131,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = 9999, workout = None, increas
         importantAngles = convertJoints(importantJoints)
     else:
         modelName = workout
-        model = Workout().loadModel(f"ComputerVisionTest/models/{workout}.json")
+        model = Workout().loadModel(f"ComputerVision/models/{workout}.json")
         importantAngles = model.getImportantAngles()
     nFrames = len(keyFrames)
     cycles = [[] for i in range(len(importantAngles))] #[start, turning point, end, angle]
@@ -487,7 +487,7 @@ def pickLargest(cycles):
 
 def setupNewWorkout():
     
-    models = os.listdir("ComputerVisionTest/models")
+    models = os.listdir("Server/ComputerVision/models")
     print(models)
     name = input("Name of new workout: ").strip()
     reps = input("number of repetitions: ")
@@ -515,6 +515,7 @@ def makeNewModelV1(extracted, allAngles, debug = False):
         print(f"len of frames: {extracted[-1][1]}")
         print(f"len of all angles: {len(allAngles)}")
     for frame in extracted:
+        print(frame[1])
         keypointAngles.append(allAngles[frame[1]])
 
     reps, modelName, importantAngles = getReps(extracted, allAngles)
@@ -540,7 +541,7 @@ def makeNewModelV1(extracted, allAngles, debug = False):
     model["Top"] = [averageTop, StdevOfTop, len(listOfTop[0])*2]
     model["Bottom"] = [averageBottom, StdevOfBottom, len(listOfBottom[0])]
     model["ImportantAngles"] = importantAngles
-    path = "ComputerVisionTest/models/" + modelName + ".json"
+    path = "Server/ComputerVision/models" + modelName + ".json"
     with open(path, 'w') as f:
         json.dump(model, f)
 
@@ -573,8 +574,8 @@ def updateModelV1(videoPath, modelName, repNumber, debug = False):
 
     reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
     print(f"Reps: {reps}")
-    path = f"ComputerVisionTest/models/{modelName}.json"
-    model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
+    path = f"Server/ComputerVision/models/{modelName}.json"
+    model = Workout().loadModel(f"Server/ComputerVision/models/{modelName}.json")
     
     for rep in reps:
         if not None in rep:
@@ -603,8 +604,8 @@ def evaluateVideo(videoPath, modelName, repNumber = 9999, debug = None):
         keypointAngles.append(allAngles[frame[1]])
 
     reps, modelName, importantAngles = getReps(extracted, allAngles, repNumber, modelName)
-    path = f"ComputerVisionTest/models/{modelName}.json"
-    model = Workout().loadModel(f"ComputerVisionTest/models/{modelName}.json")
+    path = f"Server/ComputerVision/models/{modelName}.json"
+    model = Workout().loadModel(f"Server/ComputerVision/models/{modelName}.json")
     right = []
     wrong = []
     for rep in reps:
@@ -642,7 +643,7 @@ def evaluateVideo(videoPath, modelName, repNumber = 9999, debug = None):
 def demo1():
 
     print("Analyzing video 1...")
-    extracted, allAngles = getKeyFramesFromVideo("ComputerVisionTest/videos/Pushupangleview.mp4")
+    extracted, allAngles = getKeyFramesFromVideo("ComputerVision/videos/Pushupangleview.mp4")
 
     model = makeNewModelV1(extracted, allAngles)
     n = input("Frame to display: ")
@@ -654,7 +655,7 @@ def demo1():
         n = input("Frame to display: ")
 
     print("Analyzing video 2...")
-    updateModelV1("ComputerVisionTest/videos/pushup.mp4", "pushups")
+    updateModelV1("ComputerVision/videos/pushup.mp4", "pushups")
 
 if __name__ == "__main__":
     #demo1()
