@@ -620,8 +620,8 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     print(f"these are the all angles: {len(allAngles)}")
     #error is caused here due to all angles is not cut down by the frames.remove(frame)
     #keeping the allangles to be still the size of the video
-    # for frame in extracted:
-    #     keyAngs.append(allAngles[frame[1]])
+    for frame in extracted:
+        keyAngs.append(allAngles[frame[1]])
     
     reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
     df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
