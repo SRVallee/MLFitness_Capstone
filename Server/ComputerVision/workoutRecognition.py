@@ -313,7 +313,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = 9999, workout = None, increas
             else: 
                 cycle[3] = angle2
 
-    print(f"allCycles: {allCycles}")
+    #print(f"allCycles: {allCycles}")
 
 
     #get reps without model           #Not using getCloser for now
@@ -644,7 +644,6 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
     extracted, allAngles, _ = getKeyFramesFromVideo(vid_path)
     keyAngs = []
-    print(f"this is extracted: {extracted}and len is {len(extracted)}")
     print(f"these are the all angles: {len(allAngles)}")
     #error is caused here due to all angles is not cut down by the frames.remove(frame)
     #keeping the allangles to be still the size of the video
