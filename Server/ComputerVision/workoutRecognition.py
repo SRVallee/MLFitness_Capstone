@@ -29,6 +29,12 @@ mp_pose = mp.solutions.pose
 from statistics import mean
 from statistics import stdev
 
+###### DEBUGGING VARIABLES ######
+#this is for display original untocuhed video 
+show_original_beginning_video = False
+
+#this display every frame that key frame extraction returns
+debug_Keyframe_extraction_vid = False
 
 #body angle 
 MENU = "Select the joints that cycle separated by commas \n\
@@ -108,7 +114,7 @@ def getAverageAndStdvOfList(list):
     return averages, stdvs
 
 # REP COMPUTATION
-def getKeyFramesFromVideo(video, show = False, debug_begin_vid  = False):
+def getKeyFramesFromVideo(video):
     cap = cv2.VideoCapture(video)
     allFrames = []
     frameTime = 0
@@ -133,7 +139,7 @@ def getKeyFramesFromVideo(video, show = False, debug_begin_vid  = False):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = pose.process(image)
             allFrames.append(results)
-            if show:
+            if show_original_beginning_video:
 
                 frameTime = 5
 
@@ -165,7 +171,9 @@ def getKeyFramesFromVideo(video, show = False, debug_begin_vid  = False):
     #extracted is a list of tuples with class Solution outputs and the actual frame
     extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
     print(f"extracted frames: {extracted}, \nlen: {len(extracted)}")
-    if debug_begin_vid == True:
+    
+    #change var at top of file
+    if debug_Keyframe_extraction_vid == True:
         constant_height = 700
         count = 1
         for tup in extracted:
@@ -605,7 +613,7 @@ def open_and_train(modelName):
 #
 def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
-    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path, debug= True)
+    extracted, allAngles, _ = getKeyFramesFromVideo(vid_path)
     keyAngs = []
     print(f"this is extracted: {extracted}and len is {len(extracted)}")
     print(f"these are the all angles: {len(allAngles)}")
@@ -623,6 +631,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
 
 if __name__ == "__main__":
+    
     MENU2 = """
     Choices:
     1. Create New Rep Model
