@@ -705,7 +705,6 @@ if __name__ == "__main__":
                 rep_frame_sets.append(extracted_frame_list[rep_set[0]])
                 rep_frame_sets.append(extracted_frame_list[rep_set[1]])
                 rep_frame_sets.append(extracted_frame_list[rep_set[2]])
-            print(f"rep_frame_sets: {rep_frame_sets}")
             
             final_frame_list = []
             #this than makes the list into a list of list
@@ -713,11 +712,11 @@ if __name__ == "__main__":
             for i in range(0,len(rep_frame_sets),3):
                 if len(rep_frame_sets[i:i+3]) == 3:
                     final_frame_list.append(rep_frame_sets[i:i+3])
-            
-            print(f"rep_frame_sets: {rep_frame_sets}")
-            print(f"final_frame_list: {final_frame_list}")
             #start of debugging
             if actual_rep_frame_display == True:
+                print(f"rep_frame_sets: {rep_frame_sets}")
+                print(f"final_frame_list: {final_frame_list}")
+            
                 cap = cv2.VideoCapture(path)
                 max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
                 print(f"max_frames: {max_frames}")
