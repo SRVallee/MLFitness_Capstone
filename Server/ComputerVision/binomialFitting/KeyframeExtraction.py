@@ -163,7 +163,8 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
             #frames.remove(frame) #why remove frames causing the size of list to decrease and not make it to the end decreasing size of list 
             #causes it to reach the middle
         else:
-            count_cant = count_cant +1
+            frames.remove(frame)
+            count_cant = count_cant + 1
         # allAngles.append(getAllAngles(frame))
     print(f"amount of loops done: {loop_counter}")
     #there will be a 1 difference due to this starts at one and the other starts at 0
