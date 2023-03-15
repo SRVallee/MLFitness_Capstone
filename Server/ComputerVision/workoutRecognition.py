@@ -36,6 +36,7 @@ show_original_beginning_video = False
 #this display every frame that key frame extraction returns
 debug_Keyframe_extraction_vid = False
 
+##############################################################
 #body angle 
 MENU = "Select the joints that cycle separated by commas \n\
     Ex. for push ups: 4,5\n\n\
@@ -225,6 +226,8 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
 
             angle1 = angle2
             #breaks here IndexError: list index out of range
+            print(f"importantAngles[curve]: {importantAngles[curve]}, keyFrames[frame][1]: {keyFrames[frame][1]}")
+            print(f"allAngles[importantAngles[curve]][keyFrames[frame][1]]: {allAngles[importantAngles[curve]][keyFrames[frame][1]]}\n")
             angle2 = allAngles[importantAngles[curve]][keyFrames[frame][1]] #all angles includes all Frames, not just keyframes
 
             if(angle1 != 0 and not angle1): #if first angle

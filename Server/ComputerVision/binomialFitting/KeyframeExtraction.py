@@ -152,9 +152,8 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
     count_cant = 0
     loop_counter = 0
     print(f"frames length recv from get keyframes before for loop: {len(frames)}")
-    for index in range(len(frames)-1): #fills list with lists of angles
+    for index in range(len(frames)): #fills list with lists of angles
         frame = frames[index]
-        print(index)
         loop_counter = loop_counter +1
         if frame.pose_world_landmarks:
             count = count +1
