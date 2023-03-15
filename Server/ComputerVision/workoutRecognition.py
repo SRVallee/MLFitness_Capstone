@@ -682,6 +682,7 @@ if __name__ == "__main__":
 
         elif choice == "2":
             name = input("Workout name: ")
+            name = name.replace(" ","_")
             computeData(name)
             
         elif choice == "3":

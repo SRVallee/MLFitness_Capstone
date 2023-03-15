@@ -138,6 +138,8 @@ class poseDetector():
                     #cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
         return mod_lmList, self.world_lmList 
     
+    # fix the line on the back for every thing
+    # this may be used by checking which way the face is facing to create the line
     def checkback(self,img,backplt1,backplt2):
         x1, y1 = backplt1
         x2, y2 = backplt2
@@ -146,7 +148,10 @@ class poseDetector():
             y_int = (y1-(slope*x1))
             for i in range(min(x1,x2),max(x1,x2)-2):
                 cur_y = int(slope*i + y_int)
-                confidence = self.results.segmentation_mask[cur_y][i]
+                try:
+                    confidence = self.results.segmentation_mask[cur_y][i]
+                except:
+                    return True
                 if(confidence > 0.1):
                     return False
         return True
