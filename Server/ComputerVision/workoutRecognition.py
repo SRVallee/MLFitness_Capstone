@@ -171,7 +171,6 @@ def getKeyFramesFromVideo(video):
     #it literally halves the vid
     #extracted is a list of tuples with class Solution outputs and the actual frame
     extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
-    print(f"extracted frames: {extracted}, \nlen: {len(extracted)}")
     
     #change var at top of file
     if debug_Keyframe_extraction_vid == True:
@@ -225,9 +224,8 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
         for frame in range(nFrames):
 
             angle1 = angle2
-            #breaks here IndexError: list index out of range
-            print(f"importantAngles[curve]: {importantAngles[curve]}, keyFrames[frame][1]: {keyFrames[frame][1]}")
-            print(f"allAngles[importantAngles[curve]][keyFrames[frame][1]]: {allAngles[importantAngles[curve]][keyFrames[frame][1]]}\n")
+            #print(f"importantAngles[curve]: {importantAngles[curve]}, keyFrames[frame][1]: {keyFrames[frame][1]}")
+            #print(f"allAngles[importantAngles[curve]][keyFrames[frame][1]]: {allAngles[importantAngles[curve]][keyFrames[frame][1]]}\n")
             angle2 = allAngles[importantAngles[curve]][keyFrames[frame][1]] #all angles includes all Frames, not just keyframes
 
             if(angle1 != 0 and not angle1): #if first angle
@@ -312,7 +310,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = None, workout = None, increas
             else: 
                 cycle[3] = angle2
 
-    print(allCycles)
+    print(f"allCycles: {allCycles}")
 
 
     #get reps without model           #Not using getCloser for now
