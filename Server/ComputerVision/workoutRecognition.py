@@ -67,7 +67,12 @@ choiceList = {
     "9":    [14],
     "10":   [15]
 }
-#what is this
+#parameter: angle
+#from menu seting up workout needs to have which angles are important
+#out of 15 those that are chosen are than inputted into get joint, 
+#parallel joints are stacked together like the 2 knees. 
+# and returns the string number that corresponds with it
+#Return: choice list  number
 def getJoint(angle):
     a = int(angle)
     if a in range(12):
