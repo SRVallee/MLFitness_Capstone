@@ -140,6 +140,7 @@ class poseDetector():
     
     # fix the line on the back for every thing
     # this may be used by checking which way the face is facing to create the line
+    #crashes cuz can't find back beginning it is out of screen
     def checkback(self,img,backplt1,backplt2):
         x1, y1 = backplt1
         x2, y2 = backplt2
