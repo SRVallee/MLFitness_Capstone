@@ -258,7 +258,7 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     print(f"len of df: {len(df)}")
     current_vids = str(os.path.dirname(__file__))
     # scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
-    acutal_frame_num = []
+    acutal_frame_num = [] # this was for the scalar but scalar causes the points to be inaccurrate
     y_pred_list =[]
     # scaler = pickle.load(open(scaler_path,'rb'))
     new_df = np.array(df)
