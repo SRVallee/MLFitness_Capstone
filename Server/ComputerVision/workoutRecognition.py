@@ -36,6 +36,10 @@ show_original_beginning_video = False
 #this display every frame that key frame extraction returns
 debug_Keyframe_extraction_vid = False
 
+#this displays the actual rep frames to check if it is getting
+#correct up and down frames
+#in sets of 3
+actual_rep_frame_display = False
 ##############################################################
 #body angle 
 MENU = "Select the joints that cycle separated by commas \n\
@@ -162,7 +166,7 @@ def getKeyFramesFromVideo(video):
     
 
     #print(f"frames: {len(allFrames)}")
-    #print(f"framerate: {fps}")
+    #print(f"rep_frame_setsate: {fps}")
 
 
     rSquared = 0.5
@@ -639,8 +643,8 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     print(f"these are the all angles: {len(allAngles)}")
     #error is caused here due to all angles is not cut down by the frames.remove(frame)
     #keeping the allangles to be still the size of the video
-    #for frame in extracted:
-    #    keyAngs.append(allAngles[frame[1]])
+    for frame in extracted:
+        keyAngs.append(allAngles[frame[1]])
     
     reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
     df =mli.dataframeforeval(reps, keyAngs, exclude_angles)
@@ -691,47 +695,48 @@ if __name__ == "__main__":
             model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
             acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
-            n = 1
-            all_frame_list = [x[n] for x in extracted]
-            #framer is using rep list to get the indexes of all frames needed
-            framer = []
+            
+            extracted_frame_list = [x[1] for x in extracted]
+            #rep_frame_sets is using rep list to get the indexes of all frames needed
+            rep_frame_sets = []
             #this for loop grab the 3 first iteams in actual frames which are the frame number
             #last number is the angle
             for rep_set in acutal_frame_list:
-                print(f"rep_set: {rep_set}")
-                framer.append(all_frame_list[rep_set[0]])
-                framer.append(all_frame_list[rep_set[1]])
-                framer.append(all_frame_list[rep_set[2]])
-            print(f"framer: {framer}")
+                rep_frame_sets.append(extracted_frame_list[rep_set[0]])
+                rep_frame_sets.append(extracted_frame_list[rep_set[1]])
+                rep_frame_sets.append(extracted_frame_list[rep_set[2]])
+            print(f"rep_frame_sets: {rep_frame_sets}")
+            
             final_frame_list = []
             #this than makes the list into a list of list
             #eg. [[up frame, down frame, up frame], [up frame,down frame,up frame]]
-            for i in range(0,len(framer),3):
-                if len(framer[i:i+3]) == 3:
-                    final_frame_list.append(framer[i:i+3])
+            for i in range(0,len(rep_frame_sets),3):
+                if len(rep_frame_sets[i:i+3]) == 3:
+                    final_frame_list.append(rep_frame_sets[i:i+3])
             
-            print(f"framer: {framer}")
+            print(f"rep_frame_sets: {rep_frame_sets}")
             print(f"final_frame_list: {final_frame_list}")
             #start of debugging
-            cap = cv2.VideoCapture(path)
-            max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-            print(f"max_frames: {max_frames}")
-            constant_height = 700
-            for i in framer:
+            if actual_rep_frame_display == True:
+                cap = cv2.VideoCapture(path)
+                max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                print(f"max_frames: {max_frames}")
+                constant_height = 700
+                for i in rep_frame_sets:
 
-                cap.set(cv2.CAP_PROP_POS_FRAMES, i)
-                success, img = cap.read()
-                height = img.shape[0]
-                width = img.shape[1]
-                height_percentage = float(constant_height/int(height))
-                modded_width = int(float(width)*height_percentage)
-                cv2.putText(img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, framer, frame #: {i}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-                resize = cv2.resize(img, (modded_width, constant_height))
-                cv2.imshow("Image", resize)
-                key = cv2.waitKey(0)  #millisecond delays
-                if key == 27: #esc
-                    cv2.destroyWindow("Image")
-            cap.release()
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+                    success, img = cap.read()
+                    height = img.shape[0]
+                    width = img.shape[1]
+                    height_percentage = float(constant_height/int(height))
+                    modded_width = int(float(width)*height_percentage)
+                    cv2.putText(img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, rep_frame_sets, frame #: {i}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+                    resize = cv2.resize(img, (modded_width, constant_height))
+                    cv2.imshow("Image", resize)
+                    key = cv2.waitKey(0)  #millisecond delays
+                    if key == 27: #esc
+                        cv2.destroyWindow("Image")
+                cap.release()
             #end of debuggin
             #using fianl frame which are the list of list of each rep we can 
             #than dpisplay each rep as its own video through another py file function
