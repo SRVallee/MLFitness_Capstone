@@ -147,11 +147,32 @@ def extractFrames(frames, rSquared, getAngles = False): #Returns simpleModel if 
     allAngles = []
     keyList = []
     keyAngles = []
-    for frame in frames: #fills list with lists of angles
+    #checkers
+    count = 0
+    count_cant = 0
+    loop_counter = 0
+    print(f"frames length recv from get keyframes before for loop: {len(frames)}")
+    for index in range(len(frames)-1): #fills list with lists of angles
+        frame = frames[index]
+        print(index)
+        loop_counter = loop_counter +1
         if frame.pose_world_landmarks:
+            count = count +1
             allAngles.append(PoseUtilities.compute_body_angles(frame.pose_world_landmarks))
-            frames.remove(frame)
+            #TODO: remove this and allow it to work with everything else
+            #frames.remove(frame) #why remove frames causing the size of list to decrease and not make it to the end decreasing size of list 
+            #causes it to reach the middle
+        else:
+            count_cant = count_cant +1
         # allAngles.append(getAllAngles(frame))
+    print(f"amount of loops done: {loop_counter}")
+    #there will be a 1 difference due to this starts at one and the other starts at 0
+    #this is to check how many frames it recvieved from keyframe extraction to check
+    print(f"frames length recv from get keyframes after for loop: {len(frames)}")
+    #this check how many of those frames were able to find a pose
+    print(f"count of frames from detecting pose: {count}")
+    print(f"amount of frames couldn't find pose: {count_cant}")
+    print(f"total amount of frames: {count +count_cant}")
     n = len(frames)
     keyList.append((frames[0],0))
 

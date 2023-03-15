@@ -160,12 +160,14 @@ def getKeyFramesFromVideo(video, show = False, debug = False):
 
     rSquared = 0.5
 
-    print(f"RSquared: {rSquared}")
+    print(f"RSquared: {rSquared}, allframes len: {len(allFrames)}")
+    #it literally halves the vid
     #extracted is a list of tuples with class Solution outputs and the actual frame
     extracted, allangles, keyAngs = KeyframeExtraction.extractFrames(allFrames, rSquared, True)
-    print(extracted)
+    print(f"extracted frames: {extracted}, \nlen: {len(extracted)}")
     if debug == True:
         constant_height = 700
+        count = 1
         for tup in extracted:
             media, frame_num = tup
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
@@ -174,9 +176,10 @@ def getKeyFramesFromVideo(video, show = False, debug = False):
             width = img.shape[1]
             height_percentage = float(constant_height/int(height))
             modded_width = int(float(width)*height_percentage)
-            cv2.putText(img, f"keyframe extraction, frame #: {frame_num}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+            cv2.putText(img, f"keyframe extraction {count}, frame #: {frame_num}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
             resize = cv2.resize(img, (modded_width, constant_height))
             cv2.imshow("Image", resize)
+            count = count+1
             key = cv2.waitKey(0)  #millisecond delays
             if key == 27: #esc
                 cv2.destroyWindow("Image")
@@ -603,6 +606,10 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
     extracted, allAngles, _ = getKeyFramesFromVideo(vid_path, debug= True)
     keyAngs = []
+    print(f"this is extracted: {extracted}and len is {len(extracted)}")
+    print(f"these are the all angles: {len(allAngles)}")
+    #error is caused here due to all angles is not cut down by the frames.remove(frame)
+    #keeping the allangles to be still the size of the video
     for frame in extracted:
         keyAngs.append(allAngles[frame[1]])
     
