@@ -657,6 +657,30 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     print(f"rep_list: {rep_list}\n\n frame_rep_list: {frame_rep_list}")
     return rep_list, extracted
 
+#this function was made so that there are less errors in inputting 
+#due to typing everytime has a higher chance of errors so
+#this function gets all created models and puts them in a list
+#to choose from using digits
+def get_user_input():
+    model_path = str(os.path.dirname(__file__)) + "\\models\\"
+    model_choices = []
+    n = 1
+    print("list of trained models:")
+    #this for loop prints the models name without the .json
+    for model_name_json in os.listdir(model_path):
+        model_name = os.path.splitext(model_name_json)
+        print(f"{n}. {model_name[0]}")
+        model_choices.append(model_name[0])
+        n = n+1
+    #this is to get user choice so that there are less errors
+    user_choice = input("choose the number of the workout you want to check: ")
+    while user_choice.isdigit() == False or int(user_choice) > len(model_choices) or int(user_choice)<= 0:
+        print("invalid choice")
+        user_choice = input("choose the number of the workout you want to check: ")
+    user_choice = int(user_choice) - 1
+    name = model_choices[user_choice]
+    name = name.replace(" ","_")
+    return name
 
 if __name__ == "__main__":
     
@@ -681,21 +705,23 @@ if __name__ == "__main__":
             print(f"New workout added\n")
 
         elif choice == "2":
-            name = input("Workout name: ")
+            name = get_user_input()
+            print(f"Workout chosen: {name}")
             name = name.replace(" ","_")
             computeData(name)
             
         elif choice == "3":
-            name = input("Workout name: ")
+            name = get_user_input()
+            print(f"Workout chosen: {name}")
             name = name.replace(" ","_")
             trained_model = open_and_train(name)
 
         elif choice == "4":
-            name = input("workout name: ")
-            name = name.replace(" ","_")
-            path = input("video path: ")
+            name = get_user_input()
+            print(f"Workout chosen: {name}")
+            path = input("video to check: ")
             cwd = str(os.path.dirname(__file__))
-            print(cwd)
+            
             # try:
             model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
