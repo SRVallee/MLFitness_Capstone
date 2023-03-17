@@ -665,7 +665,7 @@ def get_user_input():
     model_path = str(os.path.dirname(__file__)) + "\\models\\"
     model_choices = []
     n = 1
-    print("list of trained models:")
+    print("\nlist of trained models:")
     #this for loop prints the models name without the .json
     for model_name_json in os.listdir(model_path):
         model_name = os.path.splitext(model_name_json)
@@ -674,7 +674,17 @@ def get_user_input():
         n = n+1
     #this is to get user choice so that there are less errors
     user_choice = input("choose the number of the workout you want to check: ")
+    error_amnt = 0
     while user_choice.isdigit() == False or int(user_choice) > len(model_choices) or int(user_choice)<= 0:
+        error_amnt = error_amnt +1
+        if error_amnt == 3:
+            error_amnt = 0
+            print("\nlist of trained models:")
+            n= 1
+            for model_name_json in os.listdir(model_path):
+                model_name = os.path.splitext(model_name_json)
+                print(f"{n}. {model_name[0]}")
+                n = n+1
         print("invalid choice")
         user_choice = input("choose the number of the workout you want to check: ")
     user_choice = int(user_choice) - 1
