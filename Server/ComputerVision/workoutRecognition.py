@@ -123,6 +123,10 @@ def getAverageAndStdvOfList(list):
 
     return averages, stdvs
 
+def removeOutliers(dataframe):
+    # we only want to remove outliers for the good reps
+    return
+
 # REP COMPUTATION
 def getKeyFramesFromVideo(video):
     cap = cv2.VideoCapture(video)
@@ -561,7 +565,7 @@ def computeData(modelName):
              str(vidsDir) + f"\\ML_training\\incorrect_trainML\\{modelName}\\"] # bad reps folder
     #put threads or mulitprocessing here
     
-    lengths = 1 # lengths of good reps
+    goodOrBad = 1 # lengths of good reps
     frames =[]
     for path in paths: #first good paths, then bad paths
         items = []
@@ -585,12 +589,14 @@ def computeData(modelName):
         print(f"\ntotalAngles: {len(totalAngles)}\n")
         print(f"\nallreps: {len(allReps)}. aprox total = {len(items)*5}\n")
         
-        df = mli.repsToDataframe(allReps, totalAngles, lengths, excludeAngs)
+        df = mli.repsToDataframe(allReps, totalAngles, goodOrBad, excludeAngs)
         shaper = tf.shape(df)
         print(f"\nthis is df.shape before merge: {shaper}\n")
         #print(f"\nthis is df before merge: {df}\n")
+        
+        # prep for bad vids
         frames.append(df)
-        lengths = 0
+        goodOrBad = 0
         pool.close()
         pool.join()
         items = []

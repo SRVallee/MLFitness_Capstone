@@ -56,8 +56,8 @@ COLS = [
         'GoodForm'
     ]
 #
-def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
-    goodNum = lengths
+def repsToDataframe(totalReps, totalAngs, goodOrBad, rmCols=[]):
+    
     repsList=[]
     colsList = COLS.copy() # copy list of all possible cols names
     colNamesRemoved = False
@@ -88,7 +88,7 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
                 colNamesRemoved = True
                 # add if is a good rep (for training)
                 
-                rowList.append(lengths)
+                rowList.append(goodOrBad)
                     
                 # append rep angles to reps list
                 repsList.append(rowList) 
@@ -138,6 +138,9 @@ def split(df, ratio=0.2):
 
 #
 def train_model(df, importantAngles,modelName, rounds=50):
+    # use scaler?
+    use_scaler = True
+    
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
     #print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
@@ -159,14 +162,20 @@ def train_model(df, importantAngles,modelName, rounds=50):
     #     new_df.append(rep_imp_angles)
     #new_df is inclusion of specific points df is for the whole thing
     X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=0)
-    # scaler = StandardScaler()
-    # X_train = scaler.fit_transform(X_train)
-    # X_test = scaler.transform(X_test)
+    
+    # Scale data
+    scaler = StandardScaler()
+    if use_scaler:
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+    
+    # Convert datasets
     X_train = np.array(X_train)
     y_train = np.array(y_train)
     X_test = np.array(X_test)
     y_test = np.array(y_test)
     #tf.random.set_seed(42)
+    # Set model
     model = tf.keras.Sequential([
         #tf.keras.Input(shape=(None,features_amnt)),
         tf.keras.layers.Dense(48, activation='relu'),
@@ -190,8 +199,12 @@ def train_model(df, importantAngles,modelName, rounds=50):
     print(model_path)
     model.save(model_path)
     current_vids = str(os.path.dirname(__file__))
-    # scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
-    # pickle.dump(scaler, open(scaler_path, 'wb'))
+    
+    # dump scaler
+    if use_scaler:
+        scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
+        pickle.dump(scaler, open(scaler_path, 'wb'))
+    
     return model, X_test, y_test
 
 #
@@ -254,15 +267,22 @@ def do_ml(df, importantAngles,modelName):
 #Return:
 #           y_pred_list, acutal_frame_num
 def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
+    # use scaler?
+    use_scale = True
+    
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
     current_vids = str(os.path.dirname(__file__))
-    # scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
-    acutal_frame_num = [] # this was for the scalar but scalar causes the points to be inaccurrate
-    y_pred_list =[]
-    # scaler = pickle.load(open(scaler_path,'rb'))
+    
     new_df = np.array(df)
-    # scaled_new_df = scaler.transform(new_df)
+    y_pred_list =[]
+    #scaler
+    if use_scale:
+        scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
+        acutal_frame_num = [] # this was for the scalar but scalar causes the points to be inaccurrate
+        scaler = pickle.load(open(scaler_path,'rb'))
+        new_df = scaler.transform(new_df)
+    
     print(trained_model.summary())
     vidsDir = str(os.path.dirname(__file__))
     print(vidsDir)
