@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import LocalOutlierFactor
 from keras.preprocessing.text import Tokenizer
 from keras.utils.vis_utils import plot_model
 from pathlib import Path
@@ -23,6 +24,10 @@ import pickle
 #these are all the points of the body. 49 points for 1 rep and form. UD = UP down, FB = Face Back
 #can onnly exclude a max of 6 joints. each elbow and knee is counted as one. Everything else is 
 # counted as 2 
+
+# use scaler or not
+USE_SCALER = False
+
 COLS = [
         #up postion
         'headLR1', 'headFB1',#[0,1]
@@ -56,8 +61,8 @@ COLS = [
         'GoodForm'
     ]
 #
-def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
-    goodNum = lengths
+def repsToDataframe(totalReps, totalAngs, goodOrBad, rmCols=[]):
+    
     repsList=[]
     colsList = COLS.copy() # copy list of all possible cols names
     colNamesRemoved = False
@@ -88,7 +93,7 @@ def repsToDataframe(totalReps, totalAngs, lengths, rmCols=[]):
                 colNamesRemoved = True
                 # add if is a good rep (for training)
                 
-                rowList.append(lengths)
+                rowList.append(goodOrBad)
                     
                 # append rep angles to reps list
                 repsList.append(rowList) 
@@ -136,37 +141,147 @@ def split(df, ratio=0.2):
 
     return train, test
 
+
+# Manual method to remove outliers
+def removeOutliers(df, y_df=None, minStdDev=0.2, thresholdMult=1.5, multipleOut=False, multiOutThreshold=3):
+    dataframe = df.copy()
+    y_dataframe = None
+    if y_df:
+        y_dataframe = y_df.copy()
+        
+    boolArr = np.full(dataframe.shape, True)
+    
+    for i in range(dataframe.shape[1]): # columns
+        if np.std(dataframe.iloc[:,i]) < minStdDev:
+            # if variance in column data is small, skip column outlier removal
+            # help prevent too many row being removed
+            continue
+        
+        q75 = np.percentile(dataframe.iloc[:,i], 75)
+        q25 = np.percentile(dataframe.iloc[:,i], 25)
+        cutOff = thresholdMult * (q75-q25) # multiply interquartile range
+        
+        for j in range(dataframe.shape[0]-1, -1, -1): #rows in column *from the bottom*
+            #iterate fom the bottom so removing doesn't mess up index
+            currVal = dataframe.iloc[j,i]
+            # less than bottom cut off or greater than top cutoff
+            if currVal < q25 - cutOff or currVal > q75 + cutOff:
+                if multipleOut:
+                    boolArr[j][i] = False
+                else:
+                    # dump row with outlier
+                    dataframe = dataframe.drop(j)
+                    dataframe.reset_index(drop=True, inplace=True)
+                    if y_dataframe:
+                        del y_dataframe[i]
+    
+    # if data should require multiple outliers in one row
+    if multipleOut:
+        # rows starting from bottom
+        for i in range(dataframe.shape[0]-1, -1, -1):
+            count = 0
+            for inlier in boolArr[i]:
+                if not inlier: # outlier
+                    count = count + 1
+                if count >= multiOutThreshold:
+                    # if count reaches threshold, drop row, and go to next
+                    dataframe = dataframe.drop(i)
+                    dataframe.reset_index(drop=True, inplace=True)
+                    if y_dataframe:
+                        del y_dataframe[i]
+                    break
+    
+    if y_dataframe:
+        return dataframe, y_dataframe
+    else:
+        return dataframe
+
+
+# Use sklearn to automatically detect and remove outliers
+def autoRemoveOutliers(x_train, y_train):
+    '''
+    https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html
+    https://machinelearningmastery.com/how-to-use-statistics-to-identify-outliers-in-data/
+    '''
+    lof = LocalOutlierFactor(leaf_size=40)
+    inAndOutliers = lof.fit_predict(x_train)
+    
+    # inliers are 1, outliers are -1
+    mask = inAndOutliers != -1 # grab only inliers
+    outliers = inAndOutliers != 1
+    
+    print(f"outliers:\n{x_train[outliers,:]}")
+    
+    new_x_train = x_train[mask,:]
+    new_y_train = y_train[mask]
+    
+    return new_x_train, new_y_train
+
 #
-def train_model(df, importantAngles,modelName, rounds=50):
+def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True):
+    
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
     #print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
-    x = df.values.tolist()
 
-    print(f"this is the shape: {tf.shape(x)}")
-    shaper = tf.shape(x)
-    features_amnt = shaper[1]
+    shape = df.shape
+    print(f"this is the shape: {shape}")
+    features_amnt = shape[1]
     print(f"features_amnt: {features_amnt}")
     input_list = []
     for repper in range(3):
         for ang in importantAngles:
             input_list.append(ang+(16*repper))
-    new_df = [[x for i, x in enumerate(n) if i in input_list] for n in x]
+            
+    # x = df.values.tolist()
+    # new_df = [[x for i, x in enumerate(n) if i in input_list] for n in x]
     # for df_list in x:
     #     rep_imp_angles = []
     #     for rep_angles in input_list:
     #         rep_imp_angles.append(df_list[rep_angles])
     #     new_df.append(rep_imp_angles)
     #new_df is inclusion of specific points df is for the whole thing
-    X_train, X_test, y_train, y_test = train_test_split(x, labels, test_size=0.2, random_state=0)
-    # scaler = StandardScaler()
-    # X_train = scaler.fit_transform(X_train)
-    # X_test = scaler.transform(X_test)
-    X_train = np.array(X_train)
+    X_train, X_test, y_train, y_test = train_test_split(df, labels, test_size=0.2, random_state=0)
+    
+    print(f"Shape of training set before outlier removal:{X_train.shape}")
+    
+    X_train.reset_index(drop=True, inplace=True)
+    X_test.reset_index(drop=True, inplace=True)
+    
+    # Scale data
+    scaler = StandardScaler()
+    if USE_SCALER:
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+        
+    # manual, aggressive outlier removal
+    if outlierAggresive:
+        new_x_train, new_y_train = removeOutliers(X_train, y_train, 
+                                                  thresholdMult=2, 
+                                                  multipleOut=True, 
+                                                  multiOutThreshold=3)
+        # for debugging, can just assign directly instead
+        X_train = new_x_train
+        y_train = new_y_train
+    
+    # Convert datasets to numpy
+    X_train = X_train.to_numpy()
     y_train = np.array(y_train)
-    X_test = np.array(X_test)
-    y_test = np.array(y_test)
+    X_test  = X_test.to_numpy()
+    y_test  = np.array(y_test)
+    
+    # auto, soft outlier removal
+    if not outlierAggresive:
+        new_x_train, new_y_train = autoRemoveOutliers(X_train, y_train)
+        # for debugging, can just assign directly instead
+        X_train = new_x_train
+        y_train = new_y_train
+
+    print(f"Shape of training set after outlier removal:{X_train.shape}")
+    
     #tf.random.set_seed(42)
+
+    # Set model
     model = tf.keras.Sequential([
         #tf.keras.Input(shape=(None,features_amnt)),
         tf.keras.layers.Dense(48, activation='relu'),
@@ -190,21 +305,20 @@ def train_model(df, importantAngles,modelName, rounds=50):
     print(model_path)
     model.save(model_path)
     current_vids = str(os.path.dirname(__file__))
-    # scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
-    # pickle.dump(scaler, open(scaler_path, 'wb'))
+    
+    # dump scaler
+    if USE_SCALER:
+        scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
+        pickle.dump(scaler, open(scaler_path, 'wb'))
+    
     return model, X_test, y_test
 
 #
 def do_ml(df, importantAngles,modelName):
     
-    print(f"df.head: {df.head}")
+    # print(f"df.head: {df.head}")
     
-    train, test = split(df)
-    
-    model, x_test, y_test = train_model(df,importantAngles,modelName)
-    
-    testy = test.pop('GoodForm').values.tolist()
-    testx = test.values.tolist()
+    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierAggresive=True)
     
     test_loss, test_acc, test_prec, true_pos, true_neg, false_neg = model.evaluate(x_test, y_test)
     print("MODEL ACCURACY: ", test_acc)#accuracy = how often the model predicted correctly
@@ -257,12 +371,17 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
     current_vids = str(os.path.dirname(__file__))
-    # scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
-    acutal_frame_num = [] # this was for the scalar but scalar causes the points to be inaccurrate
-    y_pred_list =[]
-    # scaler = pickle.load(open(scaler_path,'rb'))
+    
     new_df = np.array(df)
-    # scaled_new_df = scaler.transform(new_df)
+    y_pred_list =[]
+    
+    #scaler
+    if USE_SCALER:
+        scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
+        acutal_frame_num = [] # this was for the scalar but scalar causes the points to be inaccurrate
+        scaler = pickle.load(open(scaler_path,'rb'))
+        new_df = scaler.transform(new_df)
+    
     print(trained_model.summary())
     vidsDir = str(os.path.dirname(__file__))
     print(vidsDir)

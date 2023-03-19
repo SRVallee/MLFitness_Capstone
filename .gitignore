@@ -6,6 +6,16 @@
 # IGNORE VSCODE stuff
 .vscode
 
+# Project specific files
+Server/ComputerVision/__pycache__/mp_drawing_modified.cpython-39.pyc
+ComputerVision/binomialFitting/__pycache__/__init__.cpython-39.pyc
+Server/ComputerVision/binomialFitting/__pycache__/KeyframeExtraction.cpython-39.pyc
+Server/ComputerVision/binomialFitting/__pycache__/PoseUtilities.cpython-39.pyc
+Server/ComputerVision/dataframes/*.csv
+Server/ComputerVision/machineLearning/ML_Trained_Models/
+Server/ComputerVision/machineLearning/scalers/
+
+
 # User-specific files
 *.rsuser
 *.suo
@@ -13,6 +23,8 @@
 *.userosscache
 *.sln.docstates
 *.pyc
+*.pkl
+*.csv
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -402,9 +414,3 @@ FodyWeavers.xsd
 *.sln.iml
 *__pycache__
 *.pyc
-Server/ComputerVision/__pycache__/mp_drawing_modified.cpython-39.pyc
-ComputerVision/binomialFitting/__pycache__/__init__.cpython-39.pyc
-Server/ComputerVision/binomialFitting/__pycache__/KeyframeExtraction.cpython-39.pyc
-Server/ComputerVision/binomialFitting/__pycache__/PoseUtilities.cpython-39.pyc
-#Server/ComputerVision/dataframes/*
-Server/ComputerVision/ML_Trained_Models/*

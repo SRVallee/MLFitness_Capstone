@@ -561,7 +561,7 @@ def computeData(modelName):
              str(vidsDir) + f"\\ML_training\\incorrect_trainML\\{modelName}\\"] # bad reps folder
     #put threads or mulitprocessing here
     
-    lengths = 1 # lengths of good reps
+    goodOrBad = 1 # lengths of good reps
     frames =[]
     for path in paths: #first good paths, then bad paths
         items = []
@@ -571,7 +571,8 @@ def computeData(modelName):
             args = (path, filename, modelName)
             items.append(args)
         print(f"items(path, filename, modelName): {len(items)}")
-        with mproc.Pool() as pool:
+        numProcessors = mproc.cpu_count()-1 # one less than max so server has one open core
+        with mproc.Pool(processes=numProcessors) as pool:
             results = pool.map(process_divider, items)
             print(f"results: {len(results)}")
             for all_items in results:
@@ -585,12 +586,14 @@ def computeData(modelName):
         print(f"\ntotalAngles: {len(totalAngles)}\n")
         print(f"\nallreps: {len(allReps)}. aprox total = {len(items)*5}\n")
         
-        df = mli.repsToDataframe(allReps, totalAngles, lengths, excludeAngs)
+        df = mli.repsToDataframe(allReps, totalAngles, goodOrBad, excludeAngs)
         shaper = tf.shape(df)
         print(f"\nthis is df.shape before merge: {shaper}\n")
         #print(f"\nthis is df before merge: {df}\n")
+        
+        # prep for bad vids
         frames.append(df)
-        lengths = 0
+        goodOrBad = 0
         pool.close()
         pool.join()
         items = []
@@ -661,7 +664,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 #due to typing everytime has a higher chance of errors so
 #this function gets all created models and puts them in a list
 #to choose from using digits
-def get_user_input():
+def get_user_input(allow_create=False):
     model_path = str(os.path.dirname(__file__)) + "\\models\\"
     model_choices = []
     n = 1
@@ -670,7 +673,11 @@ def get_user_input():
     for model_name_json in os.listdir(model_path):
         model_name = os.path.splitext(model_name_json)
         print(f"{n}. {model_name[0]}")
+        
         model_choices.append(model_name[0])
+        n = n+1
+    if allow_create:
+        model_choices.append("Create new workout")
         n = n+1
     #this is to get user choice so that there are less errors
     user_choice = input("choose the number of the workout you want to check: ")
@@ -681,14 +688,17 @@ def get_user_input():
             error_amnt = 0
             print("\nlist of trained models:")
             n= 1
-            for model_name_json in os.listdir(model_path):
-                model_name = os.path.splitext(model_name_json)
-                print(f"{n}. {model_name[0]}")
+            for model in model_choices:
+                print(f"{n}. {model}")
                 n = n+1
+            
         print("invalid choice")
         user_choice = input("choose the number of the workout you want to check: ")
     user_choice = int(user_choice) - 1
-    name = model_choices[user_choice]
+    if user_choice < len(model_choices):
+        name = model_choices[user_choice]
+    else:
+        name = input("Enter name of new workout: ")
     name = name.replace(" ","_")
     return name
 
@@ -715,13 +725,13 @@ if __name__ == "__main__":
             print(f"New workout added\n")
 
         elif choice == "2":
-            name = get_user_input()
+            name = get_user_input(allow_create=True)
             print(f"Workout chosen: {name}")
             name = name.replace(" ","_")
             computeData(name)
             
         elif choice == "3":
-            name = get_user_input()
+            name = get_user_input(allow_create=True)
             print(f"Workout chosen: {name}")
             name = name.replace(" ","_")
             trained_model = open_and_train(name)
