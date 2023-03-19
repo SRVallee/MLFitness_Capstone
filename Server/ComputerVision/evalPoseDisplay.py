@@ -286,11 +286,14 @@ def capture_feed(path, frame_rep_list):
             #print(world_unmod_lmlist[24][1], world_unmod_lmlist[24][2], world_unmod_lmlist[12][3])
             mathutility.HighVis(lmList)
             for i in range(len(lmList)):
+                #shoulder right
                 if lmList[i][0] == 12:
                     x1 = int(lmList[i][1])
                     y1 = int(lmList[i][2])
                     visibilty = int(lmList[i][4])
                     pt1 = (x1,y1)
+                    
+                #hip right
                 elif lmList[i][0] == 24:
                     x2 = int(lmList[i][1])
                     y2 = int(lmList[i][2])
@@ -309,9 +312,17 @@ def capture_feed(path, frame_rep_list):
             #print(f"slope: {slope}, y_inter: {y_inter}, x1: {x1}, y1: {y1}, x2: {x2}, y2: {y2}")
             
             
-            #also for case for completely vertical
+            #also for case for completely vertical 
+            perp_y_inter = 0 
+            #this is for when the slope tries to flip to a negative number causing the perp lines to be on the chest
             if slope != 0:
-                perp_slope = (-1)/slope
+                if slope > 0:
+                    perp_slope = (-1)/slope
+                    cv2.putText(annotated_img, f"perp slope(-1/slope >0): {perp_slope}", (70, 100), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+                else:
+                    perp_slope = (-1)/slope
+                    cv2.putText(annotated_img, f"perp slope(-1/slope): {perp_slope}", (70, 100), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+            
             perp_y_inter = int(y1-(perp_slope*x1)) 
             #shoulder
             cv2.line(annotated_img,pt1,(0,perp_y_inter),(0,128,0),6)
