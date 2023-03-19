@@ -123,10 +123,6 @@ def getAverageAndStdvOfList(list):
 
     return averages, stdvs
 
-def removeOutliers(dataframe):
-    # we only want to remove outliers for the good reps
-    return
-
 # REP COMPUTATION
 def getKeyFramesFromVideo(video):
     cap = cv2.VideoCapture(video)
@@ -575,7 +571,8 @@ def computeData(modelName):
             args = (path, filename, modelName)
             items.append(args)
         print(f"items(path, filename, modelName): {len(items)}")
-        with mproc.Pool() as pool:
+        numProcessors = mproc.cpu_count()-1 # one less than max so server has one open core
+        with mproc.Pool(processes=numProcessors) as pool:
             results = pool.map(process_divider, items)
             print(f"results: {len(results)}")
             for all_items in results:

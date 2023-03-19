@@ -12,7 +12,8 @@ ComputerVision/binomialFitting/__pycache__/__init__.cpython-39.pyc
 Server/ComputerVision/binomialFitting/__pycache__/KeyframeExtraction.cpython-39.pyc
 Server/ComputerVision/binomialFitting/__pycache__/PoseUtilities.cpython-39.pyc
 Server/ComputerVision/dataframes/*.csv
-Server/ComputerVision/ML_Trained_Models/
+Server/ComputerVision/machineLearning/ML_Trained_Models/
+Server/ComputerVision/machineLearning/scalers/
 
 
 # User-specific files
