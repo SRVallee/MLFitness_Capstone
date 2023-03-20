@@ -374,7 +374,7 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     
     new_df = np.array(df)
     y_pred_list =[]
-    
+    acutal_frame_num = []
     #scaler
     if USE_SCALER:
         scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
