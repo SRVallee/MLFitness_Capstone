@@ -244,7 +244,7 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True
     X_train, X_test, y_train, y_test = train_test_split(df, labels, test_size=0.2, random_state=0)
     
     print(f"Shape of training set before outlier removal:{X_train.shape}")
-    
+    print(f"this is X_train before: {X_train.to_numpy()}")
     X_train.reset_index(drop=True, inplace=True)
     X_test.reset_index(drop=True, inplace=True)
     
@@ -278,7 +278,7 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True
         y_train = new_y_train
 
     print(f"Shape of training set after outlier removal:{X_train.shape}")
-    
+    print(f"this is X_train after: {X_train}")
     #tf.random.set_seed(42)
 
     # Set model
