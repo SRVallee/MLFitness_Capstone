@@ -2,10 +2,13 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import LocalOutlierFactor
 from keras.preprocessing.text import Tokenizer
 from keras.utils.vis_utils import plot_model
+import keras.optimizers
+import keras_tuner as kt
 from pathlib import Path
 from keras_visualizer import visualizer
 import os
@@ -220,15 +223,15 @@ def autoRemoveOutliers(x_train, y_train):
     return new_x_train, new_y_train
 
 #
-def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=True):
+def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True):
     
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
     #print(f"COLS at index 13: {COLS[13]}, COLS at index {13+16}: {COLS[13+16]}COLS at index {13+32}: {COLS[13+32]}")
 
-    shape = df.shape
-    print(f"this is the shape: {shape}")
-    features_amnt = shape[1]
+    df_shape = df.shape
+    print(f"this is the shape: {df_shape}")
+    features_amnt = df_shape[1]
     print(f"features_amnt: {features_amnt}")
     input_list = []
     for repper in range(3):
@@ -244,7 +247,16 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
     #     new_df.append(rep_imp_angles)
     #new_df is inclusion of specific points df is for the whole thing
     X_train, X_test, y_train, y_test = train_test_split(df, labels, test_size=0.2, random_state=0)
-    
+    #this will be for the stratified k fold to check the percentage of changes of each feature
+    #this checks how it will react to a independent data set aka a non learned data set
+    skf = StratifiedKFold(n_splits=2)
+    skf.get_n_splits(df,labels)
+    print(skf)
+    StratifiedKFold(n_splits=2,random_state=None, shuffle=False)
+    for i, (train_index,test_index) in enumerate(skf.split(df,labels)):
+        print(f"Fold {i}")
+        print(f"    Train: index={train_index}")
+        print(f"    Test: index={test_index}")
     if DEBUG:
         indecies = pd.Series(range(X_train.shape[0], X_test.shape[0] + X_train.shape[0], 1))
         X_test_newindex = X_test.set_index(indecies)
@@ -306,28 +318,34 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
     #tf.random.set_seed(42)
 
     # Set model
-    model = tf.keras.Sequential([
-        #tf.keras.Input(shape=(None,features_amnt)),
-        tf.keras.layers.Dense(48, activation='relu'),
-        tf.keras.layers.Dense(48, activation='relu'),
-        tf.keras.layers.Dense(1, activation='sigmoid')
-    ])
-    model.compile(
-        optimizer='adam',
-        loss=tf.keras.losses.binary_crossentropy,
-        metrics=['accuracy',tf.keras.metrics.Precision(), 
-                  tf.keras.metrics.TruePositives(),
-                  tf.keras.metrics.FalsePositives(),
-                  tf.keras.metrics.FalseNegatives()]
-    )
     
-    model.fit(x=X_train_np, y=y_train_np, epochs = rounds)
-    print(model.summary())
-    #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
     vidsDir = str(os.path.dirname(__file__))
     model_path = str(vidsDir) + "\\ML_Trained_Models\\"+ str(modelName)+"_trained"
+    #this is the objective of the tuner which ours is accuracy also calles to make hypermodel
+    tuner = kt.Hyperband(model_builder, objective='val_accuracy',max_epochs=100,factor=3)
+    #this stops it early if an optimal epoch has been found instead of running through it all
+    stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience= 5)
+    tuner.search(X_train_np,y_train_np, epochs=100,validation_split = 0.2, callbacks=[stop_early])
+    #get optimal hyper parameters
+    best_hps= tuner.get_best_hyperparameters(num_trials=1)[0]
+    
+    print(f"""
+    The hyperparameter search is complete. The optimal number of units in the first densely-connected
+    layer is {best_hps.get('units')} and the optimal learning rate for the optimizer
+    is {best_hps.get('learning_rate')}.
+    """)
+    #building model to find best epoch
+    model = tuner.hypermodel.build(best_hps)
+    history = model.fit(x=X_train_np, y=y_train_np, epochs = rounds,validation_split=0.2)
+    print(model.summary())
+    val_acc_per_epoch = history.history['val_accuracy']
+    best_epoch = val_acc_per_epoch.index(max(val_acc_per_epoch)) + 1
+    print('Best epoch: %d' % (best_epoch,))
+    #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
+    hypermodel = tuner.hypermodel.build(best_hps)
+    hypermodel.fit(x=X_train_np, y=y_train_np, epochs = best_epoch,validation_split=0.2)
     print(model_path)
-    model.save(model_path)
+    hypermodel.save(model_path)
     current_vids = str(os.path.dirname(__file__))
     
     # dump scaler
@@ -335,8 +353,30 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
         scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
         pickle.dump(scaler, open(scaler_path, 'wb'))
     
-    return model, X_test_np, y_test_np
+    return hypermodel, X_test_np, y_test_np
 
+
+def model_builder(hp):
+    #this is to test the hyper parameters to see which parameters are best for it to learn
+    hp_units = hp.Int(name='units', min_value=30, max_value=512, step=32)
+    model = tf.keras.Sequential([
+        #tf.keras.Input(shape=(None,None,df_shape[1])),
+        tf.keras.layers.Dense(units=hp_units, activation='relu'),
+        tf.keras.layers.Dense(48, activation='relu'),
+        tf.keras.layers.Dense(1, activation='sigmoid')
+    ])
+    #this changes the learning rate so that it doesn't overfit
+    hp_Learning_rate = hp.Choice('learning_rate', values=[0.01,0.001,0.0001])
+    model.compile(
+        #adam learning rate is 0.001
+        optimizer=tf.keras.optimizers.Adam(learning_rate=hp_Learning_rate),
+        loss=tf.keras.losses.binary_crossentropy,
+        metrics=['accuracy',tf.keras.metrics.Precision(), 
+                  tf.keras.metrics.TruePositives(),
+                  tf.keras.metrics.FalsePositives(),
+                  tf.keras.metrics.FalseNegatives()]
+    )
+    return model
 #
 def do_ml(df, importantAngles,modelName):
     

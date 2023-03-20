@@ -130,7 +130,7 @@ Activation: relu" color=white fontcolor=black fontsize=18 shape=rectangle]
 	subgraph cluster_1 {
 		color=white
 		rank=same
-		101010 [label="Units: 48 (+38 more)
+		101010 [label="Units: 100 (+90 more)
 Activation: relu" color=white fontcolor=black fontsize=18 shape=rectangle]
 		11 [color="#3498db" fontcolor="#3498db" shape=circle style=filled]
 		12 [color="#3498db" fontcolor="#3498db" shape=circle style=filled]
