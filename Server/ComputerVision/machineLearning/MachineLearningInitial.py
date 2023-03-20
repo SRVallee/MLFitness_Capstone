@@ -28,6 +28,8 @@ import pickle
 # use scaler or not
 USE_SCALER = False
 
+DEBUG = True
+
 COLS = [
         #up postion
         'headLR1', 'headFB1',#[0,1]
@@ -243,6 +245,17 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True
     #new_df is inclusion of specific points df is for the whole thing
     X_train, X_test, y_train, y_test = train_test_split(df, labels, test_size=0.2, random_state=0)
     
+    if DEBUG:
+        indecies = pd.Series(range(X_train.shape[0], X_test.shape[0] + X_train.shape[0], 1))
+        X_test_newindex = X_test.set_index(indecies)
+        merged_df = pd.concat([X_train, X_test_newindex])
+        
+        currFile = os.path.dirname(__file__)
+        parent = os.path.dirname(currFile)
+        
+        filename = str(parent) + "\\dataframes\\" + modelName + "_tt.csv"
+        merged_df.to_csv(filename, index=False)
+    
     print(f"Shape of training set before outlier removal:{X_train.shape}")
     
     X_train.reset_index(drop=True, inplace=True)
@@ -265,19 +278,30 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True
         y_train = new_y_train
     
     # Convert datasets to numpy
-    X_train = X_train.to_numpy()
-    y_train = np.array(y_train)
-    X_test  = X_test.to_numpy()
-    y_test  = np.array(y_test)
+    X_train_np = X_train.to_numpy()
+    y_train_np = np.array(y_train)
+    X_test_np  = X_test.to_numpy()
+    y_test_np  = np.array(y_test)
     
     # auto, soft outlier removal
     if not outlierAggresive:
-        new_x_train, new_y_train = autoRemoveOutliers(X_train, y_train)
+        new_x_train, new_y_train = autoRemoveOutliers(X_train_np, y_train_np)
         # for debugging, can just assign directly instead
-        X_train = new_x_train
-        y_train = new_y_train
+        X_train_np = new_x_train
+        y_train_np = new_y_train
 
-    print(f"Shape of training set after outlier removal:{X_train.shape}")
+    print(f"Shape of training set after outlier removal:{X_train_np.shape}")
+    
+    if DEBUG:
+        indecies = pd.Series(range(X_train.shape[0], X_test.shape[0] + X_train.shape[0], 1))
+        X_test_newindex = X_test.set_index(indecies)
+        merged_df = pd.concat([X_train, X_test_newindex])
+        
+        currFile = os.path.dirname(__file__)
+        parent = os.path.dirname(currFile)
+        
+        filename = str(parent) + "\\dataframes\\" + modelName + "_tt_Rem.csv"
+        merged_df.to_csv(filename, index=False)
     
     #tf.random.set_seed(42)
 
@@ -297,7 +321,7 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True
                   tf.keras.metrics.FalseNegatives()]
     )
     
-    model.fit(x=X_train, y=y_train, epochs = rounds)
+    model.fit(x=X_train_np, y=y_train_np, epochs = rounds)
     print(model.summary())
     #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
     vidsDir = str(os.path.dirname(__file__))
@@ -311,7 +335,7 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True
         scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
         pickle.dump(scaler, open(scaler_path, 'wb'))
     
-    return model, X_test, y_test
+    return model, X_test_np, y_test_np
 
 #
 def do_ml(df, importantAngles,modelName):
