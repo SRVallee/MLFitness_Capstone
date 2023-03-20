@@ -172,10 +172,15 @@ def removeOutliers(df, y_df=None, minStdDev=0.2, thresholdMult=1.5, multipleOut=
                     boolArr[j][i] = False
                 else:
                     # dump row with outlier
-                    dataframe = dataframe.drop(j)
+                    good = True
+                    if y_dataframe and y_dataframe[j] == 1:
+                        del y_dataframe[j]
+                    else:
+                        good = False
+                        
+                    if good:
+                        dataframe = dataframe.drop(j)
                     dataframe.reset_index(drop=True, inplace=True)
-                    if y_dataframe:
-                        del y_dataframe[i]
     
     # if data should require multiple outliers in one row
     if multipleOut:
@@ -220,7 +225,7 @@ def autoRemoveOutliers(x_train, y_train):
     return new_x_train, new_y_train
 
 #
-def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=True):
+def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
     
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
@@ -268,14 +273,14 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
         X_test = scaler.transform(X_test)
         
     # manual, aggressive outlier removal
-    if outlierAggresive:
+    if outlierRem == 2:
         new_x_train, new_y_train = removeOutliers(X_train, y_train, 
-                                                  thresholdMult=2, 
-                                                  multipleOut=True, 
+                                                  thresholdMult=1.5, 
+                                                  multipleOut=False, 
                                                   multiOutThreshold=3)
         # for debugging, can just assign directly instead
-        # X_train = new_x_train
-        # y_train = new_y_train
+        X_train = new_x_train
+        y_train = new_y_train
     
     # Convert datasets to numpy
     X_train_np = X_train.to_numpy()
@@ -286,7 +291,7 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
     y_test_np  = np.array(y_test)
     
     # auto, soft outlier removal
-    if not outlierAggresive:
+    if not outlierRem == 1:
         new_x_train, new_y_train = autoRemoveOutliers(X_train_np, y_train_np)
         # for debugging, can just assign directly instead
         X_train_np = new_x_train
@@ -344,7 +349,7 @@ def do_ml(df, importantAngles,modelName):
     
     # print(f"df.head: {df.head}")
     
-    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierAggresive=True)
+    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierRem=0)
     
     test_loss, test_acc, test_prec, true_pos, true_neg, false_neg = model.evaluate(x_test, y_test)
     print("MODEL ACCURACY: ", test_acc)#accuracy = how often the model predicted correctly
