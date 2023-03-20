@@ -220,7 +220,7 @@ def autoRemoveOutliers(x_train, y_train):
     return new_x_train, new_y_train
 
 #
-def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True):
+def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=True):
     
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
@@ -257,7 +257,7 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True
         merged_df.to_csv(filename, index=False)
     
     print(f"Shape of training set before outlier removal:{X_train.shape}")
-    
+    print(f"this is X_train before: {X_train.to_numpy()}")
     X_train.reset_index(drop=True, inplace=True)
     X_test.reset_index(drop=True, inplace=True)
     
@@ -305,7 +305,7 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierAggresive=True
         
         filename = str(parent) + "\\dataframes\\" + modelName + "_tt_Rem.csv"
         merged_df.to_csv(filename, index=False)
-    
+    print(f"this is X_train after: {X_train}")
     #tf.random.set_seed(42)
 
     # Set model
