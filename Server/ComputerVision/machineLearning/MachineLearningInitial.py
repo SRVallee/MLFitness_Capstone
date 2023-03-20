@@ -398,7 +398,7 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     
     new_df = np.array(df)
     y_pred_list =[]
-    
+    acutal_frame_num = []
     #scaler
     if USE_SCALER:
         scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
@@ -409,7 +409,7 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     print(trained_model.summary())
     vidsDir = str(os.path.dirname(__file__))
     print(vidsDir)
-    tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir) + str(modelName)+"_diagram.png",show_shapes=True)
+    tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir)+"\\" + str(modelName)+"_diagram.png",show_shapes=True)
     visualizer(trained_model, filename= str(vidsDir) + str(modelName)+"_neural_network.png", view= False)
     y_pred = trained_model.predict(x = new_df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
