@@ -26,8 +26,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -65,6 +67,14 @@ public class TraineeUpload extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+    Button recordButton;
+    Button storageButton;
+    Button uploadButton;
+
+    TextView uploadingText;
+    ProgressBar uploadIcon;
+
+    Uri videoURI;
 
 
     VideoView videoPreviewer;
@@ -128,6 +138,15 @@ public class TraineeUpload extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        storageButton = findViewById(R.id.selectButton); //why
+        recordButton = findViewById(R.id.recordButton);
+        uploadButton = findViewById(R.id.upload_video_button);
+
+        uploadingText = findViewById(R.id.uploading_video_text);
+        uploadIcon = findViewById(R.id.progressBar);
+
+        setUploadingIcon(false);
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -179,16 +198,18 @@ public class TraineeUpload extends AppCompatActivity {
                     }
                     case R.id.friends: {
                         //Go to friends
-                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        Intent i = new Intent(getApplicationContext(), FriendsPage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
                         break;
                     }
                     case R.id.profile: {
-                        //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        //Go to profile
+                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.logout: {
@@ -359,7 +380,9 @@ public class TraineeUpload extends AppCompatActivity {
         startActivityForResult(intent, 5);
     }
 
-    Uri videoURI;
+
+
+
 
     // startActivityForResult is used to receive the result, which is the selected video.
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -368,11 +391,7 @@ public class TraineeUpload extends AppCompatActivity {
             videoURI = data.getData();
             //progressDialog.setTitle("Uploading...");
             //progressDialog.show();
-            try {
-                uploadVideo();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
             String video = String.valueOf(videoURI);
             Log.d("video",""+videoURI);
             videoPreviewer.setMediaController(new MediaController(this));
@@ -391,6 +410,7 @@ public class TraineeUpload extends AppCompatActivity {
 
     private void uploadVideo() throws IOException {
         if (videoURI != null) {
+            setUploadingIcon(true);
             InputStream inputStream = getContentResolver().openInputStream(videoURI);
             byte[] bytes = getBytes(inputStream);
             RequestBody requestBody = RequestBody.create(bytes, MediaType.parse(getContentResolver().getType(videoURI)));
@@ -410,6 +430,7 @@ public class TraineeUpload extends AppCompatActivity {
                     Log.d("Video upload: ", response.toString());
                     String messageResponse = response.body().toString();
                     if (messageResponse.equals("success")) {
+                        setUploadingIcon(false);
 
                         Log.d("Video Upload:", messageResponse);
                         Toast toast = Toast.makeText(getApplicationContext(), "Video Uploaded!", Toast.LENGTH_SHORT);
@@ -417,6 +438,7 @@ public class TraineeUpload extends AppCompatActivity {
                     }
                     else{
                         Log.d("Video Upload:", messageResponse);
+                        setUploadingIcon(false);
                         Toast toast = Toast.makeText(getApplicationContext(), messageResponse, Toast.LENGTH_SHORT);
                         toast.show();
                     }
@@ -424,19 +446,26 @@ public class TraineeUpload extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<String> call, Throwable t) {
-                    Log.d("Video Upload:", t.getLocalizedMessage());                }
+                    setUploadingIcon(false);
+                    Log.d("Video Upload:", t.getLocalizedMessage());
+                    Toast toast = Toast.makeText(getApplicationContext(), "CONNECTION ERROR", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
             });
         }
     }
 
     /***
      * This function is to handle if the back button is selected.
-     * - First, if the drawer is open it will close it.
-     * - Second, if the drawer is closed, closes the activity and goes to the home page.
+     * - First, if a video is being uploaded it will ignore it.
+     * - Then, if the drawer is open it will close it.
+     * - Else if the drawer is closed, closes the activity and goes to the home page.
      * ***/
     @Override
     public void onBackPressed() {
-
+        if(uploadingText.getVisibility() == View.VISIBLE){
+            return;
+        }
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
@@ -446,6 +475,44 @@ public class TraineeUpload extends AppCompatActivity {
             startActivity(i);
             finish();
             super.onBackPressed();
+        }
+    }
+
+    /**
+     * This function is to handle the user request of uploading a video
+     * @param view the button
+     * @throws IOException if something goes wrong
+     */
+    public void onUploadPressed(View view) throws IOException {
+        if (videoURI != null) {
+            uploadVideo();
+        }else{
+            Toast toast = Toast.makeText(getApplicationContext(), "No Video Selected", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
+    /**
+     * Should be called When a video starts being uploaded or finishes.
+     * @param show boolean for showing (true) or stop showing (false) the upload icon
+     */
+    private void setUploadingIcon(Boolean show){
+        if (show){
+            navigationView.setClickable(false);
+            storageButton.setClickable(false);
+            recordButton.setClickable(false);
+            uploadButton.setClickable(false);
+
+            uploadingText.setVisibility(View.VISIBLE);
+            uploadIcon.setVisibility(View.VISIBLE);
+        }else{
+            navigationView.setClickable(true);
+            storageButton.setClickable(true);
+            recordButton.setClickable(true);
+            uploadButton.setClickable(true);
+
+            uploadingText.setVisibility(View.GONE);
+            uploadIcon.setVisibility(View.GONE);
         }
     }
 
