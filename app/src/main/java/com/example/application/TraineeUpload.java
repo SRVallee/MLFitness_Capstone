@@ -32,14 +32,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class TraineeUpload extends AppCompatActivity {
 
@@ -349,7 +368,11 @@ public class TraineeUpload extends AppCompatActivity {
             videoURI = data.getData();
             //progressDialog.setTitle("Uploading...");
             //progressDialog.show();
-            uploadVideo();
+            try {
+                uploadVideo();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             String video = String.valueOf(videoURI);
             Log.d("video",""+videoURI);
             videoPreviewer.setMediaController(new MediaController(this));
@@ -366,9 +389,43 @@ public class TraineeUpload extends AppCompatActivity {
         return mimeTypeMap.getExtensionFromMimeType(r.getType(videoURI));
     }
 
-    private void uploadVideo() {
+    private void uploadVideo() throws IOException {
         if (videoURI != null) {
-            // save the selected video
+            InputStream inputStream = getContentResolver().openInputStream(videoURI);
+            byte[] bytes = getBytes(inputStream);
+            RequestBody requestBody = RequestBody.create(bytes, MediaType.parse(getContentResolver().getType(videoURI)));
+            OkHttpClient client = new OkHttpClient.Builder().build();
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("http://162.246.157.128/MLFitness/")
+                    .client(client)
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .build();
+            ApiService apiService = retrofit.create(ApiService.class);
+            int trainerId = 0; //TODO set to trainer the video belongs to.
+            Call<String> call = apiService.uploadVideo(requestBody, String.valueOf(SocketFunctions.user.getId()), SocketFunctions.apiKey, String.valueOf(trainerId));
+            call.enqueue(new Callback<String>() {
+
+                @Override
+                public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+                    Log.d("Video upload: ", response.toString());
+                    String messageResponse = response.body().toString();
+                    if (messageResponse.equals("success")) {
+
+                        Log.d("Video Upload:", messageResponse);
+                        Toast toast = Toast.makeText(getApplicationContext(), "Video Uploaded!", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                    else{
+                        Log.d("Video Upload:", messageResponse);
+                        Toast toast = Toast.makeText(getApplicationContext(), messageResponse, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.d("Video Upload:", t.getLocalizedMessage());                }
+            });
         }
     }
 
@@ -390,5 +447,24 @@ public class TraineeUpload extends AppCompatActivity {
             finish();
             super.onBackPressed();
         }
+    }
+
+    /**
+     * This method reads the bytes from the InputStream and writes them to a ByteArrayOutputStream,
+     * which is then converted to a byte array and returned.
+     * @param inputStream
+     * @return byte array
+     * @throws IOException
+     */
+    private byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
     }
 }
