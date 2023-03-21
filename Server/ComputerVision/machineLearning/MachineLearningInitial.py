@@ -172,10 +172,15 @@ def removeOutliers(df, y_df=None, minStdDev=0.2, thresholdMult=1.5, multipleOut=
                     boolArr[j][i] = False
                 else:
                     # dump row with outlier
-                    dataframe = dataframe.drop(j)
+                    good = True
+                    if y_dataframe and y_dataframe[j] == 1:
+                        del y_dataframe[j]
+                    else:
+                        good = False
+                        
+                    if good:
+                        dataframe = dataframe.drop(j)
                     dataframe.reset_index(drop=True, inplace=True)
-                    if y_dataframe:
-                        del y_dataframe[i]
     
     # if data should require multiple outliers in one row
     if multipleOut:
@@ -220,7 +225,7 @@ def autoRemoveOutliers(x_train, y_train):
     return new_x_train, new_y_train
 
 #
-def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=True):
+def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
     
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
@@ -267,28 +272,31 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
         
-    # # manual, aggressive outlier removal
-    # if outlierAggresive:
-    #     new_x_train, new_y_train = removeOutliers(X_train, y_train, 
-    #                                               thresholdMult=2, 
-    #                                               multipleOut=True, 
-    #                                               multiOutThreshold=3)
-    #     # for debugging, can just assign directly instead
-    #     X_train = new_x_train
-    #     y_train = new_y_train
+    # manual, aggressive outlier removal
+    if outlierRem == 2:
+        new_x_train, new_y_train = removeOutliers(X_train, y_train, 
+                                                  thresholdMult=1.5, 
+                                                  multipleOut=False, 
+                                                  multiOutThreshold=3)
+        # for debugging, can just assign directly instead
+        X_train = new_x_train
+        y_train = new_y_train
     
     # Convert datasets to numpy
     X_train_np = X_train.to_numpy()
+    # X_train_np = np.array(X_train)
     y_train_np = np.array(y_train)
     X_test_np  = X_test.to_numpy()
+    # X_test_np  = np.array(X_test)
     y_test_np  = np.array(y_test)
     
-    # # auto, soft outlier removal
-    # if not outlierAggresive:
-    #     new_x_train, new_y_train = autoRemoveOutliers(X_train_np, y_train_np)
-    #     # for debugging, can just assign directly instead
-    #     X_train_np = new_x_train
-    #     y_train_np = new_y_train
+    # auto, soft outlier removal
+    if not outlierRem == 1:
+        new_x_train, new_y_train = autoRemoveOutliers(X_train_np, y_train_np)
+        # for debugging, can just assign directly instead
+        X_train_np = new_x_train
+        y_train_np = new_y_train
+        
 
     print(f"Shape of training set after outlier removal:{X_train_np.shape}")
     
@@ -324,15 +332,14 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
     model.fit(x=X_train_np, y=y_train_np, epochs = rounds)
     print(model.summary())
     #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
-    vidsDir = str(os.path.dirname(__file__))
-    model_path = str(vidsDir) + "\\ML_Trained_Models\\"+ str(modelName)+"_trained"
+    currDir = str(os.path.dirname(__file__))
+    model_path = str(currDir) + "\\ML_Trained_Models\\"+ str(modelName)+"_trained"
     print(model_path)
     model.save(model_path)
-    current_vids = str(os.path.dirname(__file__))
     
     # dump scaler
     if USE_SCALER:
-        scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
+        scaler_path = str(currDir) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
         pickle.dump(scaler, open(scaler_path, 'wb'))
     
     return model, X_test_np, y_test_np
@@ -342,7 +349,7 @@ def do_ml(df, importantAngles,modelName):
     
     # print(f"df.head: {df.head}")
     
-    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierAggresive=True)
+    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierRem=0)
     
     test_loss, test_acc, test_prec, true_pos, true_neg, false_neg = model.evaluate(x_test, y_test)
     print("MODEL ACCURACY: ", test_acc)#accuracy = how often the model predicted correctly
@@ -394,23 +401,23 @@ def do_ml(df, importantAngles,modelName):
 def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     #print(f"\nthe is the dataframe going into eval {df}. \n\nlength is {len(df)}")
     print(f"len of df: {len(df)}")
-    current_vids = str(os.path.dirname(__file__))
+    currDir = str(os.path.dirname(__file__))
     
     new_df = np.array(df)
     y_pred_list =[]
     acutal_frame_num = []
     #scaler
     if USE_SCALER:
-        scaler_path = str(current_vids) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
+        scaler_path = str(currDir) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
         acutal_frame_num = [] # this was for the scalar but scalar causes the points to be inaccurrate
         scaler = pickle.load(open(scaler_path,'rb'))
         new_df = scaler.transform(new_df)
     
     print(trained_model.summary())
-    vidsDir = str(os.path.dirname(__file__))
-    print(vidsDir)
-    tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir)+"\\" + str(modelName)+"_diagram.png",show_shapes=True)
-    visualizer(trained_model, filename= str(vidsDir) + str(modelName)+"_neural_network.png", view= False)
+    print(currDir)
+    # TODO: uncomment \/
+    # tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir)+"\\" + str(modelName)+"_diagram.png",show_shapes=True)
+    visualizer(trained_model, filename= str(currDir) + str(modelName)+"_neural_network.png", view= False)
     y_pred = trained_model.predict(x = new_df)
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
     print(f"this is the actual frame numbers [up, down, up, degree]: {reps}")
