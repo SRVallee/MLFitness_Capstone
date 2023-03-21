@@ -263,8 +263,9 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
     
     print(f"Shape of training set before outlier removal:{X_train.shape}")
     print(f"this is X_train before: {X_train.to_numpy()}")
-    X_train.reset_index(drop=True, inplace=True)
-    X_test.reset_index(drop=True, inplace=True)
+    #reset index drops accuracy by 20% aand increases the models inaccuracy by 40%
+    # X_train.reset_index(drop=True, inplace=True)
+    # X_test.reset_index(drop=True, inplace=True)
     
     # Scale data
     scaler = StandardScaler()
@@ -273,14 +274,14 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
         X_test = scaler.transform(X_test)
         
     # manual, aggressive outlier removal
-    if outlierRem == 2:
-        new_x_train, new_y_train = removeOutliers(X_train, y_train, 
-                                                  thresholdMult=1.5, 
-                                                  multipleOut=False, 
-                                                  multiOutThreshold=3)
-        # for debugging, can just assign directly instead
-        X_train = new_x_train
-        y_train = new_y_train
+    # if outlierRem == 2:
+    #     new_x_train, new_y_train = removeOutliers(X_train, y_train, 
+    #                                               thresholdMult=1.5, 
+    #                                               multipleOut=False, 
+    #                                               multiOutThreshold=3)
+    #     # for debugging, can just assign directly instead
+    #     X_train = new_x_train
+    #     y_train = new_y_train
     
     # Convert datasets to numpy
     X_train_np = X_train.to_numpy()
@@ -290,12 +291,12 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
     # X_test_np  = np.array(X_test)
     y_test_np  = np.array(y_test)
     
-    # auto, soft outlier removal
-    if not outlierRem == 1:
-        new_x_train, new_y_train = autoRemoveOutliers(X_train_np, y_train_np)
-        # for debugging, can just assign directly instead
-        X_train_np = new_x_train
-        y_train_np = new_y_train
+    # # auto, soft outlier removal
+    # if not outlierRem == 1:
+    #     new_x_train, new_y_train = autoRemoveOutliers(X_train_np, y_train_np)
+    #     # for debugging, can just assign directly instead
+    #     X_train_np = new_x_train
+    #     y_train_np = new_y_train
         
 
     print(f"Shape of training set after outlier removal:{X_train_np.shape}")
@@ -404,6 +405,7 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     currDir = str(os.path.dirname(__file__))
     
     new_df = np.array(df)
+    print(new_df)
     y_pred_list =[]
     acutal_frame_num = []
     #scaler
