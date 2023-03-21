@@ -267,15 +267,15 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
         
-    # manual, aggressive outlier removal
-    if outlierAggresive:
-        new_x_train, new_y_train = removeOutliers(X_train, y_train, 
-                                                  thresholdMult=2, 
-                                                  multipleOut=True, 
-                                                  multiOutThreshold=3)
-        # for debugging, can just assign directly instead
-        X_train = new_x_train
-        y_train = new_y_train
+    # # manual, aggressive outlier removal
+    # if outlierAggresive:
+    #     new_x_train, new_y_train = removeOutliers(X_train, y_train, 
+    #                                               thresholdMult=2, 
+    #                                               multipleOut=True, 
+    #                                               multiOutThreshold=3)
+    #     # for debugging, can just assign directly instead
+    #     X_train = new_x_train
+    #     y_train = new_y_train
     
     # Convert datasets to numpy
     X_train_np = X_train.to_numpy()
@@ -283,12 +283,12 @@ def train_model(df, importantAngles, modelName, rounds=200, outlierAggresive=Tru
     X_test_np  = X_test.to_numpy()
     y_test_np  = np.array(y_test)
     
-    # auto, soft outlier removal
-    if not outlierAggresive:
-        new_x_train, new_y_train = autoRemoveOutliers(X_train_np, y_train_np)
-        # for debugging, can just assign directly instead
-        X_train_np = new_x_train
-        y_train_np = new_y_train
+    # # auto, soft outlier removal
+    # if not outlierAggresive:
+    #     new_x_train, new_y_train = autoRemoveOutliers(X_train_np, y_train_np)
+    #     # for debugging, can just assign directly instead
+    #     X_train_np = new_x_train
+    #     y_train_np = new_y_train
 
     print(f"Shape of training set after outlier removal:{X_train_np.shape}")
     
