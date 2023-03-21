@@ -12,17 +12,21 @@ if(mysqli_num_rows($res) != 0){
     $row = mysqli_fetch_assoc($res);
     if(!empty($_POST['old_password'])){
         if(password_verify($_POST['old_password'], $row["password"])){
-	    $newPassword = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
+            if($_POST['new_password']){
+	        $newPassword = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
             $sql = "UPDATE user SET username = '".$username."', name = '".$name."', email = '".$email."', password = '".$newPassword."' WHERE user_id = '".$id."';";
             $res = mysqli_query($conn, $sql); 
             echo "success";
+            }else{
+                $sql = "UPDATE user SET username = '".$username."', name = '".$name."', email = '".$email."' WHERE user_id = '".$id."';";
+                $res = mysqli_query($conn, $sql); 
+                echo "success";
+            }
         }else{
             echo "Wrong Password";
         }
     }else{
-        $sql = "UPDATE user SET username = '".$username."', name = '".$name."', email = '".$email."' WHERE user_id = '".$id."';";
-	$res = mysqli_query($conn, $sql); 
-	echo "success";
+	    echo "No Password";
     }
 }else{
     echo "An Error Ocurred";

@@ -411,3 +411,13 @@ Server/ComputerVision/binomialFitting/__pycache__/KeyframeExtraction.cpython-39.
 Server/ComputerVision/binomialFitting/__pycache__/PoseUtilities.cpython-39.pyc
 #Server/ComputerVision/dataframes/*
 Server/ComputerVision/ML_Trained_Models/*
+Client/.gradle/vcs-1/gc.properties
+Client/.gradle/buildOutputCleanup/cache.properties
+Client/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+Client/.gradle/7.4/fileHashes/fileHashes.lock
+Client/.gradle/7.4/fileChanges/last-build.bin
+Client/.gradle/7.4/executionHistory/executionHistory.lock
+Client/.gradle/7.4/dependencies-accessors/gc.properties
+Client/.gradle/7.4/dependencies-accessors/dependencies-accessors.lock
+Client/.gradle/7.4/checksums/checksums.lock
+Client/.gradle/7.4/gc.properties
