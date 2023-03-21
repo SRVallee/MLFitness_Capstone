@@ -156,16 +156,26 @@ public class TraineeEditProfile extends AppCompatActivity {
         passwordOld = editPasswordOld.getText().toString();
         passwordOne = editPasswordOne.getText().toString();
         passwordTwo = editPasswordTwo.getText().toString();
-        if(!passwordOld.isEmpty()){
+
+        if(passwordOld.isEmpty()){
+            alertDialog.setTitle("No Password entered");
+            alertDialog.setMessage("Current password is required to update your profile");
+            alertDialog.show();
+            return;
+        }
+
+        if(!passwordOne.isEmpty() || !passwordTwo.isEmpty()){
 
             if(passwordOne.isEmpty() || passwordTwo.isEmpty()){
                 alertDialog.setTitle("Missing Fields");
                 alertDialog.setMessage("You must fill both boxes to change password");
                 alertDialog.show();
+                return;
             }else if(!passwordOne.equals(passwordTwo)){
                 alertDialog.setTitle("Passwords do not match");
                 alertDialog.setMessage("Password reentered must match the previous");
                 alertDialog.show();
+                return;
             }
         }
 
