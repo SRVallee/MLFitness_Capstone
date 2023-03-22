@@ -406,7 +406,6 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     
     new_df = np.array(df)
     print(new_df)
-    y_pred_list =[]
     acutal_frame_num = []
     #scaler
     if USE_SCALER:
@@ -421,11 +420,12 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     # tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir)+"\\" + str(modelName)+"_diagram.png",show_shapes=True)
     visualizer(trained_model, filename= str(currDir) + str(modelName)+"_neural_network.png", view= False)
     y_pred = trained_model.predict(x = new_df)
+    y_pred = y_pred.tolist()
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
     print(f"this is the actual frame numbers [up, down, up, degree]: {reps}")
     # for confidence in range(reps):
     #     y_pred_list.append(confidence[1])
-    return reps, acutal_frame_num
+    return reps, acutal_frame_num, y_pred
 
 #correct testing vids reps
 #squatorfiangle.mp4 = 5 reps

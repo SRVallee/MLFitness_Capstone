@@ -659,9 +659,9 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     reps, modelName, importantAngles, exclude_angles = getReps(extracted, allAngles, workout=modelName)
     df = mli.dataframeforeval(reps, keyAngs, exclude_angles)
     print(f"amount of reps: {reps}")
-    rep_list, frame_rep_list= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
+    rep_list, frame_rep_list, y_pred= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
     print(f"rep_list: {rep_list}\n\n frame_rep_list: {frame_rep_list}")
-    return rep_list, extracted
+    return rep_list, extracted, y_pred
 
 #this function was made so that there are less errors in inputting 
 #due to typing everytime has a higher chance of errors so
@@ -754,7 +754,8 @@ if __name__ == "__main__":
             #this is to load model for predict
             model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
-            acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
+            acutal_frame_list, extracted, y_pred =vid_ML_eval(name,load_model, path)
+            
             
             extracted_frame_list = [x[1] for x in extracted]
             #rep_frame_sets is using rep list to get the indexes of all frames needed
@@ -799,7 +800,22 @@ if __name__ == "__main__":
             #end of debuggin
             #using fianl frame which are the list of list of each rep we can 
             #than dpisplay each rep as its own video through another py file function
-            poseDisplay.capture_feed(path, final_frame_list, importantAngles)
+            print("\nwould you like to only see the bad reps?")
+            bad_rep_choice = input("choice (1 for yes 2 for no):")
+            if int(bad_rep_choice) == 2:
+                #this shows all reps
+                poseDisplay.capture_feed(path, final_frame_list, importantAngles)
+            else:
+                #this shows only bad reps
+                bad_rep_frame_list = []
+                print(y_pred)
+                for pred_index in range(len(y_pred)):
+                    prediction = y_pred[pred_index][0]
+                    print(prediction)
+                    if prediction <0.75:
+                        bad_rep_frame_list.append(final_frame_list[pred_index])
+                print(f"bad frame list: {bad_rep_frame_list}")
+                poseDisplay.capture_feed(path, bad_rep_frame_list, importantAngles)
             # except:
             #     print("\nModel name does not exist. create model using option 4")
             #     print("Models that exist are:")
