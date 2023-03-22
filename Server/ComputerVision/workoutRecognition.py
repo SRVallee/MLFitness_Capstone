@@ -746,6 +746,12 @@ if __name__ == "__main__":
             cwd = str(os.path.dirname(__file__))
             
             # try:
+            #this is to load model to get the important angles to display on vid
+            modelDir = str(os.path.dirname(__file__))
+            imp_path = f"{str(modelDir)}\\models\\"
+            model = Workout().loadModel(f"{imp_path}{name}.json")
+            importantAngles = model.getImportantAngles()
+            #this is to load model for predict
             model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
             acutal_frame_list, extracted =vid_ML_eval(name,load_model, path)
@@ -793,7 +799,7 @@ if __name__ == "__main__":
             #end of debuggin
             #using fianl frame which are the list of list of each rep we can 
             #than dpisplay each rep as its own video through another py file function
-            poseDisplay.capture_feed(path, final_frame_list)
+            poseDisplay.capture_feed(path, final_frame_list, importantAngles)
             # except:
             #     print("\nModel name does not exist. create model using option 4")
             #     print("Models that exist are:")

@@ -9,7 +9,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import mathutility
+from binomialFitting import PoseUtilities
 
+#this is just for transferring angle id back to blaze pose
+angle_point = [0,0,11,11,11,11,23,23,12,12,24,24,13,25,14,26]
 #this is just the class to find and create the pose
 # MODE:
 #     mode set to false is for a video due to it will try to localize the landmarks to each other
@@ -121,7 +124,7 @@ class poseDetector():
             plt2 = cur_x2,cur_y
         return cur_x, cur_x2
     
-    def findWorldPosition(self,img, draw=True):
+    def findWorldPosition(self,img, draw=False):
         mod_lmList =[] #modded landmark list for actual pixels
         self.world_lmList = [] #modded landmark list for real world estimitation
         if self.results.pose_landmarks:
@@ -136,7 +139,7 @@ class poseDetector():
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255,0,0), cv2.FILLED)#this will over lay on points if seeing properly it would be blue
                     #cv2.putText(img,str(id),(cx,cy),cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-        return mod_lmList, self.world_lmList 
+        return mod_lmList, self.world_lmList , self.results.pose_world_landmarks
     
     # fix the line on the back for every thing
     # this may be used by checking which way the face is facing to create the line
@@ -235,6 +238,18 @@ class poseDetector():
             cv2.putText(img, str(int(angle)),(x2-20,y2+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
         return self.lowhip_angle
 
+    def set_angle(self,img,importantAngles, angle_landmark, draw=True):
+        index = 0
+        for imp_angle in importantAngles:
+            x1,y1 = self.lmList[imp_angle][1:3]
+            radian_angle = angle_landmark[index]
+            degrees = math.degrees(radian_angle)
+            index = index+1
+            if draw:
+                cv2.circle(img,(x1, y1), 10, (0,0,255),cv2.FILLED)
+                cv2.circle(img,(x1, y1), 15, (0,0,255),2)
+                cv2.putText(img, str(int(degrees)),(x1-20,y1+50),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),2)
+
 ##
 # This function is to get the videos and send it to the class pose detector to than
 # add in the landmarks and connect them it also gets the angles, and landmark list
@@ -242,7 +257,8 @@ class poseDetector():
 # Parameters: video path
 # returns: lowest angle
 ##           
-def capture_feed(path, frame_rep_list):
+def capture_feed(path, frame_rep_list, importantAngles):
+    print(f"important angles: {importantAngles}")
     cap = cv2.VideoCapture(path)  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
@@ -281,7 +297,7 @@ def capture_feed(path, frame_rep_list):
             #be the same
             annotated_img = detector.seg_mask(img)
             lmList = detector.findPosition(annotated_img)
-            world_mod_lmList, world_unmod_lmlist = detector.findWorldPosition(annotated_img)
+            world_mod_lmList, world_unmod_lmlist, world_landmarks = detector.findWorldPosition(annotated_img)
             #print(world_unmod_lmlist[12][1], world_unmod_lmlist[12][2], world_unmod_lmlist[12][3])
             #print(world_unmod_lmlist[24][1], world_unmod_lmlist[24][2], world_unmod_lmlist[12][3])
             mathutility.HighVis(lmList)
@@ -353,25 +369,37 @@ def capture_feed(path, frame_rep_list):
             #print(world_lmList)
 
             #this gets the points to draw the line to the back of the head
-            head_x, head_y ,noseX, noseY, head_slope= detector.face_track(img,lmList)
-            arch2= detector.checkback(img,(head_x,head_y),backplt2)
+            # head_x, head_y ,noseX, noseY, head_slope= detector.face_track(img,lmList)
+            # arch2= detector.checkback(img,(head_x,head_y),backplt2)
             
             #this is to create the line from nose to back of head
-            cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
+            # cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
 
             #this is for from the back of head to hip checking for posture
-            if arch2 == True:
-                cv2.line(annotated_img,(head_x,head_y),backplt2,(0,128,0),6)
-            else:
-                cv2.line(annotated_img,(head_x,head_y),backplt2,(0,0,255),6)
+            # if arch2 == True:
+            #     cv2.line(annotated_img,(head_x,head_y),backplt2,(0,128,0),6)
+            # else:
+            #     cv2.line(annotated_img,(head_x,head_y),backplt2,(0,0,255),6)
             cTime = time.time()
             #print(f"real world measurements: {world_unmod_lmlist}")
             fps = 1 / (cTime - pTime)
             pTime = cTime
+            #returns angles of frame goes head lr, head bf, body lr, head bf, lshoulder Fb, lshoulder ud,
+            #Lhip lr, Lhip Fb, rshoulder Fb, rshoulder ud, rhip lr, rhip Fb, lelb, lknee, relb, rknee
+            cur_all_angs = PoseUtilities.compute_body_angles(world_landmarks)
+            #print(f"curall: {cur_all_angs}")
+            #this uses the 2d image to get the angles
             if len(lmList) != 0:
-                angle = detector.findkneeAngle(annotated_img,24,26,28) #delete
-                angle2 = detector.findkneeAngle(annotated_img,23, 25, 27) #delete
-                hip_angle = detector.findhipAngle(annotated_img,12, 24, 26) #delete
+                angle_at_landmark = []
+                actual_landmark = []
+                for angle_place in importantAngles:
+                    angle_at_landmark.append(cur_all_angs[angle_place])
+                    actual_landmark.append(angle_point[angle_place])
+                detector.set_angle(annotated_img,actual_landmark,angle_at_landmark)
+            # if len(lmList) != 0:
+            #     angle = detector.findkneeAngle(annotated_img,24,26,28) #delete
+            #     angle2 = detector.findkneeAngle(annotated_img,23, 25, 27) #delete
+            #     hip_angle = detector.findhipAngle(annotated_img,12, 24, 26) #delete
                 #print(f"lowest angle; {angle}")
             cv2.putText(annotated_img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, {end_frame_id}, rep #: {rep}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
             #resize is width than height
