@@ -388,7 +388,7 @@ def capture_feed(path, frame_rep_list, importantAngles):
             #Lhip lr, Lhip Fb, rshoulder Fb, rshoulder ud, rhip lr, rhip Fb, lelb, lknee, relb, rknee
             cur_all_angs = PoseUtilities.compute_body_angles(world_landmarks)
             #print(f"curall: {cur_all_angs}")
-            #this uses the 2d image to get the angles
+            #this uses our vector mapping to get 3d angles and plant it on the video
             if len(lmList) != 0:
                 angle_at_landmark = []
                 actual_landmark = []
@@ -396,6 +396,7 @@ def capture_feed(path, frame_rep_list, importantAngles):
                     angle_at_landmark.append(cur_all_angs[angle_place])
                     actual_landmark.append(angle_point[angle_place])
                 detector.set_angle(annotated_img,actual_landmark,angle_at_landmark)
+            #this uses the 2d image to get the angles
             # if len(lmList) != 0:
             #     angle = detector.findkneeAngle(annotated_img,24,26,28) #delete
             #     angle2 = detector.findkneeAngle(annotated_img,23, 25, 27) #delete
