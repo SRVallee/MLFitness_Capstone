@@ -642,7 +642,6 @@ def open_and_train(modelName):
 
 # This function will grab video path from user and what model it is for key extraction
 # and the trained model to evaluate the video if the reps are correct or not
-#
 def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
     extracted, allAngles, _ = getKeyFramesFromVideo(vid_path)
@@ -662,6 +661,90 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
     rep_list, frame_rep_list, y_pred= mli.vid_ml_eval(modelName,trained_MLmodel, df, extracted, reps, importantAngles)
     print(f"rep_list: {rep_list}\n\n frame_rep_list: {frame_rep_list}")
     return rep_list, extracted, y_pred
+
+
+# method to contain the entire video evaluation process, model loading, and 
+# video output
+def evaluate_video(name, path):
+    # try:
+            #this is to load model to get the important angles to display on vid
+            modelDir = str(os.path.dirname(__file__))
+            imp_path = f"{str(modelDir)}\\models\\"
+            model = Workout().loadModel(f"{imp_path}{name}.json")
+            importantAngles = model.getImportantAngles()
+            #this is to load model for predict
+            model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
+            load_model = tf.keras.models.load_model(model_path)
+            acutal_frame_list, extracted, y_pred =vid_ML_eval(name,load_model, path)
+            
+            
+            extracted_frame_list = [x[1] for x in extracted]
+            #rep_frame_sets is using rep list to get the indexes of all frames needed
+            rep_frame_sets = []
+            #this for loop grab the 3 first iteams in actual frames which are the frame number
+            #last number is the angle
+            for rep_set in acutal_frame_list:
+                rep_frame_sets.append(extracted_frame_list[rep_set[0]])
+                rep_frame_sets.append(extracted_frame_list[rep_set[1]])
+                rep_frame_sets.append(extracted_frame_list[rep_set[2]])
+            
+            final_frame_list = []
+            #this than makes the list into a list of list
+            #eg. [[up frame, down frame, up frame], [up frame,down frame,up frame]]
+            for i in range(0,len(rep_frame_sets),3):
+                if len(rep_frame_sets[i:i+3]) == 3:
+                    final_frame_list.append(rep_frame_sets[i:i+3])
+            #start of debugging
+            if actual_rep_frame_display == True:
+                print(f"rep_frame_sets: {rep_frame_sets}")
+                print(f"final_frame_list: {final_frame_list}")
+            
+                cap = cv2.VideoCapture(path)
+                max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                print(f"max_frames: {max_frames}")
+                constant_height = 700
+                for i in rep_frame_sets:
+
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+                    success, img = cap.read()
+                    height = img.shape[0]
+                    width = img.shape[1]
+                    height_percentage = float(constant_height/int(height))
+                    modded_width = int(float(width)*height_percentage)
+                    cv2.putText(img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, rep_frame_sets, frame #: {i}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+                    resize = cv2.resize(img, (modded_width, constant_height))
+                    cv2.imshow("Image", resize)
+                    key = cv2.waitKey(0)  #millisecond delays
+                    if key == 27: #esc
+                        cv2.destroyWindow("Image")
+                cap.release()
+            #end of debuggin
+            #using fianl frame which are the list of list of each rep we can 
+            #than dpisplay each rep as its own video through another py file function
+            print("\nwould you like to only see the bad reps?")
+            bad_rep_choice = input("choice (1 for yes 2 for no):")
+            if int(bad_rep_choice) == 2:
+                #this shows all reps
+                poseDisplay.capture_feed(path, final_frame_list, importantAngles)
+            else:
+                #this shows only bad reps
+                bad_rep_frame_list = []
+                print(y_pred)
+                for pred_index in range(len(y_pred)):
+                    prediction = y_pred[pred_index][0]
+                    print(prediction)
+                    if prediction <0.75:
+                        bad_rep_frame_list.append(final_frame_list[pred_index])
+                print(f"bad frame list: {bad_rep_frame_list}")
+                poseDisplay.capture_feed(path, bad_rep_frame_list, importantAngles)
+            # except:
+            #     print("\nModel name does not exist. create model using option 4")
+            #     print("Models that exist are:")
+            #     model_path = str(vidsDir) + "\\ML_Trained_Models\\"
+            #     count = 1
+            #     for filename in os.listdir(model_path):
+            #         print(f"{count}: {filename}")
+            #mli.vid_ml_eval(name, path)
 
 #this function was made so that there are less errors in inputting 
 #due to typing everytime has a higher chance of errors so
@@ -744,86 +827,8 @@ if __name__ == "__main__":
             print(f"Workout chosen: {name}")
             path = input("video to check: ")
             cwd = str(os.path.dirname(__file__))
+            evaluate_video(name, path)
             
-            # try:
-            #this is to load model to get the important angles to display on vid
-            modelDir = str(os.path.dirname(__file__))
-            imp_path = f"{str(modelDir)}\\models\\"
-            model = Workout().loadModel(f"{imp_path}{name}.json")
-            importantAngles = model.getImportantAngles()
-            #this is to load model for predict
-            model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
-            load_model = tf.keras.models.load_model(model_path)
-            acutal_frame_list, extracted, y_pred =vid_ML_eval(name,load_model, path)
-            
-            
-            extracted_frame_list = [x[1] for x in extracted]
-            #rep_frame_sets is using rep list to get the indexes of all frames needed
-            rep_frame_sets = []
-            #this for loop grab the 3 first iteams in actual frames which are the frame number
-            #last number is the angle
-            for rep_set in acutal_frame_list:
-                rep_frame_sets.append(extracted_frame_list[rep_set[0]])
-                rep_frame_sets.append(extracted_frame_list[rep_set[1]])
-                rep_frame_sets.append(extracted_frame_list[rep_set[2]])
-            
-            final_frame_list = []
-            #this than makes the list into a list of list
-            #eg. [[up frame, down frame, up frame], [up frame,down frame,up frame]]
-            for i in range(0,len(rep_frame_sets),3):
-                if len(rep_frame_sets[i:i+3]) == 3:
-                    final_frame_list.append(rep_frame_sets[i:i+3])
-            #start of debugging
-            if actual_rep_frame_display == True:
-                print(f"rep_frame_sets: {rep_frame_sets}")
-                print(f"final_frame_list: {final_frame_list}")
-            
-                cap = cv2.VideoCapture(path)
-                max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-                print(f"max_frames: {max_frames}")
-                constant_height = 700
-                for i in rep_frame_sets:
-
-                    cap.set(cv2.CAP_PROP_POS_FRAMES, i)
-                    success, img = cap.read()
-                    height = img.shape[0]
-                    width = img.shape[1]
-                    height_percentage = float(constant_height/int(height))
-                    modded_width = int(float(width)*height_percentage)
-                    cv2.putText(img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, rep_frame_sets, frame #: {i}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-                    resize = cv2.resize(img, (modded_width, constant_height))
-                    cv2.imshow("Image", resize)
-                    key = cv2.waitKey(0)  #millisecond delays
-                    if key == 27: #esc
-                        cv2.destroyWindow("Image")
-                cap.release()
-            #end of debuggin
-            #using fianl frame which are the list of list of each rep we can 
-            #than dpisplay each rep as its own video through another py file function
-            print("\nwould you like to only see the bad reps?")
-            bad_rep_choice = input("choice (1 for yes 2 for no):")
-            if int(bad_rep_choice) == 2:
-                #this shows all reps
-                poseDisplay.capture_feed(path, final_frame_list, importantAngles)
-            else:
-                #this shows only bad reps
-                bad_rep_frame_list = []
-                print(y_pred)
-                for pred_index in range(len(y_pred)):
-                    prediction = y_pred[pred_index][0]
-                    print(prediction)
-                    if prediction <0.75:
-                        bad_rep_frame_list.append(final_frame_list[pred_index])
-                print(f"bad frame list: {bad_rep_frame_list}")
-                poseDisplay.capture_feed(path, bad_rep_frame_list, importantAngles)
-            # except:
-            #     print("\nModel name does not exist. create model using option 4")
-            #     print("Models that exist are:")
-            #     model_path = str(vidsDir) + "\\ML_Trained_Models\\"
-            #     count = 1
-            #     for filename in os.listdir(model_path):
-            #         print(f"{count}: {filename}")
-            #mli.vid_ml_eval(name, path)
 
         elif choice == "5" or choice == "q":
             break
