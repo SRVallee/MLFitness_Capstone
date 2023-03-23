@@ -673,7 +673,7 @@ def evaluate_video(name, path):
             model = Workout().loadModel(f"{imp_path}{name}.json")
             importantAngles = model.getImportantAngles()
             #this is to load model for predict
-            model_path = str(cwd) + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
+            model_path = modelDir + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
             load_model = tf.keras.models.load_model(model_path)
             acutal_frame_list, extracted, y_pred =vid_ML_eval(name,load_model, path)
             
@@ -826,7 +826,7 @@ if __name__ == "__main__":
             name = get_user_input()
             print(f"Workout chosen: {name}")
             path = input("video to check: ")
-            cwd = str(os.path.dirname(__file__))
+            # cwd = str(os.path.dirname(__file__))
             evaluate_video(name, path)
             
 
