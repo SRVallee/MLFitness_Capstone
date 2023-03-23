@@ -1,5 +1,9 @@
 package com.example.application;
 
+import static android.content.ContentValues.TAG;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -13,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -42,6 +47,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
+import com.gowtham.library.utils.LogMessage;
+import com.gowtham.library.utils.TrimVideo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -453,6 +460,24 @@ public class TraineeUpload extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    ActivityResultLauncher<Intent> startForResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK &&
+                        result.getData() != null) {
+                    Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
+                    Log.d(TAG, "Trimmed path:: " + uri);
+
+                } else
+                    LogMessage.v("videoTrimResultLauncher data is null");
+            });
+
+    public void trimButtonPressed(View view) {
+        Intent i = new Intent(getApplicationContext(), TraineeTrim.class);
+        startActivity(i);
+        finish();
     }
 
     /***
