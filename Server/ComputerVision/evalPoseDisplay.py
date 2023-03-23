@@ -259,7 +259,7 @@ class poseDetector():
 # Parameters: video path
 # returns: lowest angle
 ##           
-def capture_feed(path, frame_rep_list, importantAngles):
+def capture_feed(path, frame_rep_list, importantAngles, model_name):
     print(f"important angles: {importantAngles}")
     cap = cv2.VideoCapture(path)  # the video sys.path[0] is the current path of the file
     pTime = 0
@@ -274,6 +274,7 @@ def capture_feed(path, frame_rep_list, importantAngles):
     height_percentage = float(constant_height/int(frame_height))
     modded_width = int(float(frame_width)*height_percentage)
     save_size = (modded_width,constant_height)
+    #this is to set up all directories for the the eval to save the workouts
     dir_name = str(os.path.dirname(__file__))
     dir_up = str(Path(dir_name).resolve().parents[2])
     userpath = dir_up+"\\Users"
@@ -283,11 +284,20 @@ def capture_feed(path, frame_rep_list, importantAngles):
     username_dir = userpath+f"\\{username}"
     if os.path.exists(username_dir) == False:
         os.mkdir(username_dir)
-    
+    username_dir_workout = username_dir+ f"\\{model_name}"
+    if os.path.exists(username_dir_workout) == False:
+        os.mkdir(username_dir_workout)
+    username_dir_workout_bad = username_dir+ f"\\{model_name}\\Bad_reps"
+    if os.path.exists(username_dir_workout_bad) == False:
+        os.mkdir(username_dir_workout_bad)
+        
+    username_dir_workout_good = username_dir+ f"\\{model_name}\\Good_reps"
+    if os.path.exists(username_dir_workout_good) == False:
+        os.mkdir(username_dir_workout_good)
     
     #this iterates through each rep to show the video of that individual rep
     for rep in range(len(frame_rep_list)):
-        result = cv2.VideoWriter(f'{username_dir}\\workout{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
+        result = cv2.VideoWriter(f'{username_dir}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
         start_frame_id = frame_rep_list[rep][0]# start up
         end_frame_id = frame_rep_list[rep][2]# end up
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id) # setting video to the up position
@@ -381,22 +391,7 @@ def capture_feed(path, frame_rep_list, importantAngles):
 
             #prints list of landmarks from 1 to 32 look at mediapipe diagram to know what landmark is which bodypart
             #print(lmList)
-            #the landmarks i want for side are 12 and 24 to get line and slope
-            #plotting= detector.threeDimensionalplot(img)
-            #print(world_lmList)
-
-            #this gets the points to draw the line to the back of the head
-            # head_x, head_y ,noseX, noseY, head_slope= detector.face_track(img,lmList)
-            # arch2= detector.checkback(img,(head_x,head_y),backplt2)
             
-            #this is to create the line from nose to back of head
-            # cv2.line(annotated_img,(noseX,noseY),(head_x,head_y),(0,128,0),6)
-
-            #this is for from the back of head to hip checking for posture
-            # if arch2 == True:
-            #     cv2.line(annotated_img,(head_x,head_y),backplt2,(0,128,0),6)
-            # else:
-            #     cv2.line(annotated_img,(head_x,head_y),backplt2,(0,0,255),6)
             cTime = time.time()
             #print(f"real world measurements: {world_unmod_lmlist}")
             fps = 1 / (cTime - pTime)
