@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+        html{
+            height: 100%;
+        }
+        body{
+            margin: 0;
+            padding: 0;
+            height: 80%;
+            background: linear-gradient(to bottom, #007FFF, #FFFFFF);
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        h1 {
+            margin-top: 10%;
+            text-align: center;
+            font-family: "Sans", sans-serif;
+            font-weight: bold;
+            color: #FFFFFF;
+            font-size: 36px;
+        }
+        form {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          font-family: "Sans", sans-serif, serif;
+          font-weight: bold;
+        }
+        label, input {
+          margin-bottom: 5px;
+          font-family: "Sans", sans-serif, serif;
+          color: #FFFFFF;
+          font-size: 20px;
+        }
+        input {
+          margin-bottom: 5px;
+          font-family: "Sans", sans-serif, serif;
+          color: #000000;
+        }
+
+        .footer-link {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 10px;
+            font-size: 16px;
+            color: #000000;
+            text-decoration: none;
+        }
+        
+        .footer-link:hover {
+            color: #007FFF;
+            text-decoration: underline;
+        }
+
+        .checkbox{
+          color: #000000;
+        }
+
+      </style>
+      <title>Kinesee</title>
+  </head>
+  <body>
+    <h1>Sign Up</h1>
+    <form method="post" action="login.php">
+      <input type="text" id="username" name="username" placeholder="Username"><br><br>
+      <input type="text" id="name" name="name" placeholder="Name"><br><br>
+      <input type="text" id="email" name="email" placeholder="Email"><br><br>
+      <input type="password" id="password" name="password" placeholder="Password"><br><br>
+      <input type="password" id="password2" name="password2" placeholder="Re-enter Password"><br><br>
+      <label class="checkbox">
+        <input type="checkbox" name="isTrainer" value="isTrainer">
+        Are you a trainer?
+      </label>
+      <input type="submit" value="Sign up">
+      <a href="Sign Up">or Log in</a>
+    </form>
+  </body>
+</html>
