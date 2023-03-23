@@ -798,8 +798,9 @@ if __name__ == "__main__":
                         cv2.destroyWindow("Image")
                 cap.release()
             #end of debuggin
-            #using fianl frame which are the list of list of each rep we can 
+            #using final frame which are the list of list of each rep we can 
             #than dpisplay each rep as its own video through another py file function
+            #this gives the user the option to either just see bad reps or all reps
             print("\nwould you like to only see the bad reps?")
             bad_rep_choice = input("choice (1 for yes 2 for no):")
             if int(bad_rep_choice) == 2:
