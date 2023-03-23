@@ -108,6 +108,7 @@ public class TraineeSettings extends AppCompatActivity{
                     case R.id.logout: {
                         //Add a confirmation pop up
 
+
                         //Once completed logout/remove locally stored user cred
 
                         //End all activities and go to welcome screen
