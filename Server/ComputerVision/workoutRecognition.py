@@ -721,22 +721,11 @@ def evaluate_video(name, path):
             #end of debuggin
             #using fianl frame which are the list of list of each rep we can 
             #than dpisplay each rep as its own video through another py file function
-            print("\nwould you like to only see the bad reps?")
-            bad_rep_choice = input("choice (1 for yes 2 for no):")
-            if int(bad_rep_choice) == 2:
-                #this shows all reps
-                poseDisplay.capture_feed(path, final_frame_list, importantAngles,name)
-            else:
-                #this shows only bad reps
-                bad_rep_frame_list = []
-                print(y_pred)
-                for pred_index in range(len(y_pred)):
-                    prediction = y_pred[pred_index][0]
-                    print(prediction)
-                    if prediction <0.75:
-                        bad_rep_frame_list.append(final_frame_list[pred_index])
-                print(f"bad frame list: {bad_rep_frame_list}")
-                poseDisplay.capture_feed(path, bad_rep_frame_list, importantAngles, name)
+            prediction = []
+            for pred_index in range(len(y_pred)):
+                prediction.append(y_pred[pred_index][0])
+                print(prediction)
+            poseDisplay.capture_feed(path, final_frame_list, prediction, importantAngles, name)
             # except:
             #     print("\nModel name does not exist. create model using option 4")
             #     print("Models that exist are:")

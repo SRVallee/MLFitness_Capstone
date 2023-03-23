@@ -259,7 +259,7 @@ class poseDetector():
 # Parameters: video path
 # returns: lowest angle
 ##           
-def capture_feed(path, frame_rep_list, importantAngles, model_name):
+def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
     print(f"important angles: {importantAngles}")
     cap = cv2.VideoCapture(path)  # the video sys.path[0] is the current path of the file
     pTime = 0
@@ -297,7 +297,10 @@ def capture_feed(path, frame_rep_list, importantAngles, model_name):
     
     #this iterates through each rep to show the video of that individual rep
     for rep in range(len(frame_rep_list)):
-        result = cv2.VideoWriter(f'{username_dir}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
+        if prediction[rep] < 0.75:
+            result = cv2.VideoWriter(f'{username_dir_workout_bad}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
+        else:
+            result = cv2.VideoWriter(f'{username_dir_workout_good}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
         start_frame_id = frame_rep_list[rep][0]# start up
         end_frame_id = frame_rep_list[rep][2]# end up
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id) # setting video to the up position
