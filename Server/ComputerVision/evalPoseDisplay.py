@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import mathutility
 from binomialFitting import PoseUtilities
+import os
+from pathlib import Path
 
 #this is just for transferring angle id back to blaze pose
 angle_point = [0,0,11,11,11,11,23,23,12,12,24,24,13,25,14,26]
@@ -265,16 +267,34 @@ def capture_feed(path, frame_rep_list, importantAngles):
     #data = np.empty((3,32,length))
     frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     success = True
-    new_angle = 360
     print(f"frame_rep_list: {frame_rep_list}, length: {len(frame_rep_list)}")# length is the amount of reps in video
+    constant_height = 700
+    frame_width = int(cap.get(3))
+    frame_height = int(cap.get(4))
+    height_percentage = float(constant_height/int(frame_height))
+    modded_width = int(float(frame_width)*height_percentage)
+    save_size = (modded_width,constant_height)
+    dir_name = str(os.path.dirname(__file__))
+    dir_up = str(Path(dir_name).resolve().parents[2])
+    userpath = dir_up+"\\Users"
+    if os.path.exists(userpath) == False:
+        os.mkdir(userpath)
+    username = input("please input user name: ")
+    username_dir = userpath+f"\\{username}"
+    if os.path.exists(username_dir) == False:
+        os.mkdir(username_dir)
+    
+    
+    #this iterates through each rep to show the video of that individual rep
     for rep in range(len(frame_rep_list)):
+        result = cv2.VideoWriter(f'{username_dir}\\workout{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
         start_frame_id = frame_rep_list[rep][0]# start up
         end_frame_id = frame_rep_list[rep][2]# end up
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id) # setting video to the up position
         while success:
             #this sees if it can read the frame that it is given
             success, img = cap.read()
-            constant_height = 700
+            
             slope = 0
             perp_slope = 0
             if success == False:
@@ -289,8 +309,7 @@ def capture_feed(path, frame_rep_list, importantAngles):
             height = img.shape[0]
             width = img.shape[1]
             
-            height_percentage = float(constant_height/int(height))
-            modded_width = int(float(width)*height_percentage)
+            
             img = detector.findPose(img)
             #this is the annotated image with the segmentation mask it is needed as a copy
             #of the first image so that they are 2 seperate images so that all the colours will not
@@ -306,14 +325,12 @@ def capture_feed(path, frame_rep_list, importantAngles):
                 if lmList[i][0] == 12:
                     x1 = int(lmList[i][1])
                     y1 = int(lmList[i][2])
-                    visibilty = int(lmList[i][4])
                     pt1 = (x1,y1)
                     
                 #hip right
                 elif lmList[i][0] == 24:
                     x2 = int(lmList[i][1])
                     y2 = int(lmList[i][2])
-                    visibilty2 = int(lmList[i][4])
                     pt2 = (x2 ,y2)
                 elif lmList[i][0] == 8:
                     earX = lmList[i][1]
@@ -406,11 +423,13 @@ def capture_feed(path, frame_rep_list, importantAngles):
             #resize is width than height
             resize = cv2.resize(annotated_img, (modded_width, constant_height))
             #print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
+            result.write(resize)
             cv2.imshow("Image", resize)
             key = cv2.waitKey(1)  #millisecond delays
             if key == 27: #esc
                 cv2.destroyWindow("Image")
                 break
         cv2.destroyAllWindows
+    result.release()
     cap.release()
     #return int(angle), int(angle2), int(hip_angle)
