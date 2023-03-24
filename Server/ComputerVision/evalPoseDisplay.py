@@ -298,9 +298,9 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
     #this iterates through each rep to show the video of that individual rep
     for rep in range(len(frame_rep_list)):
         if prediction[rep] < 0.75:
-            result = cv2.VideoWriter(f'{username_dir_workout_bad}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
+            result = cv2.VideoWriter(f'{username_dir_workout_bad}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'mp4v'),10,save_size)
         else:
-            result = cv2.VideoWriter(f'{username_dir_workout_good}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
+            result = cv2.VideoWriter(f'{username_dir_workout_good}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'mp4v'),10,save_size)
         start_frame_id = frame_rep_list[rep][0]# start up
         end_frame_id = frame_rep_list[rep][2]# end up
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id) # setting video to the up position
@@ -314,7 +314,7 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
                 break
             
             if int(cap.get(cv2.CAP_PROP_POS_FRAMES)) == end_frame_id:
-                cv2.destroyWindow("Image")
+                #cv2.destroyWindow("Image")
                 break
             
             # img.shape is a list of the dimensions of the frame 0 = height
@@ -422,12 +422,23 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
             resize = cv2.resize(annotated_img, (modded_width, constant_height))
             #print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
             result.write(resize)
-            cv2.imshow("Image", resize)
             key = cv2.waitKey(1)  #millisecond delays
             if key == 27: #esc
                 cv2.destroyWindow("Image")
                 break
-        cv2.destroyAllWindows
     result.release()
+    cap.release()
+    print(f"list of bad rep dir: {os.listdir(username_dir_workout_bad)}")
+    for bad_rep_vid in os.listdir(username_dir_workout_bad):
+        cap = cv2.VideoCapture(bad_rep_vid)
+        
+        while success:
+            success, img = cap.read()
+            if success == False:
+                print("AHHHHH")
+                break
+            
+            cv2.imshow("Image", img)
+        cv2.destroyAllWindows
     cap.release()
     #return int(angle), int(angle2), int(hip_angle)
