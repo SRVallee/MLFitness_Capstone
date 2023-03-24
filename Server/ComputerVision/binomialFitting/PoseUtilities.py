@@ -2,6 +2,8 @@ import numpy as np
 import json
 
 
+
+
 """
    y
    |
@@ -16,6 +18,7 @@ class Point:
         self.x = x
         self.y = y
         self.z = z
+
 
 
 
@@ -167,7 +170,9 @@ def vector_angles(angleVec, vecI, vecJ, right=0):
     projIK = angleVec - projIKNormal 
     
     # Compute angle between Vec J and angleVec projection
+
     threshold = 0.00
+
     if np.linalg.norm(projIJ) > threshold: # if projection passes threshold
         angleJ = angle_between(projIJ, vecJ)
     else:
@@ -227,3 +232,4 @@ def compute_body_angles(landmarks):
     #     if i != 4 & i != 5 & i != 7:
     #         angleArr[i] = np.pi - angleArr
     return angleArr
+
