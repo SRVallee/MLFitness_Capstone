@@ -4,9 +4,6 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class Trimmer extends AppCompatActivity {
-package com.example.application;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
