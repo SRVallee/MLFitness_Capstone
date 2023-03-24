@@ -20,6 +20,8 @@
         android:theme="@style/Theme.Application"
         tools:targetApi="31">
 
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -99,5 +101,6 @@
         <activity
             android:name=".TrainerProfile" >
         </activity>
+
     </application>
 </manifest>

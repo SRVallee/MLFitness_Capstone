@@ -11,10 +11,48 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.sendbird.uikit.SendBirdUIKit;
+import com.sendbird.uikit.activities.ChannelListActivity;
+import com.sendbird.uikit.adapter.SendBirdUIKitAdapter;
+import com.sendbird.uikit.interfaces.UserInfo;
+
 
 import java.util.UUID;
 
-public class TraineeMessages extends AppCompatActivity {
+public class TraineeMessages extends ChannelListActivity {
+
+    //NOTE DOES NOT USE SETCONTENTVIEW, THUS DOES NOT USE MESS LAYOUT
+    // If you are going to inherit the ChannelListActivity, you must not implement the setContentView() in the activity.
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setTheme(getDelegate().getLocalNightMode());
+
+        //SendBirdUIKit.setDefaultThemeMode(getTheme());
+        //SendBirdUIKit.setDefaultThemeMode(android.R.style.Theme_Light);
+        SendBirdUIKit.getDefaultThemeMode();
+
+    }
+
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        Intent i;
+//        i = new Intent(getApplicationContext(), TraineeHomePage.class);
+//        startActivity(i);
+//        finish();
+//    }
+}
+
+
+
+
+
+
+/***extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
@@ -133,4 +171,4 @@ public class TraineeMessages extends AppCompatActivity {
             super.onBackPressed();
         }
     }
-}
+}***/

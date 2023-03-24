@@ -71,6 +71,6 @@ public class User {
     }
 
     public boolean hasPfp() {
-        return pfp != null;
+        return (pfp != null);
     }
 }
