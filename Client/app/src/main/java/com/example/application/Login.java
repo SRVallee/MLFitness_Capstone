@@ -2,6 +2,7 @@ package com.example.application;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +20,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.sendbird.uikit.SendBirdUIKit;
+import com.sendbird.uikit.adapter.SendBirdUIKitAdapter;
+import com.sendbird.uikit.interfaces.UserInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +33,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Login extends AppCompatActivity implements View.OnClickListener {
+
+    String USER_ID;
+    String USER_NICKNAME;
+    String USER_PROFILE_URL;
 
     String email, password;
 
@@ -43,7 +51,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         //Init fields in xml
         usernameLogin = findViewById(R.id.userNameEditText);
         passwordLogin = findViewById(R.id.passwordEditText);
-        passwordLogin.setTransformationMethod(new AsteriskPasswordTransformationMethod());
 
     }
 
@@ -102,13 +109,83 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                                 SocketFunctions.apiKey = jsonResponse.getString("api_key");
                                 Log.d("User id: ", "successful login");
                                 Intent i;
+                                USER_ID = SocketFunctions.user.getEmail();
+                                USER_NICKNAME = SocketFunctions.user.getName();
+                                //Once profile pictures are implemented change this
+                                USER_PROFILE_URL = "";
                                 if (SocketFunctions.user.isTrainer()) {
                                     //User has entered all inputs and has indicated to signup as trainee
+                                    //First connects to sendbird and makes account
+                                    SendBirdUIKit.init(new SendBirdUIKitAdapter() {
+                                        @Override
+                                        public String getAppId() {
+                                            return "011F57DA-BA7D-4DCF-96AC-12217F169139";  // The ID of the Sendbird application
+                                        }
+
+                                        @Override
+                                        public String getAccessToken() {
+                                            return "";
+                                        }
+
+                                        @Override
+                                        public UserInfo getUserInfo() {
+                                            return new UserInfo() {
+                                                @Override
+                                                public String getUserId() {
+                                                    return USER_ID; // The userID of the user you wish to log in as
+                                                }
+
+                                                @Override
+                                                public String getNickname() {
+                                                    return USER_NICKNAME; // The nickname of the user you wish to log in as
+                                                }
+
+                                                @Override
+                                                public String getProfileUrl() {
+                                                    return USER_PROFILE_URL;
+                                                }
+                                            };
+                                        }
+                                    }, getApplicationContext());// If errors use this and move
+                                    //Goes to homepage
                                     i = new Intent(getApplicationContext(), TrainerHomePage.class);
                                     startActivity(i);
                                     finish();
                                 } else {
                                     //User has entered all inputs and has indicated to signup as trainee
+                                    //First connects to sendbird and makes account
+                                    SendBirdUIKit.init(new SendBirdUIKitAdapter() {
+                                        @Override
+                                        public String getAppId() {
+                                            return "011F57DA-BA7D-4DCF-96AC-12217F169139";  // The ID of the Sendbird application
+                                        }
+
+                                        @Override
+                                        public String getAccessToken() {
+                                            return "";
+                                        }
+
+                                        @Override
+                                        public UserInfo getUserInfo() {
+                                            return new UserInfo() {
+                                                @Override
+                                                public String getUserId() {
+                                                    return USER_ID; // The userID of the user you wish to log in as
+                                                }
+
+                                                @Override
+                                                public String getNickname() {
+                                                    return USER_NICKNAME; // The nickname of the user you wish to log in as
+                                                }
+
+                                                @Override
+                                                public String getProfileUrl() {
+                                                    return USER_PROFILE_URL;
+                                                }
+                                            };
+                                        }
+                                    }, getApplicationContext());// If errors use this and move
+                                    //Goes to homepage
                                     //makeUser(username, name, email, passwordOne, isTrainer);
                                     i = new Intent(getApplicationContext(), TraineeHomePage.class);
                                     startActivity(i);
