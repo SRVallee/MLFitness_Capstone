@@ -261,6 +261,7 @@ class poseDetector():
 ##           
 def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
     print(f"important angles: {importantAngles}")
+    print(f"this is path: {path}")
     cap = cv2.VideoCapture(path)  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
@@ -428,17 +429,26 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
                 break
     result.release()
     cap.release()
-    print(f"list of bad rep dir: {os.listdir(username_dir_workout_bad)}")
-    for bad_rep_vid in os.listdir(username_dir_workout_bad):
-        cap = cv2.VideoCapture(bad_rep_vid)
-        
-        while success:
-            success, img = cap.read()
-            if success == False:
-                print("AHHHHH")
-                break
-            
-            cv2.imshow("Image", img)
-        cv2.destroyAllWindows
-    cap.release()
+    # print(f"list of bad rep dir: {username_dir_workout_bad}")
+    # for bad_rep_vid in os.listdir(username_dir_workout_bad):
+    #     print(f"this is bad rep vid: {bad_rep_vid}")
+    #     cap2 = cv2.VideoCapture(os.path.join(username_dir_workout_bad, bad_rep_vid))
+    #     print(os.path.join(username_dir_workout_bad, bad_rep_vid))
+    #     success = True
+    #     while success:
+    #         success, img2 = cap2.read()
+    #         if img2 == None:
+    #             height = 0
+    #             width = 0
+                
+    #         else:
+    #             height = img2.shape[0]
+    #             width = img2.shape[1]
+    #         # if success == False:
+    #         #     print("Could not open video")
+    #         #     break
+    #         if height >0 & width>0:
+    #             cv2.imshow("Frame", img2)
+    #     cv2.destroyAllWindows
+    #     cap2.release()
     #return int(angle), int(angle2), int(hip_angle)
