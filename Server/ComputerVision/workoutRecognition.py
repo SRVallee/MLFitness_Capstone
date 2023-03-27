@@ -564,7 +564,9 @@ def computeData(modelName):
     
     if os.name == 'posix':
         for path in paths:
-            path.replace('\\','/')
+            print(f'Path before: {path}')
+            path = path.replace('\\','/')
+            print(f'Path before: {path}')
     
     #put threads or mulitprocessing here
     
