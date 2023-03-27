@@ -14,7 +14,7 @@ if (isset($_FILES['video'])) {
   $target_path =  $target_dir1 . "/" . $filename;
 
   $conn = mysqli_connect("localhost", "root", "MLFitness@123", "ml_fitness"); //connect
-  $sql = "select * from user where (user_id = '".$user_id."' and api_key = '".$apiKey."')";
+  $sql = "SELECT * from user where (user_id = '".$user_id."' and api_key = '".$apiKey."')";
   $res = mysqli_query($conn, $sql);
 
   if(mysqli_num_rows($res) != 0){
@@ -22,17 +22,21 @@ if (isset($_FILES['video'])) {
 
     try {
       if(move_uploaded_file($_FILES['video']['tmp_name'], $target_path)){
-        echo "success"; #TODO connect with trainer
+        $result = array("status" => "success",     //return the user info
+                "name" => $filename);
+                 #TODO connect with trainer
       }else{
-        echo $target_path;
+        $result = array("status" => "Error saving video");
       }
       
     } catch (Exception $e) {
-          echo "Caught exception: " . $e->getMessage();
+      $result = array("status" => "Caught exception: " . $e->getMessage());
   }
   } else{
-    echo "Error uploading video(user).";
+    $result = array("status" => "Error uploading video(user).");
   }
 } else {
-  echo "Video parameter not found.";
+  $result = array("status" => "Video parameter not found.");
 }
+
+json_encode($result, JSON_PRETTY_PRINT);

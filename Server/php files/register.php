@@ -6,7 +6,7 @@ $email = $_POST['email'];
 $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 $isTrainer = $_POST['isTrainer'];
 if($conn){
-    $sql = "select * from user where email = '".$email."'";
+    $sql = "SELECT * from user where email = '".$email."'";
     $res = mysqli_query($conn, $sql);
         if(mysqli_num_rows($res) == 0){
         try{
@@ -14,23 +14,37 @@ if($conn){
         }catch(Exception $e){
             $apiKey = bin2hex(uniqid($email, true));
         }
-        $sql = "insert into user(user_id, username, password, name, email, is_trainer, api_key) values(default,'".$username."','".$password."','".$name."','".$email."','".$isTrainer."','".$apiKey."');";
+        $sql = "INSERT INTO user(user_id, username, password, name, email, is_trainer, api_key) values(default,'".$username."','".$password."','".$name."','".$email."',".$isTrainer.",'".$apiKey."');";
         if(mysqli_query($conn, $sql)){
             $sql = "select * from user where email = '".$email."'";
             $res = mysqli_query($conn, $sql);
-            if(mysqli_num_rows($res) != 0){                               //if user exists      
+            if(mysqli_num_rows($res) != 0){                               //if user exists   
                 $row = mysqli_fetch_assoc($res);
+                if($isTrainer == 1){
+                    $sql = "INSERT INTO trainer(trainer_id, credentials, reviews_location, ratings_amount) values('".$row["user_id"]."', 'No credatials yet', '/yes/here', 0);";
+                    $res = mysqli_query($conn, $sql);
+                    if(mysqli_num_rows($res) != 0){
+                        $result = array("status" => "success",     //return the user info
+                        "user_id" => $row["user_id"],
+                        "api_key" => $row["api_key"]);
+                    }else{
+                        $result = array("status"=>"User created, but failed to register as trainer");
+                    }
+                }else{
+
                 $result = array("status" => "success",     //return the user info
                 "user_id" => $row["user_id"],
                 "api_key" => $row["api_key"]);
+                }
             }
+            
+        }else{
+            $result = array("status"=>"Failed to register user");
         }
     }else{
         $result = array("status"=>"Email already linked");
     }
-}
-
-else{
+}else{
     $result = array("status"=>"Connection to database failed");
 } 
 
