@@ -1,5 +1,5 @@
 <?php
-$conn = mysqli_connect("localhost", "root", "MLFitness@123", "ml_fitness");
+$conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness");
 $username = $_POST['username'];
 $name = $_POST['name'];
 $email = $_POST['email'];

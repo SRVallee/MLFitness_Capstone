@@ -13,7 +13,7 @@ if (isset($_FILES['video'])) {
   //$target_path =  $target_dir1 . "/" . basename($_FILES['video']['name']);
   $target_path =  $target_dir1 . "/" . $filename;
 
-  $conn = mysqli_connect("localhost", "root", "MLFitness@123", "ml_fitness"); //connect
+  $conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness"); //connect
   $sql = "SELECT * from user where (user_id = '".$user_id."' and api_key = '".$apiKey."')";
   $res = mysqli_query($conn, $sql);
 
@@ -39,4 +39,4 @@ if (isset($_FILES['video'])) {
   $result = array("status" => "Video parameter not found.");
 }
 
-json_encode($result, JSON_PRETTY_PRINT);
+echo json_encode($result, JSON_PRETTY_PRINT);
