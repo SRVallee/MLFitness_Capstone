@@ -261,6 +261,7 @@ class poseDetector():
 ##           
 def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
     print(f"important angles: {importantAngles}")
+    print(f"this is path: {path}")
     cap = cv2.VideoCapture(path)  # the video sys.path[0] is the current path of the file
     pTime = 0
     detector = poseDetector()
@@ -277,30 +278,30 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
     #this is to set up all directories for the the eval to save the workouts
     dir_name = str(os.path.dirname(__file__))
     dir_up = str(Path(dir_name).resolve().parents[2])
-    userpath = dir_up+"\\Users"
+    userpath = dir_up+"/Users"
     if os.path.exists(userpath) == False:
         os.mkdir(userpath)
     username = input("please input user name: ")
-    username_dir = userpath+f"\\{username}"
+    username_dir = userpath+f"/{username}"
     if os.path.exists(username_dir) == False:
         os.mkdir(username_dir)
-    username_dir_workout = username_dir+ f"\\{model_name}"
+    username_dir_workout = username_dir+ f"/{model_name}"
     if os.path.exists(username_dir_workout) == False:
         os.mkdir(username_dir_workout)
-    username_dir_workout_bad = username_dir+ f"\\{model_name}\\Bad_reps"
+    username_dir_workout_bad = username_dir+ f"/{model_name}/Bad_reps"
     if os.path.exists(username_dir_workout_bad) == False:
         os.mkdir(username_dir_workout_bad)
         
-    username_dir_workout_good = username_dir+ f"\\{model_name}\\Good_reps"
+    username_dir_workout_good = username_dir+ f"/{model_name}/Good_reps"
     if os.path.exists(username_dir_workout_good) == False:
         os.mkdir(username_dir_workout_good)
     
     #this iterates through each rep to show the video of that individual rep
     for rep in range(len(frame_rep_list)):
         if prediction[rep] < 0.75:
-            result = cv2.VideoWriter(f'{username_dir_workout_bad}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
+            result = cv2.VideoWriter(f'{username_dir_workout_bad}/{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'mp4v'),10,save_size)
         else:
-            result = cv2.VideoWriter(f'{username_dir_workout_good}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'MP4V'),10,save_size)
+            result = cv2.VideoWriter(f'{username_dir_workout_good}/{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'mp4v'),10,save_size)
         start_frame_id = frame_rep_list[rep][0]# start up
         end_frame_id = frame_rep_list[rep][2]# end up
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id) # setting video to the up position
@@ -314,7 +315,7 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
                 break
             
             if int(cap.get(cv2.CAP_PROP_POS_FRAMES)) == end_frame_id:
-                cv2.destroyWindow("Image")
+                #cv2.destroyWindow("Image")
                 break
             
             # img.shape is a list of the dimensions of the frame 0 = height
@@ -422,12 +423,32 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
             resize = cv2.resize(annotated_img, (modded_width, constant_height))
             #print(f"this is angle from blaze pose {angle2} vs {new_angle}. parallel knee: {angle} ")
             result.write(resize)
-            cv2.imshow("Image", resize)
             key = cv2.waitKey(1)  #millisecond delays
             if key == 27: #esc
                 cv2.destroyWindow("Image")
                 break
-        cv2.destroyAllWindows
     result.release()
     cap.release()
+    # print(f"list of bad rep dir: {username_dir_workout_bad}")
+    # for bad_rep_vid in os.listdir(username_dir_workout_bad):
+    #     print(f"this is bad rep vid: {bad_rep_vid}")
+    #     cap2 = cv2.VideoCapture(os.path.join(username_dir_workout_bad, bad_rep_vid))
+    #     print(os.path.join(username_dir_workout_bad, bad_rep_vid))
+    #     success = True
+    #     while success:
+    #         success, img2 = cap2.read()
+    #         if img2 == None:
+    #             height = 0
+    #             width = 0
+                
+    #         else:
+    #             height = img2.shape[0]
+    #             width = img2.shape[1]
+    #         # if success == False:
+    #         #     print("Could not open video")
+    #         #     break
+    #         if height >0 & width>0:
+    #             cv2.imshow("Frame", img2)
+    #     cv2.destroyAllWindows
+    #     cap2.release()
     #return int(angle), int(angle2), int(hip_angle)
