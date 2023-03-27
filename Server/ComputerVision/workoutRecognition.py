@@ -554,7 +554,8 @@ def makeNewModelV2():
 
 # Compute a dataframe from the provided videos and then save it
 def computeData(modelName):
-    vidsDir = Path(__file__).resolve().parents[2]
+    vidsDir = Path(__file__).resolve().parents[3]
+    print(os.name)
     if os.name == 'posix': # if linux
         vidsDir = vidsDir.as_posix()
     # paths = [vidsDir + "/vids/good_trainML/", # good reps folder
