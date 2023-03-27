@@ -219,7 +219,7 @@ def getReps(keyFrames, anglesPerFrame, repNumber = 9999, workout = None, increas
     else:
         modelName = workout
         modelDir = str(os.path.dirname(__file__))
-        path = f"{str(modelDir)}\\models\\"
+        path = f"{str(modelDir)}/models/"
         model = Workout().loadModel(f"{path}{workout}.json")
         importantAngles = model.getImportantAngles()
         excludeAngles = model.getExcludeAngles()
@@ -490,7 +490,7 @@ def pickLargest(cycles):
 # Set up a new workout
 def setupNewWorkout():
     modelDir = str(os.path.dirname(__file__)) #MLFITNESS_Capstone
-    models = str(modelDir) + "\\models\\"
+    models = str(modelDir) + "/models/"
     print(models)
     name = input("Name of new workout: ").strip()
     while (len(name) == 0) and (name + ".json") in models:
@@ -531,12 +531,12 @@ def makeNewModelV2():
     model["ExcludeAngles"] = excludeAngles
     modelDir = str(os.path.dirname(__file__)) # to ComputerVisionTest
     modelName = modelName.replace(" ","_")
-    models = str(modelDir) + "\\models\\"
+    models = str(modelDir) + "/models/"
     path = models + modelName + ".json"
     #this is to the directory outside the commit of git to get to videos for ml_traing
-    vid_dir = str(Path(modelDir).resolve().parents[2]) + "\\ML_training\\"
-    correct_dir =  vid_dir + f"\\correct_trainML\\{modelName}"
-    incorrect_dir = vid_dir + f"\\incorrect_trainML\\{modelName}" 
+    vid_dir = str(Path(modelDir).resolve().parents[2]) + "/ML_training/"
+    correct_dir =  vid_dir + f"/correct_trainML/{modelName}"
+    incorrect_dir = vid_dir + f"/incorrect_trainML/{modelName}" 
     if os.path.exists(correct_dir) == False:
         os.mkdir(correct_dir)
     else:
@@ -555,10 +555,10 @@ def makeNewModelV2():
 # Compute a dataframe from the provided videos and then save it
 def computeData(modelName):
     vidsDir = Path.cwd().parents[0]
-    # paths = [vidsDir + "\\vids\\good_trainML\\", # good reps folder
-    #          vidsDir + "\\vids\\bad_trainML\\"] # bad reps folder
-    paths = [str(vidsDir) + f"\\ML_training\\correct_trainML\\{modelName}\\", # good reps folder
-             str(vidsDir) + f"\\ML_training\\incorrect_trainML\\{modelName}\\"] # bad reps folder
+    # paths = [vidsDir + "/vids/good_trainML/", # good reps folder
+    #          vidsDir + "/vids/bad_trainML/"] # bad reps folder
+    paths = [str(vidsDir) + f"/ML_training/correct_trainML/{modelName}/", # good reps folder
+             str(vidsDir) + f"/ML_training/incorrect_trainML/{modelName}/"] # bad reps folder
     #put threads or mulitprocessing here
     
     goodOrBad = 1 # lengths of good reps
@@ -603,7 +603,7 @@ def computeData(modelName):
     merged_df = pd.concat(frames)
     print(f"this is the merged df: {merged_df}")
     
-    filename = str(os.path.dirname(__file__)) + "\\dataframes\\" + modelName + ".csv"
+    filename = str(os.path.dirname(__file__)) + "/dataframes/" + modelName + ".csv"
     merged_df.to_csv(filename, index=False)
     return merged_df
 
@@ -627,7 +627,7 @@ def process_divider(items):
 def open_and_train(modelName):
     cwd = cwd = str(os.path.dirname(__file__))
     dataName = str(cwd) + "/dataframes/" + modelName + ".csv"
-    path = f"{str(cwd)}\\models\\"
+    path = f"{str(cwd)}/models/"
     model = Workout().loadModel(f"{path}{modelName}.json")
     importantAngles = model.getImportantAngles()
     
@@ -667,80 +667,87 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 # video output
 def evaluate_video(name, path):
     # try:
-            #this is to load model to get the important angles to display on vid
-            modelDir = str(os.path.dirname(__file__))
-            imp_path = f"{str(modelDir)}\\models\\"
-            model = Workout().loadModel(f"{imp_path}{name}.json")
-            importantAngles = model.getImportantAngles()
-            #this is to load model for predict
-            model_path = modelDir + "\\machineLearning\\ML_Trained_Models\\"+ str(name)+"_trained"
-            load_model = tf.keras.models.load_model(model_path)
-            acutal_frame_list, extracted, y_pred =vid_ML_eval(name,load_model, path)
-            
-            
-            extracted_frame_list = [x[1] for x in extracted]
-            #rep_frame_sets is using rep list to get the indexes of all frames needed
-            rep_frame_sets = []
-            #this for loop grab the 3 first iteams in actual frames which are the frame number
-            #last number is the angle
-            for rep_set in acutal_frame_list:
-                rep_frame_sets.append(extracted_frame_list[rep_set[0]])
-                rep_frame_sets.append(extracted_frame_list[rep_set[1]])
-                rep_frame_sets.append(extracted_frame_list[rep_set[2]])
-            
-            final_frame_list = []
-            #this than makes the list into a list of list
-            #eg. [[up frame, down frame, up frame], [up frame,down frame,up frame]]
-            for i in range(0,len(rep_frame_sets),3):
-                if len(rep_frame_sets[i:i+3]) == 3:
-                    final_frame_list.append(rep_frame_sets[i:i+3])
-            #start of debugging
-            if actual_rep_frame_display == True:
-                print(f"rep_frame_sets: {rep_frame_sets}")
-                print(f"final_frame_list: {final_frame_list}")
-            
-                cap = cv2.VideoCapture(path)
-                max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-                print(f"max_frames: {max_frames}")
-                constant_height = 700
-                for i in rep_frame_sets:
+    #this is to load model to get the important angles to display on vid
+    modelDir = str(os.path.dirname(__file__))
+    imp_path = f"{str(modelDir)}/models/"
+    model = Workout().loadModel(f"{imp_path}{name}.json")
+    importantAngles = model.getImportantAngles()
+    #this is to load model for predict
+    model_path = modelDir + "/machineLearning/ML_Trained_Models/"+ str(name)+"_trained"
+    load_model = tf.keras.models.load_model(model_path)
+    
+    # weights
+    # for layer in load_model.layers: 
+        # print(layer.get_config(), layer.get_weights())
+    
+    
+    # ML eval
+    acutal_frame_list, extracted, y_pred = vid_ML_eval(name,load_model, path)
+    
+    extracted_frame_list = [x[1] for x in extracted]
+    #rep_frame_sets is using rep list to get the indexes of all frames needed
+    rep_frame_sets = []
+    #this for loop grab the 3 first iteams in actual frames which are the frame number
+    #last number is the angle
+    for rep_set in acutal_frame_list:
+        rep_frame_sets.append(extracted_frame_list[rep_set[0]])
+        rep_frame_sets.append(extracted_frame_list[rep_set[1]])
+        rep_frame_sets.append(extracted_frame_list[rep_set[2]])
+    
+    final_frame_list = []
+    #this than makes the list into a list of list
+    #eg. [[up frame, down frame, up frame], [up frame,down frame,up frame]]
+    for i in range(0,len(rep_frame_sets),3):
+        if len(rep_frame_sets[i:i+3]) == 3:
+            final_frame_list.append(rep_frame_sets[i:i+3])
+    #start of debugging
+    if actual_rep_frame_display == True:
+        print(f"rep_frame_sets: {rep_frame_sets}")
+        print(f"final_frame_list: {final_frame_list}")
+    
+        cap = cv2.VideoCapture(path)
+        max_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        print(f"max_frames: {max_frames}")
+        constant_height = 700
+        for i in rep_frame_sets:
 
-                    cap.set(cv2.CAP_PROP_POS_FRAMES, i)
-                    success, img = cap.read()
-                    height = img.shape[0]
-                    width = img.shape[1]
-                    height_percentage = float(constant_height/int(height))
-                    modded_width = int(float(width)*height_percentage)
-                    cv2.putText(img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, rep_frame_sets, frame #: {i}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-                    resize = cv2.resize(img, (modded_width, constant_height))
-                    cv2.imshow("Image", resize)
-                    key = cv2.waitKey(0)  #millisecond delays
-                    if key == 27: #esc
-                        cv2.destroyWindow("Image")
-                cap.release()
-            #end of debuggin
-            #using fianl frame which are the list of list of each rep we can 
-            #than dpisplay each rep as its own video through another py file function
-            prediction = []
-            for pred_index in range(len(y_pred)):
-                prediction.append(y_pred[pred_index][0])
-                print(prediction)
-            poseDisplay.capture_feed(path, final_frame_list, prediction, importantAngles, name)
-            # except:
-            #     print("\nModel name does not exist. create model using option 4")
-            #     print("Models that exist are:")
-            #     model_path = str(vidsDir) + "\\ML_Trained_Models\\"
-            #     count = 1
-            #     for filename in os.listdir(model_path):
-            #         print(f"{count}: {filename}")
-            #mli.vid_ml_eval(name, path)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+            success, img = cap.read()
+            height = img.shape[0]
+            width = img.shape[1]
+            height_percentage = float(constant_height/int(height))
+            modded_width = int(float(width)*height_percentage)
+            cv2.putText(img, f"{str(int(cap.get(cv2.CAP_PROP_POS_FRAMES)))}, rep_frame_sets, frame #: {i}", (70, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+            resize = cv2.resize(img, (modded_width, constant_height))
+            cv2.imshow("Image", resize)
+            key = cv2.waitKey(0)  #millisecond delays
+            if key == 27: #esc
+                cv2.destroyWindow("Image")
+        cap.release()
+    #end of debuggin
+    #using fianl frame which are the list of list of each rep we can 
+    #than dpisplay each rep as its own video through another py file function
+    prediction = []
+    for pred_index in range(len(y_pred)):
+        prediction.append(y_pred[pred_index][0])
+        print(prediction)
+    poseDisplay.capture_feed(path, final_frame_list, prediction, importantAngles, name)
+    # except:
+    #     print("\nModel name does not exist. create model using option 4")
+    #     print("Models that exist are:")
+    #     model_path = str(vidsDir) + "/ML_Trained_Models/"
+    #     count = 1
+    #     for filename in os.listdir(model_path):
+    #         print(f"{count}: {filename}")
+    #mli.vid_ml_eval(name, path)
+
 
 #this function was made so that there are less errors in inputting 
 #due to typing everytime has a higher chance of errors so
 #this function gets all created models and puts them in a list
 #to choose from using digits
 def get_user_input(allow_create=False):
-    model_path = str(os.path.dirname(__file__)) + "\\models\\"
+    model_path = str(os.path.dirname(__file__)) + "/models/"
     model_choices = []
     n = 1
     print("\nlist of trained models:")

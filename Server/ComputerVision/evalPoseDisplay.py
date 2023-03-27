@@ -278,30 +278,30 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name):
     #this is to set up all directories for the the eval to save the workouts
     dir_name = str(os.path.dirname(__file__))
     dir_up = str(Path(dir_name).resolve().parents[2])
-    userpath = dir_up+"\\Users"
+    userpath = dir_up+"/Users"
     if os.path.exists(userpath) == False:
         os.mkdir(userpath)
     username = input("please input user name: ")
-    username_dir = userpath+f"\\{username}"
+    username_dir = userpath+f"/{username}"
     if os.path.exists(username_dir) == False:
         os.mkdir(username_dir)
-    username_dir_workout = username_dir+ f"\\{model_name}"
+    username_dir_workout = username_dir+ f"/{model_name}"
     if os.path.exists(username_dir_workout) == False:
         os.mkdir(username_dir_workout)
-    username_dir_workout_bad = username_dir+ f"\\{model_name}\\Bad_reps"
+    username_dir_workout_bad = username_dir+ f"/{model_name}/Bad_reps"
     if os.path.exists(username_dir_workout_bad) == False:
         os.mkdir(username_dir_workout_bad)
         
-    username_dir_workout_good = username_dir+ f"\\{model_name}\\Good_reps"
+    username_dir_workout_good = username_dir+ f"/{model_name}/Good_reps"
     if os.path.exists(username_dir_workout_good) == False:
         os.mkdir(username_dir_workout_good)
     
     #this iterates through each rep to show the video of that individual rep
     for rep in range(len(frame_rep_list)):
         if prediction[rep] < 0.75:
-            result = cv2.VideoWriter(f'{username_dir_workout_bad}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'mp4v'),10,save_size)
+            result = cv2.VideoWriter(f'{username_dir_workout_bad}/{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'mp4v'),10,save_size)
         else:
-            result = cv2.VideoWriter(f'{username_dir_workout_good}\\{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'mp4v'),10,save_size)
+            result = cv2.VideoWriter(f'{username_dir_workout_good}/{model_name}{rep}.mp4',cv2.VideoWriter_fourcc(*'mp4v'),10,save_size)
         start_frame_id = frame_rep_list[rep][0]# start up
         end_frame_id = frame_rep_list[rep][2]# end up
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_id) # setting video to the up position
