@@ -564,7 +564,7 @@ def computeData(modelName):
              str(vidsDir) + f"\\ML_training\\incorrect_trainML\\{modelName}\\"] # bad reps folder
     
     if os.name == 'posix':
-        for i in range(2)
+        for i in range(2):
             print(f'Path before: {paths[i]}')
             paths[i] = paths[i].replace('\\','/')
             print(f'Path after: {paths[i]}')
