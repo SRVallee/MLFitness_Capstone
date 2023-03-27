@@ -554,11 +554,18 @@ def makeNewModelV2():
 
 # Compute a dataframe from the provided videos and then save it
 def computeData(modelName):
-    vidsDir = Path.cwd().parents[0]
+    vidsDir = Path(__file__).resolve().parents[2]
+    if os.name == 'posix': # if linux
+        vidsDir = vidsDir.as_posix()
     # paths = [vidsDir + "/vids/good_trainML/", # good reps folder
     #          vidsDir + "/vids/bad_trainML/"] # bad reps folder
-    paths = [str(vidsDir) + f"/ML_training/correct_trainML/{modelName}/", # good reps folder
-             str(vidsDir) + f"/ML_training/incorrect_trainML/{modelName}/"] # bad reps folder
+    paths = [str(vidsDir) + f"\\ML_training\\correct_trainML\\{modelName}\\", # good reps folder
+             str(vidsDir) + f"\\ML_training\\incorrect_trainML\\{modelName}\\"] # bad reps folder
+    
+    if os.name == 'posix':
+        for path in paths:
+            path.replace('\\','/')
+    
     #put threads or mulitprocessing here
     
     goodOrBad = 1 # lengths of good reps
