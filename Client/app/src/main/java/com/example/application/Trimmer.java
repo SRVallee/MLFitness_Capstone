@@ -89,4 +89,14 @@ public class Trimmer extends AppCompatActivity implements OnTrimVideoListener { 
         });
     }
 
+    //@Override
+    public void onVideoPrepared() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(Trimmer.this, "onVideoPrepared", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }

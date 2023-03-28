@@ -42,6 +42,7 @@ public class SocketFunctions {
 
     static public User user = new User();
     static public String apiKey = null;
+    static public ArrayList<Integer> exercises = new ArrayList<>();
 
     /**
      * Used for login. This will only be called if there is both user inputted username and
