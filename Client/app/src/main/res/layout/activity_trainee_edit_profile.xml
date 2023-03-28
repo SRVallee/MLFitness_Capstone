@@ -10,11 +10,11 @@
     <TextView
         android:id="@+id/TraineeEditProfileTitle"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:gravity="center"
         android:text="Edit Profile"
         android:textColor="@color/azure_blue"
-        android:textSize="35dp"
+        android:textSize="30dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -155,8 +155,9 @@
         android:backgroundTint="#30ffffff"
         android:onClick="saveEmployeeButton"
         android:text="Confirm"
-        app:layout_constraintBottom_toTopOf="@+id/cancel_update_button"
+        app:layout_constraintTop_toBottomOf="@+id/cancel_update_button"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
