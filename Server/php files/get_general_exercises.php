@@ -6,7 +6,7 @@ $conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness")
 $sql = "SELECT * from user where (user_id = '".$id."' and api_key = '".$apiKey."');";
 $res = mysqli_query($conn, $sql);
 if(mysqli_num_rows($res) != 0){
-    $sql = "SELECT * FROM exercise WHERE trainer_trainer_id = null;";
+    $sql = "SELECT * FROM exercise WHERE trainer_trainer_id IS NULL;";
     $res = mysqli_query($conn, $sql);
     $array = array();
     while($row = mysqli_fetch_assoc($res)){
