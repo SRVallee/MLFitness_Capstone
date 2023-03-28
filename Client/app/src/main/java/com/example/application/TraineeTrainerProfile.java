@@ -101,24 +101,23 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                     }
                     case R.id.trainers: {
                         //Go to trainers
-                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
+                        //Close drawer
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.friends: {
                         //Go to friends
-                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        Intent i = new Intent(getApplicationContext(), FriendsPage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
                         break;
                     }
                     case R.id.profile: {
-                        //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.logout: {
