@@ -22,6 +22,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -64,7 +65,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
+                //flag activity to front makes no sense when all of it gets finished everytime
                 switch (item.getItemId()) {
                     case R.id.home: {
                         //Go to homepage
@@ -156,7 +157,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
     }
 
     public void getTrainers() {
-        ArrayList<Integer> trainers = new ArrayList<>();
+        ArrayList<ObjectTrainer> trainers = new ArrayList<>();
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         String url = "http://162.246.157.128/MLFitness/get_trainers.php";
@@ -171,6 +172,16 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                             String status = jsonResponse.getString("status");
                             if (status.equals("success")) {
                                 Log.d("Array: ", jsonResponse.getString("trainers"));
+                            }
+                            for (int i = 0; i < jsonResponse.getJSONArray("trainers").length(); i++) {
+                                String shit;
+                                shit = jsonResponse.getJSONArray("trainers").getString(i);
+                                String[] shitter= shit.split(",");
+                                if (shitter[2].isEmpty()){
+                                    shitter[2] = "0.0";
+                                }
+                                ObjectTrainer cunt = new ObjectTrainer(Integer.valueOf(shitter[0]),shitter[1],Float.valueOf(shitter[2]),shitter[3],shitter[4],shitter[5]);
+                                trainers.add(cunt);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -191,5 +202,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
             }
         };
         queue.add(stringRequest);
+
+
     }
 }

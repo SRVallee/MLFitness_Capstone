@@ -144,7 +144,6 @@
                 android:orientation="vertical" />
         </ScrollView>
 
-
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView
