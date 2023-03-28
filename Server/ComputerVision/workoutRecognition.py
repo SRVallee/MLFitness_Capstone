@@ -1,8 +1,14 @@
 '''
 
 '''
-import cv2
+import binomialFitting.KeyframeExtraction as KeyframeExtraction
+import machineLearning.MachineLearningInitial as mli
+import evalPoseDisplay as poseDisplay
+import DBHandler as db
+from Workout import Workout
+from WorkoutPose import WorkoutPose
 
+import cv2
 import tensorflow as tf
 import mediapipe as mp
 
@@ -10,16 +16,13 @@ import math
 import json
 import statistics
 import os
-
 from pathlib import Path
-import binomialFitting.KeyframeExtraction as KeyframeExtraction
-import machineLearning.MachineLearningInitial as mli
-import evalPoseDisplay as poseDisplay
-from Workout import Workout
-from WorkoutPose import WorkoutPose
+
 import multiprocessing as mproc
 import pandas as pd
 from PIL import Image
+from datetime import date
+
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -675,15 +678,15 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
 # method to contain the entire video evaluation process, model loading, and 
 # video output
-def evaluate_video(name, path):
+def evaluate_video(userID, modelName, path):
     # try:
     #this is to load model to get the important angles to display on vid
     modelDir = str(os.path.dirname(__file__))
     imp_path = f"{str(modelDir)}/models/"
-    model = Workout().loadModel(f"{imp_path}{name}.json")
+    model = Workout().loadModel(f"{imp_path}{modelName}.json")
     importantAngles = model.getImportantAngles()
     #this is to load model for predict
-    model_path = modelDir + "/machineLearning/ML_Trained_Models/"+ str(name)+"_trained"
+    model_path = modelDir + "/machineLearning/ML_Trained_Models/"+ str(modelName)+"_trained"
     load_model = tf.keras.models.load_model(model_path)
     
     # weights
@@ -692,7 +695,7 @@ def evaluate_video(name, path):
     
     
     # ML eval
-    acutal_frame_list, extracted, y_pred = vid_ML_eval(name,load_model, path)
+    acutal_frame_list, extracted, y_pred = vid_ML_eval(modelName,load_model, path)
     
     extracted_frame_list = [x[1] for x in extracted]
     #rep_frame_sets is using rep list to get the indexes of all frames needed
@@ -741,15 +744,26 @@ def evaluate_video(name, path):
     for pred_index in range(len(y_pred)):
         prediction.append(y_pred[pred_index][0])
         print(prediction)
-    poseDisplay.capture_feed(path, final_frame_list, prediction, importantAngles, name)
-    # except:
-    #     print("\nModel name does not exist. create model using option 4")
-    #     print("Models that exist are:")
-    #     model_path = str(vidsDir) + "/ML_Trained_Models/"
-    #     count = 1
-    #     for filename in os.listdir(model_path):
-    #         print(f"{count}: {filename}")
-    #mli.vid_ml_eval(name, path)
+    # username = input("please input user name: ")
+    score, vidPath = poseDisplay.capture_feed(path, final_frame_list, prediction, importantAngles, modelName, userID)
+    return eval_to_db(userID, score, modelName, vidPath)
+    
+
+# commit evaluation to database
+def eval_to_db(userID, score, exerciseIDorName, vidPath):
+    connection = db.connect_to_db()
+    currDate = str(date.today())
+    
+    if str.isdigit(exerciseIDorName):
+        exerID = int(exerciseIDorName)
+        workoutID = db.insert_workout(connection, userID, score, currDate, vidPath, exerciseID=exerID)
+        
+    else:
+        workoutID = db.insert_workout(connection, userID, score, currDate, vidPath, exerciseName=exerciseIDorName)
+    
+    connection.close()
+    return workoutID
+    
 
 
 #this function was made so that there are less errors in inputting 

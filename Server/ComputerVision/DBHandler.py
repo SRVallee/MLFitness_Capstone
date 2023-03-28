@@ -82,7 +82,10 @@ def main():
     if not select_exercise(con, "squat"):
         test_init(con)
     
-    id = insert_workout(con, 5, 2, 1, "2023-03-23", "lol")
+    sql = "SELECT MAX(workout_id) FROM workout"
+    print(select_one(con, sql, None)["MAX(workout_id)"])
+    
+    id = insert_workout(con, 5, 1, "2023-03-23", "lol",  exerciseID=2)
     print(select_workout(con, str(id)))
     
-main()
+# main()

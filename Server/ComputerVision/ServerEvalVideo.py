@@ -10,7 +10,7 @@ def main():
     args = sys.argv[1:]
     
     if len(args) != 3:
-        print("Must enter a user ID, workout name/ID, and path to video")
+        print("Must enter a user ID, exercise name/ID, and path to video")
         sys.exit(1)
         
     else:
@@ -25,7 +25,7 @@ def main():
             # should be able to get in PHP with:
             # $command = escapeshellcmd('/usr/custom/test.py');
             # $output = shell_exec($command);
-            print >>sys.stderr, workoutID
+            sys.stderr.write(str(workoutID))
             sys.exit(0)
             
 
