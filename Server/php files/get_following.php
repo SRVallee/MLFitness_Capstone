@@ -8,12 +8,11 @@ if(mysqli_num_rows($res) != 0){
     $sql = "SELECT * from relationships WHERE user_id = (".$id." or user_id_2 = ".$id.") and training_relationship = 1;";
     $res = mysqli_query($conn, $sql);
     $array = [];
-    for ($i = 0; $i < mysqli_num_rows($res); $i +=1){
-        $row = mysqli_fetch_assoc($res);
+    while($row = mysqli_fetch_assoc($res)){
         if ($row["user_id"] == $id){
-            $array += $row["user_id_2"];
+            $array[] = $row["user_id_2"];
         }else{
-            $array += $row["user_id"];
+            $array[] = $row["user_id"];
         }
     }
     $result = array("status" => "success", "trainers" => $array);
