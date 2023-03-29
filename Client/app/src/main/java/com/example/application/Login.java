@@ -1,5 +1,6 @@
 package com.example.application;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -236,6 +237,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     }
 
     private void getGeneralExercises(){
+        Context context = getApplicationContext();
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         String url = "http://162.246.157.128/MLFitness/get_general_exercises.php";
 
@@ -252,7 +254,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                             }
                             JSONArray exercises = new JSONArray(jsonResponse.getString("exercises"));
                             for (int i = 0; i < exercises.length(); i++) {
-                                SocketFunctions.exercises.add(exercises.getInt(i));
+                                SocketFunctions.addExercise(context, exercises.getJSONObject(i));
                             }
                             Log.d("exercises: ", SocketFunctions.exercises.toString());
                         } catch (JSONException e) {
