@@ -9,12 +9,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="select workout before uploading video">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/ExercisePage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/exercise_page.xml" afterDir="false" />
+    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="exercise page">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/SocketFunctions.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/SocketFunctions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/ApiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/ApiService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeUpload.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeUpload.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -212,7 +210,14 @@
       <option name="project" value="LOCAL" />
       <updated>1680061799529</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="exercise page">
+      <created>1680068699725</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1680068699725</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -247,6 +252,7 @@
     <MESSAGE value="fixed app name" />
     <MESSAGE value="deleted unused class" />
     <MESSAGE value="select workout before uploading video" />
-    <option name="LAST_COMMIT_MESSAGE" value="select workout before uploading video" />
+    <MESSAGE value="exercise page" />
+    <option name="LAST_COMMIT_MESSAGE" value="exercise page" />
   </component>
 </project>
