@@ -9,11 +9,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="Fixed navigation bar in trainer page">
+    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="Exercise card for home page">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Login.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/SocketFunctions.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/SocketFunctions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeWorkouts.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeWorkouts.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/exercise_card.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/exercise_card.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +42,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
+        <option value="layoutResourceFile" />
       </list>
     </option>
   </component>
@@ -168,7 +169,21 @@
       <option name="project" value="LOCAL" />
       <updated>1680022746070</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Get general exercises after logging in">
+      <created>1680052524882</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1680052524882</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Exercise card for home page">
+      <created>1680057393131</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1680057393131</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -197,6 +212,8 @@
     <MESSAGE value="idk if It'll break" />
     <MESSAGE value="jsonArray example" />
     <MESSAGE value="Fixed navigation bar in trainer page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed navigation bar in trainer page" />
+    <MESSAGE value="Get general exercises after logging in" />
+    <MESSAGE value="Exercise card for home page" />
+    <option name="LAST_COMMIT_MESSAGE" value="Exercise card for home page" />
   </component>
 </project>

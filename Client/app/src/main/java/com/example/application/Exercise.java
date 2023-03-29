@@ -39,6 +39,8 @@ public class Exercise {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.trainerId = -1;
+        this.trainerName = "Kensee";
     }
 
 
@@ -81,12 +83,6 @@ public class Exercise {
 
     @Override
     public String toString() {
-        return "Exercise{" +
-                "id=" + id +
-                ", trainerId=" + trainerId +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", trainerName='" + trainerName + '\'' +
-                '}';
+        return name + ": " + trainerName;
     }
 }
