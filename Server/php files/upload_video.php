@@ -2,7 +2,8 @@
 if (isset($_FILES['video'])) {
   $user_id = (int)$_POST["id"];
   $apiKey = $_POST["apiKey"];
-  $trainer_id = (int)$_POST["trainer_id"];
+  $exercise_id = $_POST["exercise_id"];
+
 
   $filename = 'video_' . date('Ymd_His') . '.mp4';
 
