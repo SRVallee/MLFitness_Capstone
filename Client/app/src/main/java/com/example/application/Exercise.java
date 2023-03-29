@@ -16,11 +16,12 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Exercise {
 
-    int id, trainerId;
-    String name, description, trainerName;
+    private int id, trainerId;
+    private String name, description, trainerName;
 
 
     public Exercise(Context context, int id, String name, String description, int trainer){
@@ -43,7 +44,30 @@ public class Exercise {
         this.trainerName = "Kinsee";
     }
 
+    public String getName() {
+        return name;
+    }
 
+    public int getTrainerId() {
+        return trainerId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getTrainerName() {
+        return trainerName;
+    }
+
+    /**
+     * Gets trainer info from server
+     * @param context
+     */
     private void getTrainerInfo(Context context){
         RequestQueue queue = Volley.newRequestQueue(context);
         String url = "http://162.246.157.128/MLFitness/get_user_info.php";
@@ -84,5 +108,18 @@ public class Exercise {
     @Override
     public String toString() {
         return name + ": " + trainerName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Exercise)) return false;
+        Exercise exercise = (Exercise) o;
+        return id == exercise.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

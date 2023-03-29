@@ -35,6 +35,7 @@ public class SocketFunctions {
     static public User user = new User();
     static public String apiKey = null;
     static public ArrayList<Exercise> exercises = new ArrayList<>();
+    static public Exercise selectedExercise;
 
     /**
      * upload profile picture
