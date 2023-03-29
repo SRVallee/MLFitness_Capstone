@@ -3,6 +3,7 @@ package com.example.application;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -11,7 +12,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -38,9 +47,25 @@ public class TraineeTrainerProfile extends AppCompatActivity {
     ActionBarDrawerToggle drawerToggle;
     ArrayList<Integer> AllTrainerIds;
 
+    private ScrollView trainer_Full_List;
     private Boolean exit = false;
     private long pressedTime;
+    //this is for the vertical scroll view for the trainer search page it
+    //is the adapter for getting and setting the views
+    public class trainer_adapter extends FrameLayout{
 
+        private Context context;
+        private ArrayList<ObjectTrainer> trainerList;
+        public trainer_adapter(@NonNull Context context, ArrayList<ObjectTrainer> trainerList) {
+            super(context);
+            this.context = context;
+            this.trainerList = trainerList;
+
+        }
+        public void addView(View child, int index, ViewGroup viewgroup){
+
+        }
+    }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -62,6 +87,21 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         drawerToggle.syncState();
         getTrainers();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        ScrollView trainer_list = findViewById(R.id.trainer_full_list);
+        LinearLayout linearLayout_trainer = findViewById(R.id.trainer_display_list);
+        // this is to inflate the trainer row
+        for (int i = 0; i < 6; i++) {
+            View Trainer_constraint = LayoutInflater.from(this).inflate(R.layout.trainer_row, null);
+            //this is to get the text view from the trainer row to change the set text
+            TextView Trainer_name =Trainer_constraint.findViewById(R.id.Trainer_name_text);
+            LinearLayout trainer;
+            Trainer_name.setText("bombsas "+i);
+            Trainer_name.setTextSize(25);
+            linearLayout_trainer.addView(Trainer_constraint);
+        }
+
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -163,6 +203,8 @@ public class TraineeTrainerProfile extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
+                    //this is async reyes didn't tell me NO ONE TOLD ME
+                    //this runs on a different thread than the main
                     @Override
                     public void onResponse(String response) {
                         Log.d("Response: ", response.toString());
@@ -173,14 +215,15 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                                 Log.d("Array: ", jsonResponse.getString("trainers"));
                             }
                             for (int i = 0; i < jsonResponse.getJSONArray("trainers").length(); i++) {
-                                String shit;
-                                shit = jsonResponse.getJSONArray("trainers").getString(i);
-                                String[] shitter= shit.split(",");
-                                if (shitter[2].isEmpty()){
-                                    shitter[2] = "0.0";
+                                String trainerlist;
+                                trainerlist = jsonResponse.getJSONArray("trainers").getString(i);
+                                String[] trainerSplit= trainerlist.split(",");
+                                if (trainerSplit[2].isEmpty()){
+                                    trainerSplit[2] = "0.0";
                                 }
-                                ObjectTrainer cunt = new ObjectTrainer(Integer.valueOf(shitter[0]),shitter[1],Float.valueOf(shitter[2]),shitter[3],shitter[4],shitter[5]);
-                                trainers.add(cunt);
+                                ObjectTrainer trainerObj = new ObjectTrainer(Integer.valueOf(trainerSplit[0]),trainerSplit[1],
+                                        Float.valueOf(trainerSplit[2]),trainerSplit[3],trainerSplit[4],trainerSplit[5]);
+                                trainers.add(trainerObj);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -201,7 +244,6 @@ public class TraineeTrainerProfile extends AppCompatActivity {
             }
         };
         queue.add(stringRequest);
-
 
     }
 }

@@ -42,6 +42,7 @@
             android:textStyle="bold" />
 
         <HorizontalScrollView
+            android:id="@+id/trainer_pfp_scroll"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:fillViewport="true">
