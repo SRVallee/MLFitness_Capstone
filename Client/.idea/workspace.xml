@@ -9,9 +9,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="jsonArray example">
+    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="Fixed navigation bar in trainer page">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeTrainerProfile.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeTrainerProfile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Login.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/SocketFunctions.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/SocketFunctions.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -159,7 +161,14 @@
       <option name="project" value="LOCAL" />
       <updated>1680022158301</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Fixed navigation bar in trainer page">
+      <created>1680022746070</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1680022746070</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -187,6 +196,7 @@
     <MESSAGE value="retrieving data wip" />
     <MESSAGE value="idk if It'll break" />
     <MESSAGE value="jsonArray example" />
-    <option name="LAST_COMMIT_MESSAGE" value="jsonArray example" />
+    <MESSAGE value="Fixed navigation bar in trainer page" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed navigation bar in trainer page" />
   </component>
 </project>
