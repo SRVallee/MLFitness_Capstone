@@ -40,7 +40,7 @@ public class Exercise {
         this.name = name;
         this.description = description;
         this.trainerId = -1;
-        this.trainerName = "Kensee";
+        this.trainerName = "Kinsee";
     }
 
 
