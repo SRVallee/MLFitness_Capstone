@@ -25,7 +25,7 @@ if (isset($_FILES['video'])) {
       $row = mysqli_fetch_assoc($res);
       try {
         if(move_uploaded_file($_FILES['video']['tmp_name'], $target_path)){
-          $command = escapeshellcmd("/home/ubuntu/CapstoneFiles/MLFitness_Capstone/Server/ComputerVision ".$user_id." ".$row["model_name"]." ".$target_path);
+          $command = escapeshellcmd("/home/ubuntu/CapstoneFiles/MLFitness_Capstone/Server/ComputerVision/ServerEvalVideo.py ".$user_id." ".$row["model_name"]." ".$target_path);
           $output = shell_exec($command);
 
           $result = array("status" => "success",     //return the user info
