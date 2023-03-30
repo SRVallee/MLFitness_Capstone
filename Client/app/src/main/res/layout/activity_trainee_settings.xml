@@ -72,7 +72,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingStart="150dp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:id="@+id/night_mode_switch"/>
 
 
         </LinearLayout>
@@ -116,7 +117,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingStart="150dp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:id="@+id/notification_switch"/>
 
 
         </LinearLayout>
@@ -161,7 +163,6 @@
                 android:gravity="center"
                 android:paddingStart="150dp"
                 android:layout_gravity="center" />
-
 
         </LinearLayout>
 

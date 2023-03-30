@@ -1,5 +1,6 @@
 package com.example.application;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,12 +9,15 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -24,6 +28,7 @@ public class TraineeSettings extends AppCompatActivity{
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+    Switch night, notification;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -34,6 +39,7 @@ public class TraineeSettings extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +51,8 @@ public class TraineeSettings extends AppCompatActivity{
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        night = findViewById(R.id.night_mode_switch);
+        notification = findViewById(R.id.notification_switch);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -72,7 +80,8 @@ public class TraineeSettings extends AppCompatActivity{
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
@@ -124,7 +133,25 @@ public class TraineeSettings extends AppCompatActivity{
                 return false;
             }
         });
+
+        night.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // do something, the isChecked will be
+                // true if the switch is in the On position
+            }
+        });
+
+        notification.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // do something, the isChecked will be
+                // true if the switch is in the On position
+            }
+        });
     }
+
+
+
+
 
     @Override
     public void onBackPressed() {
