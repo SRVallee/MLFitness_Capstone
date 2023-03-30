@@ -23,6 +23,8 @@ if($conn){
                 if($isTrainer == 1){
                     $sql = "INSERT INTO trainer(trainer_id, credentials, reviews_location, ratings_amount) values('".$row["user_id"]."', 'No credatials yet', '/yes/here', 0);";
                     $res = mysqli_query($conn, $sql);
+                    $sql = "SELECT * from user where trainer_id = ".$row["user_id"];
+                    $res = mysqli_query($conn, $sql);
                     if(mysqli_num_rows($res) != 0){
                         $result = array("status" => "success",     //return the user info
                         "user_id" => $row["user_id"],
