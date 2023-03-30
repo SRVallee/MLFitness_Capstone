@@ -1,5 +1,6 @@
 package com.example.application;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -108,6 +109,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                                 SocketFunctions.apiKey = jsonResponse.getString("api_key");
                                 Log.d("User id: ", "successful login");
                                 Intent i;
+                                getGeneralExercises();
+
                                 USER_ID = SocketFunctions.user.getEmail();
                                 USER_NICKNAME = SocketFunctions.user.getName();
                                 //Once profile pictures are implemented change this
@@ -227,6 +230,48 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         startActivity(i);
         this.finish();
 
+    }
+
+    private void getGeneralExercises(){
+        Context context = getApplicationContext();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://162.246.157.128/MLFitness/get_general_exercises.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            if (status.equals("success")) {
+                                Log.d("Array: ", jsonResponse.getString("exercises"));
+                            }
+                            JSONArray exercises = new JSONArray(jsonResponse.getString("exercises"));
+                            for (int i = 0; i < exercises.length(); i++) {
+                                SocketFunctions.addExercise(context, exercises.getJSONObject(i));
+                            }
+                            Log.d("exercises: ", SocketFunctions.exercises.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
 

@@ -10,6 +10,7 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -21,6 +22,12 @@ import android.app.Activity;
 import android.graphics.*;
 import android.os.Bundle;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.androidplot.util.PixelUtils;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.XYSeries;
@@ -32,6 +39,9 @@ import java.text.ParsePosition;
 import java.util.*;
 
 import com.google.android.material.navigation.NavigationView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.logging.Handler;
 
@@ -92,7 +102,8 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
@@ -251,5 +262,54 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
             finish();
             super.onBackPressed();
         }
+    }
+
+    public void getTrainers() {
+        ArrayList<ObjectTrainer> trainers = new ArrayList<>();
+
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://162.246.157.128/MLFitness/get_trainers.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            if (status.equals("success")) {
+                                Log.d("Array: ", jsonResponse.getString("trainers"));
+                            }
+                            for (int i = 0; i < jsonResponse.getJSONArray("trainers").length(); i++) {
+                                String shit;
+                                shit = jsonResponse.getJSONArray("trainers").getString(i);
+                                String[] shitter= shit.split(",");
+                                if (shitter[2].isEmpty()){
+                                    shitter[2] = "0.0";
+                                }
+                                ObjectTrainer cunt = new ObjectTrainer(Integer.valueOf(shitter[0]),shitter[1],Float.valueOf(shitter[2]),shitter[3],shitter[4],shitter[5]);
+                                trainers.add(cunt);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
     }
 }

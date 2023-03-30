@@ -9,9 +9,13 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="upload video now sends exercise id for evaluation">
+    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="a comment">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/ApiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/ApiService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Login.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeWorkouts.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeWorkouts.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_trainee_workouts.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_trainee_workouts.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,6 +55,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -223,7 +228,14 @@
       <option name="project" value="LOCAL" />
       <updated>1680069708394</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="a comment">
+      <created>1680145116873</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1680145116873</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -260,6 +272,7 @@
     <MESSAGE value="select workout before uploading video" />
     <MESSAGE value="exercise page" />
     <MESSAGE value="upload video now sends exercise id for evaluation" />
-    <option name="LAST_COMMIT_MESSAGE" value="upload video now sends exercise id for evaluation" />
+    <MESSAGE value="a comment" />
+    <option name="LAST_COMMIT_MESSAGE" value="a comment" />
   </component>
 </project>
