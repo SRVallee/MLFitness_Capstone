@@ -678,7 +678,7 @@ def vid_ML_eval(modelName,trained_MLmodel, vid_path):
 
 # method to contain the entire video evaluation process, model loading, and 
 # video output
-def evaluate_video(userID, modelName, path):
+def evaluate_video(userID, modelName, path, trainer = None):
     # try:
     #this is to load model to get the important angles to display on vid
     modelDir = str(os.path.dirname(__file__))
@@ -686,7 +686,10 @@ def evaluate_video(userID, modelName, path):
     model = Workout().loadModel(f"{imp_path}{modelName}.json")
     importantAngles = model.getImportantAngles()
     #this is to load model for predict
-    model_path = modelDir + "/machineLearning/ML_Trained_Models/"+ str(modelName)+"_trained"
+    if trainer:
+        model_path = modelDir + "/machineLearning/ML_Trained_Models/"+trainer+"/"+ str(modelName)+"_trained"
+    else:
+        model_path = modelDir + "/machineLearning/ML_Trained_Models/"+ str(modelName)+"_trained"
     load_model = tf.keras.models.load_model(model_path)
     
     # weights
