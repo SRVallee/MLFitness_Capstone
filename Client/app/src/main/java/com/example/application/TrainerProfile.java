@@ -48,10 +48,10 @@ public class TrainerProfile extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent trainer_profile = getIntent();
         ObjectTrainer trainer_obj = (ObjectTrainer) trainer_profile.getSerializableExtra("trainerObj");
-        Log.d("trainer name", "onCreate: "+trainer_obj.getName());
+        Log.d("trainer name", "onCreate: "+trainer_obj.getTrainer_name());
         Log.d("teinar id", "onCreate: "+trainer_obj.getId());
         TextView trainer_name = findViewById(R.id.trainerProfileTitle);
-        trainer_name.setText(trainer_obj.getName());
+        trainer_name.setText(trainer_obj.getTrainer_name());
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

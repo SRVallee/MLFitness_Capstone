@@ -231,7 +231,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                                     Trainer_constraint.setTag(i);
                                     //this is to get the text view from the trainer row to change the set text
                                     TextView Trainer_name =Trainer_constraint.findViewById(R.id.Trainer_name_text);
-                                    Trainer_name.setText(trainers.get(i).getName());
+                                    Trainer_name.setText(trainers.get(i).getTrainer_name());
                                     Trainer_name.setTextSize(25);
                                     //this adds the view
                                     linearLayout_trainer.addView(Trainer_constraint,i);
@@ -255,7 +255,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                                             };
                                             countdown.start();
                                             Log.d("in onclick", "onClick: "+position);
-                                            String trainer_name = trainers.get(position).getName();
+                                            String trainer_name = trainers.get(position).getTrainer_name();
                                             Log.d("name on row", "onClick: "+trainer_name);
                                             Intent Trainer_profile = new Intent(getApplicationContext(), TrainerProfile.class);
                                             Trainer_profile.putExtra("trainerObj", trainers.get(position));
