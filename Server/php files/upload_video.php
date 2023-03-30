@@ -3,6 +3,7 @@ if (isset($_FILES['video'])) {
   $user_id = (int)$_POST["id"];
   $apiKey = $_POST["apiKey"];
   $exercise_id = $_POST["exercise_id"];
+  $command = escapeshellcmd('/usr/custom/test.py');//replace with ml and it's parameters
 
 
   $filename = 'video_' . date('Ymd_His') . '.mp4';
@@ -23,6 +24,7 @@ if (isset($_FILES['video'])) {
 
     try {
       if(move_uploaded_file($_FILES['video']['tmp_name'], $target_path)){
+        $output = shell_exec($command);
         $result = array("status" => "success",     //return the user info
                 "name" => $filename);
                  #TODO connect with trainer
