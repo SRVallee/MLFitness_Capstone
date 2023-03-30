@@ -223,7 +223,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                                     //this is to get the text view from the trainer row to change the set text
                                     TextView Trainer_name =Trainer_constraint.findViewById(R.id.Trainer_name_text);
                                     LinearLayout trainer;
-                                    Trainer_name.setText("bombsas "+i);
+                                    Trainer_name.setText(trainers.get(i).getName());
                                     Trainer_name.setTextSize(25);
                                     linearLayout_trainer.addView(Trainer_constraint);
                                 }
@@ -232,7 +232,6 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        //everything has to be done here due to the on response is asynchronous
 
                     }
 
