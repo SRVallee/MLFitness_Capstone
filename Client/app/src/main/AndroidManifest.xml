@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
     <application
         android:usesCleartextTraffic="true"
@@ -19,8 +20,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Application"
         tools:targetApi="31">
-
-
 
         <activity
             android:name=".MainActivity"
@@ -69,12 +68,6 @@
             android:name=".FriendsPage" >
         </activity>
         <activity
-            android:name=".TraineeTrim" >
-        </activity>
-        <activity
-            android:name=".Trimmer" >
-        </activity>
-        <activity
             android:name=".TraineeProfile" >
         </activity>
         <activity
@@ -101,6 +94,18 @@
         <activity
             android:name=".TrainerProfile" >
         </activity>
-
+        <activity
+            android:name=".LoadAllExistingVideos"
+            android:noHistory="true">
+        </activity>
+        <activity
+            android:name=".FinalVideoActivity">
+        </activity>
+        <activity
+            android:name=".TrimVideoActivty"
+            android:noHistory="true"/>
+        <activity android:name=".Trimmer"
+            android:noHistory="true">
+        </activity>
     </application>
 </manifest>

@@ -12,5 +12,5 @@ public interface ApiService {
     Call<String> uploadVideo(@Part("video\"; filename=\"video.mp4\"") RequestBody video,
                              @Part("id") String id,
                              @Part("apiKey") String apiKey,
-                             @Part("exercise_id") String exercise_id);
+                             @Part("trainer_id") String trainerId);
 }

@@ -1,6 +1,5 @@
 package com.example.application;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -38,7 +37,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     String USER_ID;
     String USER_NICKNAME;
     String USER_PROFILE_URL;
-
     String email, password;
 
     EditText usernameLogin;
@@ -52,6 +50,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         //Init fields in xml
         usernameLogin = findViewById(R.id.userNameEditText);
         passwordLogin = findViewById(R.id.passwordEditText);
+
     }
 
     /***
@@ -101,8 +100,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                             String status = jsonResponse.getString("status");
                             if (status.equals("success")) { //or email already exists if when implemented
                                 //Log.d("Response: ", response.toString());
-
-                                //load user info
                                 SocketFunctions.user.setId(Integer.parseInt(jsonResponse.getString("user_id")));
                                 SocketFunctions.user.setUserName(jsonResponse.getString("username"));
                                 SocketFunctions.user.setEmail(jsonResponse.getString("email"));
@@ -111,11 +108,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                                 SocketFunctions.apiKey = jsonResponse.getString("api_key");
                                 Log.d("User id: ", "successful login");
                                 Intent i;
-
-                                //get public exercises
-                                getGeneralExercises();
-
-                                USER_ID = SocketFunctions.user.getEmail();
+                                int tempInt = SocketFunctions.user.getId();
+                                USER_ID = String.valueOf(tempInt);
                                 USER_NICKNAME = SocketFunctions.user.getName();
                                 //Once profile pictures are implemented change this
                                 USER_PROFILE_URL = "";
@@ -235,49 +229,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         this.finish();
 
     }
-
-    private void getGeneralExercises(){
-        Context context = getApplicationContext();
-        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = "http://162.246.157.128/MLFitness/get_general_exercises.php";
-
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("Response: ", response.toString());
-                        try {
-                            JSONObject jsonResponse = new JSONObject(response);
-                            String status = jsonResponse.getString("status");
-                            if (status.equals("success")) {
-                                Log.d("Array: ", jsonResponse.getString("exercises"));
-                            }
-                            JSONArray exercises = new JSONArray(jsonResponse.getString("exercises"));
-                            for (int i = 0; i < exercises.length(); i++) {
-                                SocketFunctions.addExercise(context, exercises.getJSONObject(i));
-                            }
-                            Log.d("exercises: ", SocketFunctions.exercises.toString());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("User id: ", error.getLocalizedMessage());
-            }
-        }) {
-            protected Map<String, String> getParams() {
-                Map<String, String> paramV = new HashMap<>();
-                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
-                paramV.put("apiKey", SocketFunctions.apiKey);
-                return paramV;
-            }
-        };
-        queue.add(stringRequest);
-    }
-
 
     /***
      * This function is just a temp func to access the application without logging in

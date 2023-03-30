@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,24 +20,28 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -47,10 +52,17 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.coremedia.iso.boxes.Container;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
-import com.gowtham.library.utils.LogMessage;
-import com.gowtham.library.utils.TrimVideo;
+
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Track;
+import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
+import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
+import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
+//import com.gowtham.library.utils.LogMessage;
+//import com.gowtham.library.utils.TrimVideo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -60,9 +72,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import life.knowledge4.videotrimmer.utils.FileUtils;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -79,7 +96,6 @@ public class TraineeUpload extends AppCompatActivity {
     Button recordButton;
     Button storageButton;
     Button uploadButton;
-    Spinner exerciseSpinner;
 
     TextView uploadingText;
     ProgressBar uploadIcon;
@@ -112,14 +128,6 @@ public class TraineeUpload extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_upload);
-        /**SPINNER**/
-        exerciseSpinner = findViewById(R.id.workout_upload_select);
-        ArrayAdapter<Exercise> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, SocketFunctions.exercises);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        exerciseSpinner.setAdapter(adapter);
-
-        exerciseSpinner.setSelection(SocketFunctions.exercises.indexOf(SocketFunctions.selectedExercise));
 
         videoPreviewer = findViewById(R.id.videoView2);
 
@@ -195,7 +203,8 @@ public class TraineeUpload extends AppCompatActivity {
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
@@ -419,6 +428,7 @@ public class TraineeUpload extends AppCompatActivity {
         }
     }
 
+
     private String getFileType(Uri videoURI) {
         ContentResolver r = getContentResolver();
         // get the file type ,in this case its mp4
@@ -428,7 +438,6 @@ public class TraineeUpload extends AppCompatActivity {
 
     private void uploadVideo() throws IOException {
         if (videoURI != null) {
-            int exercise_id = ((Exercise) exerciseSpinner.getSelectedItem()).getId();
             setUploadingIcon(true);
             InputStream inputStream = getContentResolver().openInputStream(videoURI);
             byte[] bytes = getBytes(inputStream);
@@ -440,7 +449,8 @@ public class TraineeUpload extends AppCompatActivity {
                     .addConverterFactory(ScalarsConverterFactory.create())
                     .build();
             ApiService apiService = retrofit.create(ApiService.class);
-            Call<String> call = apiService.uploadVideo(requestBody, String.valueOf(SocketFunctions.user.getId()), SocketFunctions.apiKey, String.valueOf(exercise_id));
+            int trainerId = 0; //TODO set to trainer the video belongs to.
+            Call<String> call = apiService.uploadVideo(requestBody, String.valueOf(SocketFunctions.user.getId()), SocketFunctions.apiKey, String.valueOf(trainerId));
             call.enqueue(new Callback<String>() {
 
                 @Override
@@ -473,22 +483,24 @@ public class TraineeUpload extends AppCompatActivity {
         }
     }
 
-    ActivityResultLauncher<Intent> startForResult = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK &&
-                        result.getData() != null) {
-                    Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
-                    Log.d(TAG, "Trimmed path:: " + uri);
-
-                } else
-                    LogMessage.v("videoTrimResultLauncher data is null");
-            });
-
     public void trimButtonPressed(View view) {
-        Intent i = new Intent(getApplicationContext(), TraineeTrim.class);
+
+        Intent i = new Intent(getApplicationContext(), Trimmer.class);
         startActivity(i);
-        finish();
+
+    }
+
+
+    private String getRealPathFromURI(Uri contentUri) {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        CursorLoader loader = new CursorLoader(this, contentUri, proj, null, null, null);
+        Cursor cursor = loader.loadInBackground();
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        String result = cursor.getString(column_index);
+        cursor.close();
+        Log.d("video",""+ videoURI.getPath());
+        return result;
     }
 
     /***

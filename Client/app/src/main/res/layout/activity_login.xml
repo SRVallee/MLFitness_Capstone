@@ -22,7 +22,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <EditText
         android:id="@+id/userNameEditText"
         android:layout_width="match_parent"
@@ -40,9 +39,9 @@
         android:textColorHint="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/passwordEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.6"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/signInTextView" />
+
 
     <EditText
         android:id="@+id/passwordEditText"
@@ -91,9 +90,9 @@
         android:layout_marginBottom="62dp"
         android:background="@drawable/ic_rounding"
         android:backgroundTint="#30ffffff"
+        android:text="LOGIN"
         android:clickable="true"
         android:onClick="attemptLogin"
-        android:text="LOGIN"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
