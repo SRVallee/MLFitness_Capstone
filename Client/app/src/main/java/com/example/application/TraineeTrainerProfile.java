@@ -10,7 +10,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -216,18 +218,51 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                                             Float.valueOf(trainerSplit[2]),trainerSplit[3],trainerSplit[4],trainerSplit[5]);
                                     trainers.add(trainerObj);
                                 }
+                                //this is for the interaction with  the scrollview
                                 ScrollView trainer_list = findViewById(R.id.trainer_full_list);
                                 LinearLayout linearLayout_trainer = findViewById(R.id.trainer_display_list);
-                                // this is to inflate the trainer row
+                                //this for loop is to add each trainer into the linearlayout
                                 for (int i = 0; i < trainers.size(); i++) {
+                                    // this is to inflate the trainer row
                                     View Trainer_constraint = LayoutInflater.from(context).inflate(R.layout.trainer_row, null);
+                                    //this is to set the positions to get the item
+                                    Trainer_constraint.setTag(i);
                                     //this is to get the text view from the trainer row to change the set text
                                     TextView Trainer_name =Trainer_constraint.findViewById(R.id.Trainer_name_text);
-                                    LinearLayout trainer;
                                     Trainer_name.setText(trainers.get(i).getName());
                                     Trainer_name.setTextSize(25);
-                                    linearLayout_trainer.addView(Trainer_constraint);
+                                    //this adds the view
+                                    linearLayout_trainer.addView(Trainer_constraint,i);
+                                    //linearLayout_trainer.setOnClickListener(clickInLinearLayout());
+                                    //this is to set a onclick listener for each trainer row
+                                    Trainer_constraint.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Integer position = Integer.parseInt(v.getTag().toString());
+
+                                            CountDownTimer countdown = new CountDownTimer(2 * 1000, 1000) {
+                                                @Override
+                                                public void onTick(long millisUntilFinished) {
+                                                    v.setBackgroundColor(Color.LTGRAY);
+                                                }
+
+                                                @Override
+                                                public void onFinish() {
+                                                    v.setBackgroundColor(Color.WHITE);
+                                                }
+                                            };
+                                            countdown.start();
+                                            Log.d("in onclick", "onClick: "+position);
+                                            String trainer_name = trainers.get(position).getName();
+                                            ObjectTrainer trainer_obj = trainers.get(position);
+                                            Log.d("name on row", "onClick: "+trainer_name);
+                                        }
+                                    });
+                                    Log.d("inside for loop", "onResponse: "+i);
                                 }
+
+
+
                             }
 
                         } catch (JSONException e) {
@@ -251,5 +286,16 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         };
         queue.add(stringRequest);
         return trainers;
+    }
+
+    private View.OnClickListener clickInLinearLayout() {
+        return new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                Integer position = Integer.parseInt(v.getTag().toString());
+                Log.d("in onclick", "onClick: "+position);
+            }
+        };
     }
 }
