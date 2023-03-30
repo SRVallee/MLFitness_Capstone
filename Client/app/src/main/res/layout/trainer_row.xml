@@ -27,7 +27,7 @@
                 android:textColor="@color/azure_blue"
                 android:textSize="20dp"
                 android:textStyle="bold"
-                android:paddingLeft="@dimen/_8ssp"
+                android:paddingLeft="8sp"
                 android:text="Name"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -1,92 +1,101 @@
 package com.example.application;
 
-import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.ProgressDialog;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import life.knowledge4.videotrimmer.K4LVideoTrimmer;
-//import life.knowledge4.videotrimmer.interfaces.OnK4LVideoListener;
-import life.knowledge4.videotrimmer.interfaces.OnTrimVideoListener;
+public class Trimmer extends AppCompatActivity {
+    private static final int STORAGE_PERMISSION_CODE = 150;
+    Button pickvideo;
+    final int Requestcode = 149;
+    ProgressBar progressBar;
+    public static   final String VideoUri = "VideoUri";
 
-public class Trimmer extends AppCompatActivity implements OnTrimVideoListener { //, OnK4LVideoListener {
-
-    private K4LVideoTrimmer mVideoTrimmer;
-    private ProgressDialog mProgressDialog;
-
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trimer);
+        setContentView(R.layout.activity_trimmer);
+        pickvideo = findViewById(R.id.pick_video);
+        progressBar=findViewById(R.id.progress_bar);
+        pickvideo.setOnClickListener(new View.OnClickListener() {
 
-        Intent extraIntent = getIntent();
-        String path = "";
-
-        if (extraIntent != null) {
-            path = extraIntent.getStringExtra(TraineeTrim.EXTRA_VIDEO_PATH);
-        }
-
-        //setting progressbar
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setMessage(getString(R.string.trimming_progress));
-
-        mVideoTrimmer = ((K4LVideoTrimmer) findViewById(R.id.timeLine));
-        if (mVideoTrimmer != null) {
-            mVideoTrimmer.setMaxDuration(10);
-            mVideoTrimmer.setOnTrimVideoListener(this);
-            //mVideoTrimmer.setOnK4LVideoListener(this);
-            //mVideoTrimmer.setDestinationPath("/storage/emulated/0/DCIM/CameraCustom/");
-            mVideoTrimmer.setVideoURI(Uri.parse(path));
-            //mVideoTrimmer.setVideoInformationVisibility(true);
-        }
-    }
-
-    //@Override
-    public void onTrimStarted() {
-        mProgressDialog.show();
-    }
-
-    @Override
-    public void getResult(final Uri uri) {
-        mProgressDialog.cancel();
-
-        runOnUiThread(new Runnable() {
             @Override
-            public void run() {
-                Toast.makeText(Trimmer.this, getString(R.string.video_saved_at, uri.getPath()), Toast.LENGTH_SHORT).show();
-            }
-        });
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        intent.setDataAndType(uri, "video/mp4");
-        startActivity(intent);
-        finish();
-    }
+            public void onClick(View v) {
 
-    @Override
-    public void cancelAction() {
-        mProgressDialog.cancel();
-        mVideoTrimmer.destroy();
-        finish();
-    }
-
-    //@Override
-    public void onError(final String message) {
-        mProgressDialog.cancel();
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(Trimmer.this, message, Toast.LENGTH_SHORT).show();
+                if (ContextCompat.checkSelfPermission(Trimmer.this, Manifest.permission.READ_EXTERNAL_STORAGE) +
+                        ContextCompat.checkSelfPermission(Trimmer.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    //Toast.makeText(Trimmer.this, "You have already granted this permission!",
+                    //Toast.LENGTH_SHORT).show();
+                    Database.loadAllVideos(getApplicationContext(), new MycompleteListener() {
+                        @Override
+                        public void OnSuccess() {
+                            progressBar.setVisibility(View.VISIBLE);
+                            startActivity(new Intent(getApplicationContext(),LoadAllExistingVideos.class));
+                            finish();
+                        }
+                        @Override
+                        public void OnFailure() {
+                            //Get a toaster if this happens
+                        }
+                    });
+                } else {
+                    requestStoragePermission();
+                }
+                finish();
             }
         });
     }
 
+    private void requestStoragePermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission needed")
+                    .setMessage("Please give permissions to see video,upload and download videos")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(Trimmer.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create().show();
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Requestcode && resultCode == RESULT_OK) {
+            Uri uri = data.getData();
+            Intent intent = new Intent(getApplicationContext(), TrimVideoActivty.class);
+            intent.putExtra(VideoUri, uri.toString());
+            startActivity(intent);
+            finish();
+        }
+    }
 }
