@@ -31,10 +31,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -80,7 +82,7 @@ public class TraineeUpload extends AppCompatActivity {
 
     TextView uploadingText;
     ProgressBar uploadIcon;
-
+    Spinner exerciseSpinner;
     Uri videoURI;
 
 
@@ -110,6 +112,13 @@ public class TraineeUpload extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_upload);
 
+        exerciseSpinner = findViewById(R.id.workout_upload_select);
+        ArrayAdapter<Exercise> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, SocketFunctions.exercises);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        exerciseSpinner.setAdapter(adapter);
+
+        exerciseSpinner.setSelection(SocketFunctions.exercises.indexOf(SocketFunctions.selectedExercise));
         videoPreviewer = findViewById(R.id.videoView2);
 
         //RecyclerView recyclerView = findViewById(R.id.videoListViewer);
@@ -417,6 +426,7 @@ public class TraineeUpload extends AppCompatActivity {
 
     private void uploadVideo() throws IOException {
         if (videoURI != null) {
+            int exercise_id = ((Exercise) exerciseSpinner.getSelectedItem()).getId();
             setUploadingIcon(true);
             InputStream inputStream = getContentResolver().openInputStream(videoURI);
             byte[] bytes = getBytes(inputStream);
@@ -429,7 +439,7 @@ public class TraineeUpload extends AppCompatActivity {
                     .build();
             ApiService apiService = retrofit.create(ApiService.class);
             int trainerId = 0; //TODO set to trainer the video belongs to.
-            Call<String> call = apiService.uploadVideo(requestBody, String.valueOf(SocketFunctions.user.getId()), SocketFunctions.apiKey, String.valueOf(trainerId));
+            Call<String> call = apiService.uploadVideo(requestBody, String.valueOf(SocketFunctions.user.getId()), SocketFunctions.apiKey, String.valueOf(exercise_id));
             call.enqueue(new Callback<String>() {
 
                 @Override
@@ -475,9 +485,8 @@ public class TraineeUpload extends AppCompatActivity {
             });
 
     public void trimButtonPressed(View view) {
-        Intent i = new Intent(getApplicationContext(), TraineeTrim.class);
+        Intent i = new Intent(getApplicationContext(), Trimmer.class);
         startActivity(i);
-        finish();
     }
 
     /***
