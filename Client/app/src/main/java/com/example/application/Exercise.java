@@ -52,6 +52,10 @@ public class Exercise {
         return trainerId;
     }
 
+    /**
+     * return name of workout
+     * @return
+     */
     public int getId() {
         return id;
     }
