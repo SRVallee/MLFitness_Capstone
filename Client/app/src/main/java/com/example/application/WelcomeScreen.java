@@ -1,7 +1,10 @@
 package com.example.application;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 
@@ -27,6 +30,14 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
         button4 = (Button) findViewById(R.id.tempB2);
         button4.setOnClickListener(WelcomeScreen.this);
+
+        if (Build.VERSION.SDK_INT >= 30){
+            if (!Environment.isExternalStorageManager()){
+                Intent getpermission = new Intent();
+                getpermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(getpermission);
+            }
+        }
 
     }
 

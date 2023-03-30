@@ -45,27 +45,13 @@ public class TraineeTrainerProfile extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+
     ArrayList<Integer> AllTrainerIds;
     Context context = this;
     private ScrollView trainer_Full_List;
     private Boolean exit = false;
     private long pressedTime;
-    //this is for the vertical scroll view for the trainer search page it
-    //is the adapter for getting and setting the views
-    public class trainer_adapter extends FrameLayout{
 
-        private Context context;
-        private ArrayList<ObjectTrainer> trainerList;
-        public trainer_adapter(@NonNull Context context, ArrayList<ObjectTrainer> trainerList) {
-            super(context);
-            this.context = context;
-            this.trainerList = trainerList;
-
-        }
-        public void addView(View child, int index, ViewGroup viewgroup){
-
-        }
-    }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -119,7 +105,8 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {

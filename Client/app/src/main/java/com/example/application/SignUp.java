@@ -31,14 +31,11 @@ import java.util.Map;
 
 public class SignUp extends AppCompatActivity {
 
-
     String USER_ID;
     String USER_NICKNAME;
     String USER_PROFILE_URL;
-
     String username, name, email, passwordOne, passwordTwo;
     EditText usernameSignup, nameSignup, emailSignup, passwordOneSignup, passwordTwoSignup;
-
     boolean isTrainee, isTrainer;
     Chip traineeChipSignup, trainerChipSignup;
 
@@ -53,7 +50,6 @@ public class SignUp extends AppCompatActivity {
         emailSignup = findViewById(R.id.emailEditText);
         passwordOneSignup = findViewById(R.id.passwordEditText);
         passwordTwoSignup = findViewById(R.id.passwordReEditText);
-
 
         traineeChipSignup = findViewById(R.id.traineeChip);
         trainerChipSignup = findViewById(R.id.trainerChip);
@@ -165,7 +161,8 @@ public class SignUp extends AppCompatActivity {
                                 SocketFunctions.apiKey = jsonResponse.getString("api_key");
                                 Log.d("User id: ", "was returned");
                                 Intent i;
-                                USER_ID = SocketFunctions.user.getEmail();
+                                int tempInt = SocketFunctions.user.getId();
+                                USER_ID = String.valueOf(tempInt);
                                 USER_NICKNAME = SocketFunctions.user.getName();
                                 //Once profile pictures are implemented change this
                                 USER_PROFILE_URL = "";

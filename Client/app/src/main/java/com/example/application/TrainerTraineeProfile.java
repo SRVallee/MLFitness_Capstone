@@ -9,7 +9,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
@@ -70,7 +69,8 @@ public class TrainerTraineeProfile extends AppCompatActivity {
                         Intent i = new Intent(getApplicationContext(), TrainerMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
