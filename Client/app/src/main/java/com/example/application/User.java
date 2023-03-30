@@ -3,7 +3,9 @@ package com.example.application;
 import android.graphics.Bitmap;
 import android.media.Image;
 
-public class User {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class User extends AppCompatActivity {
 
     private int id;
     private String UserName;

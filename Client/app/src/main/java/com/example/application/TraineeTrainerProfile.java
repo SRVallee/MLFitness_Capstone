@@ -37,6 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -189,8 +190,8 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         }
     }
 
-    public ArrayList<ObjectTrainer> getTrainers() {
-        ArrayList<ObjectTrainer> trainers = new ArrayList<>();
+    public void getTrainers() {
+
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         String url = "http://162.246.157.128/MLFitness/get_trainers.php";
@@ -201,6 +202,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                     //this runs on a different thread than the main
                     @Override
                     public void onResponse(String response) {
+                        ArrayList<ObjectTrainer> trainers = new ArrayList<>();
                         Log.d("Response: ", response.toString());
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
@@ -240,22 +242,26 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                                         public void onClick(View v) {
                                             Integer position = Integer.parseInt(v.getTag().toString());
 
-                                            CountDownTimer countdown = new CountDownTimer(2 * 1000, 1000) {
+                                            CountDownTimer countdown = new CountDownTimer(1000, 1000) {
                                                 @Override
                                                 public void onTick(long millisUntilFinished) {
-                                                    v.setBackgroundColor(Color.LTGRAY);
+                                                    v.setBackgroundColor(getColor(R.color.light_grey));
                                                 }
 
                                                 @Override
                                                 public void onFinish() {
-                                                    v.setBackgroundColor(Color.WHITE);
+                                                    v.setBackgroundColor(getColor(R.color.white));
                                                 }
                                             };
                                             countdown.start();
                                             Log.d("in onclick", "onClick: "+position);
                                             String trainer_name = trainers.get(position).getName();
-                                            ObjectTrainer trainer_obj = trainers.get(position);
                                             Log.d("name on row", "onClick: "+trainer_name);
+                                            Intent Trainer_profile = new Intent(getApplicationContext(), TrainerProfile.class);
+                                            Trainer_profile.putExtra("trainerObj", trainers.get(position));
+                                            startActivity(Trainer_profile);
+                                            finish();
+
                                         }
                                     });
                                     Log.d("inside for loop", "onResponse: "+i);
@@ -285,17 +291,6 @@ public class TraineeTrainerProfile extends AppCompatActivity {
             }
         };
         queue.add(stringRequest);
-        return trainers;
     }
 
-    private View.OnClickListener clickInLinearLayout() {
-        return new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                Integer position = Integer.parseInt(v.getTag().toString());
-                Log.d("in onclick", "onClick: "+position);
-            }
-        };
-    }
 }

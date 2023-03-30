@@ -1,6 +1,9 @@
 package com.example.application;
+
+import java.io.Serializable;
+
 //have id, credentials, rating, username, name ,email
-public class ObjectTrainer extends User{
+public class ObjectTrainer extends User implements Serializable {
 
     private String credentials;
 

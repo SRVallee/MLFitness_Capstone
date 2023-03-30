@@ -8,7 +8,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
@@ -43,6 +46,12 @@ public class TrainerProfile extends AppCompatActivity {
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Intent trainer_profile = getIntent();
+        ObjectTrainer trainer_obj = (ObjectTrainer) trainer_profile.getSerializableExtra("trainerObj");
+        Log.d("trainer name", "onCreate: "+trainer_obj.getName());
+        Log.d("teinar id", "onCreate: "+trainer_obj.getId());
+        TextView trainer_name = findViewById(R.id.trainerProfileTitle);
+        trainer_name.setText(trainer_obj.getName());
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
