@@ -46,7 +46,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
     ArrayList<Integer> AllTrainerIds;
-
+    Context context = this;
     private ScrollView trainer_Full_List;
     private Boolean exit = false;
     private long pressedTime;
@@ -75,6 +75,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,22 +85,12 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         navigationView = findViewById(R.id.nav_view);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
-        drawerToggle.syncState();
+        //get trainers is asynchronous
         getTrainers();
+        drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ScrollView trainer_list = findViewById(R.id.trainer_full_list);
-        LinearLayout linearLayout_trainer = findViewById(R.id.trainer_display_list);
-        // this is to inflate the trainer row
-        for (int i = 0; i < 6; i++) {
-            View Trainer_constraint = LayoutInflater.from(this).inflate(R.layout.trainer_row, null);
-            //this is to get the text view from the trainer row to change the set text
-            TextView Trainer_name =Trainer_constraint.findViewById(R.id.Trainer_name_text);
-            LinearLayout trainer;
-            Trainer_name.setText("bombsas "+i);
-            Trainer_name.setTextSize(25);
-            linearLayout_trainer.addView(Trainer_constraint);
-        }
+
 
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -195,7 +186,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         }
     }
 
-    public void getTrainers() {
+    public ArrayList<ObjectTrainer> getTrainers() {
         ArrayList<ObjectTrainer> trainers = new ArrayList<>();
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
@@ -213,21 +204,36 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                             String status = jsonResponse.getString("status");
                             if (status.equals("success")) {
                                 Log.d("Array: ", jsonResponse.getString("trainers"));
-                            }
-                            for (int i = 0; i < jsonResponse.getJSONArray("trainers").length(); i++) {
-                                String trainerlist;
-                                trainerlist = jsonResponse.getJSONArray("trainers").getString(i);
-                                String[] trainerSplit= trainerlist.split(",");
-                                if (trainerSplit[2].isEmpty()){
-                                    trainerSplit[2] = "0.0";
+                                for (int i = 0; i < jsonResponse.getJSONArray("trainers").length(); i++) {
+                                    String trainerlist;
+                                    trainerlist = jsonResponse.getJSONArray("trainers").getString(i);
+                                    String[] trainerSplit= trainerlist.split(",");
+                                    if (trainerSplit[2].isEmpty()){
+                                        trainerSplit[2] = "0.0";
+                                    }
+                                    ObjectTrainer trainerObj = new ObjectTrainer(Integer.valueOf(trainerSplit[0]),trainerSplit[1],
+                                            Float.valueOf(trainerSplit[2]),trainerSplit[3],trainerSplit[4],trainerSplit[5]);
+                                    trainers.add(trainerObj);
                                 }
-                                ObjectTrainer trainerObj = new ObjectTrainer(Integer.valueOf(trainerSplit[0]),trainerSplit[1],
-                                        Float.valueOf(trainerSplit[2]),trainerSplit[3],trainerSplit[4],trainerSplit[5]);
-                                trainers.add(trainerObj);
+                                ScrollView trainer_list = findViewById(R.id.trainer_full_list);
+                                LinearLayout linearLayout_trainer = findViewById(R.id.trainer_display_list);
+                                // this is to inflate the trainer row
+                                for (int i = 0; i < trainers.size(); i++) {
+                                    View Trainer_constraint = LayoutInflater.from(context).inflate(R.layout.trainer_row, null);
+                                    //this is to get the text view from the trainer row to change the set text
+                                    TextView Trainer_name =Trainer_constraint.findViewById(R.id.Trainer_name_text);
+                                    LinearLayout trainer;
+                                    Trainer_name.setText(trainers.get(i).getName());
+                                    Trainer_name.setTextSize(25);
+                                    linearLayout_trainer.addView(Trainer_constraint);
+                                }
                             }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        //everything has to be done here due to the on response is asynchronous
+
                     }
 
                 }, new Response.ErrorListener() {
@@ -244,6 +250,6 @@ public class TraineeTrainerProfile extends AppCompatActivity {
             }
         };
         queue.add(stringRequest);
-
+        return trainers;
     }
 }
