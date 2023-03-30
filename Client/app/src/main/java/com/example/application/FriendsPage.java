@@ -32,6 +32,7 @@ public class FriendsPage extends AppCompatActivity {
     User trainee;
     private final ArrayList<User> useList = new ArrayList<>();
 
+
     private Boolean exit = false;
     private long pressedTime;
 
@@ -143,8 +144,7 @@ public class FriendsPage extends AppCompatActivity {
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        //finish();
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        finish();
                         break;
                     }
                     case R.id.setting: {

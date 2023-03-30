@@ -14,8 +14,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,8 +25,8 @@ import com.sendbird.uikit.SendBirdUIKit;
 import com.sendbird.uikit.adapter.SendBirdUIKitAdapter;
 import com.sendbird.uikit.interfaces.UserInfo;
 
-//import com.gowtham.library.utils.LogMessage;
-//import com.gowtham.library.utils.TrimVideo;
+import com.gowtham.library.utils.LogMessage;
+import com.gowtham.library.utils.TrimVideo;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -43,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Currently just a title screen that auto transitions to the welcome screen
+
+        //NOTE will add an if else statement that checks if the user has inputted their credits
+        //before and if that is the case then will go to their respective home screen and not
+        //require them to re enter their info
 
         timer = new Timer();
         timer.schedule(new TimerTask() {

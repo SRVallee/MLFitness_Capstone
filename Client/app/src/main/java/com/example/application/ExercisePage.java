@@ -1,70 +1,58 @@
 package com.example.application;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.PersistableBundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.VideoView;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.app.ActivityOptions;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Handler;
-
-public class TraineeTrainerProfile extends AppCompatActivity {
+public class ExercisePage extends AppCompatActivity {
+    private VideoView demoVideoView;
+    private Button submitButton;
+    private TextView description, exerciseName, trainerName;
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
-    ArrayList<Integer> AllTrainerIds;
-
-    private Boolean exit = false;
-    private long pressedTime;
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
 
-        if (drawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+        exerciseName = findViewById(R.id.exercise_page_title);
+        description = findViewById(R.id.exercise_page_description);
+        demoVideoView = findViewById(R.id.demoVideoView);
+        trainerName = findViewById(R.id.exercise_page_uploader);
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trainee_trainer_profile);
+        exerciseName.setText(SocketFunctions.selectedExercise.getName());
+        description.setText(SocketFunctions.selectedExercise.getDescription());
+        trainerName.setText(SocketFunctions.selectedExercise.getTrainerName());
+
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
-        drawerLayout.addDrawerListener(drawerToggle);
-        drawerToggle.syncState();
-        getTrainers();
+            drawerLayout.addDrawerListener(drawerToggle);
+            drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                //flag activity to front makes no sense when all of it gets finished everytime
+
                 switch (item.getItemId()) {
                     case R.id.home: {
                         //Go to homepage
@@ -108,7 +96,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                     }
                     case R.id.friends: {
                         //Go to friends
-                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        Intent i = new Intent(getApplicationContext(), FriendsPage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -116,8 +104,10 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                     }
                     case R.id.profile: {
                         //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.logout: {
@@ -140,56 +130,11 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onBackPressed() {
-
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            //Go to homepage
-            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(i);
-            finish();
-            super.onBackPressed();
-        }
+    public void goToUpload(View view){
+        Intent intent = new Intent(this, TraineeUpload.class);
+        String path = Environment.getExternalStorageDirectory().getPath();
+        intent.putExtra("path", path);
+        startActivity(intent);
     }
 
-    public void getTrainers() {
-        ArrayList<String> trainers = new ArrayList<>();
-
-        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = "http://162.246.157.128/MLFitness/get_trainers.php";
-
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("Response: ", response.toString());
-                        try {
-                            JSONObject jsonResponse = new JSONObject(response);
-                            String status = jsonResponse.getString("status");
-                            if (status.equals("success")) {
-                                Log.d("Array: ", jsonResponse.getString("trainers"));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("User id: ", error.getLocalizedMessage());
-            }
-        }) {
-            protected Map<String, String> getParams() {
-                Map<String, String> paramV = new HashMap<>();
-                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
-                paramV.put("apiKey", SocketFunctions.apiKey);
-                return paramV;
-            }
-        };
-        queue.add(stringRequest);
-    }
 }

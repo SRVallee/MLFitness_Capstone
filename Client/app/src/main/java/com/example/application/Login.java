@@ -37,6 +37,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     String USER_ID;
     String USER_NICKNAME;
     String USER_PROFILE_URL;
+
     String email, password;
 
     EditText usernameLogin;
@@ -50,7 +51,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         //Init fields in xml
         usernameLogin = findViewById(R.id.userNameEditText);
         passwordLogin = findViewById(R.id.passwordEditText);
-
     }
 
     /***
@@ -108,8 +108,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                                 SocketFunctions.apiKey = jsonResponse.getString("api_key");
                                 Log.d("User id: ", "successful login");
                                 Intent i;
-                                int tempInt = SocketFunctions.user.getId();
-                                USER_ID = String.valueOf(tempInt);
+                                USER_ID = SocketFunctions.user.getEmail();
                                 USER_NICKNAME = SocketFunctions.user.getName();
                                 //Once profile pictures are implemented change this
                                 USER_PROFILE_URL = "";
@@ -229,6 +228,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         this.finish();
 
     }
+
 
     /***
      * This function is just a temp func to access the application without logging in

@@ -72,8 +72,7 @@ public class TraineeSettings extends AppCompatActivity{
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        //finish();
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        finish();
                         break;
                     }
                     case R.id.setting: {
