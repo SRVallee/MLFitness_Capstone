@@ -44,9 +44,23 @@ def insert_one(conn, sql, argTuple):
     return id
 
 
-def insert_exercise(conn, exerciseName, demoLoc, modelLoc):
-    sql = "INSERT INTO exercise (exercise, demo_location, model_location)"\
-    + " VALUES (%s, %s, %s)"
+def insert_exercise(conn, exerciseName, demoLoc, modelLoc, trainer_id=None, notes =None):
+    trainerStr = str(trainer_id) + ","
+    notesStr = "," + notes 
+    nArgs = 3
+    if trainer_id:
+        nArgs = nArgs +1
+    if notes:
+        nArgs = nArgs +1
+    
+    valsArr = []
+    for i in range(nArgs):
+        valsArr.append("%s")
+    
+    valsStr = ",".join(valsArr)
+    
+    sql = f"INSERT INTO exercise ({trainerStr} exercise, demo_location, model_location {notesStr})"\
+          " VALUES ({valsStr})"
         
     return insert_one(conn, sql, (exerciseName, demoLoc, modelLoc))
 
@@ -83,9 +97,15 @@ def main():
         test_init(con)
     
     sql = "SELECT MAX(workout_id) FROM workout"
-    print(select_one(con, sql, None)["MAX(workout_id)"])
+    int(select_one(con, sql, None)["MAX(workout_id)"])
     
-    id = insert_workout(con, 5, 1, "2023-03-23", "lol",  exerciseID=2)
-    print(select_workout(con, str(id)))
+    lol = "TEST NOTES"
     
-# main()
+    insert_exercise(con, "squatest1", "demoLoc", "modeLoc")
+    insert_exercise(con, "squatest2", "demoLoc", "modeLoc", trainer_id=6)
+    insert_exercise(con, "squatest3", "demoLoc", "modeLoc", trainer_id=6, notes=lol)
+    
+    # id = insert_workout(con, 5, 1, "2023-03-23", "lol",  exerciseID=2)
+    # print(select_workout(con, str(id)))
+    
+main()

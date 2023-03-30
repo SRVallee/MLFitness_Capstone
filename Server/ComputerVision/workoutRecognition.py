@@ -656,7 +656,6 @@ def open_and_train(modelName):
 # This function will grab video path from user and what model it is for key extraction
 # and the trained model to evaluate the video if the reps are correct or not
 def vid_ML_eval(modelName,trained_MLmodel, vid_path):
-
     extracted, allAngles, _ = getKeyFramesFromVideo(vid_path)
     keyAngs = []
     print(f"these are the all angles: {len(allAngles)}")
@@ -688,11 +687,6 @@ def evaluate_video(userID, modelName, path):
     #this is to load model for predict
     model_path = modelDir + "/machineLearning/ML_Trained_Models/"+ str(modelName)+"_trained"
     load_model = tf.keras.models.load_model(model_path)
-    
-    # weights
-    # for layer in load_model.layers: 
-        # print(layer.get_config(), layer.get_weights())
-    
     
     # ML eval
     acutal_frame_list, extracted, y_pred = vid_ML_eval(modelName,load_model, path)
