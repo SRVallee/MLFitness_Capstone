@@ -3,6 +3,7 @@ package com.example.application;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -11,7 +12,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -22,6 +31,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,10 +46,26 @@ public class TraineeTrainerProfile extends AppCompatActivity {
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
     ArrayList<Integer> AllTrainerIds;
-
+    Context context = this;
+    private ScrollView trainer_Full_List;
     private Boolean exit = false;
     private long pressedTime;
+    //this is for the vertical scroll view for the trainer search page it
+    //is the adapter for getting and setting the views
+    public class trainer_adapter extends FrameLayout{
 
+        private Context context;
+        private ArrayList<ObjectTrainer> trainerList;
+        public trainer_adapter(@NonNull Context context, ArrayList<ObjectTrainer> trainerList) {
+            super(context);
+            this.context = context;
+            this.trainerList = trainerList;
+
+        }
+        public void addView(View child, int index, ViewGroup viewgroup){
+
+        }
+    }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -48,6 +74,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +85,14 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         navigationView = findViewById(R.id.nav_view);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
-        drawerToggle.syncState();
+        //get trainers is asynchronous
         getTrainers();
+        drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -100,24 +132,23 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                     }
                     case R.id.trainers: {
                         //Go to trainers
-                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
+                        //Close drawer
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.friends: {
                         //Go to friends
-                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        Intent i = new Intent(getApplicationContext(), FriendsPage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
                         break;
                     }
                     case R.id.profile: {
-                        //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.logout: {
@@ -155,14 +186,16 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         }
     }
 
-    public void getTrainers() {
-        ArrayList<String> trainers = new ArrayList<>();
+    public ArrayList<ObjectTrainer> getTrainers() {
+        ArrayList<ObjectTrainer> trainers = new ArrayList<>();
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         String url = "http://162.246.157.128/MLFitness/get_trainers.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
+                    //this is async reyes didn't tell me NO ONE TOLD ME
+                    //this runs on a different thread than the main
                     @Override
                     public void onResponse(String response) {
                         Log.d("Response: ", response.toString());
@@ -171,10 +204,36 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                             String status = jsonResponse.getString("status");
                             if (status.equals("success")) {
                                 Log.d("Array: ", jsonResponse.getString("trainers"));
+                                for (int i = 0; i < jsonResponse.getJSONArray("trainers").length(); i++) {
+                                    String trainerlist;
+                                    trainerlist = jsonResponse.getJSONArray("trainers").getString(i);
+                                    String[] trainerSplit= trainerlist.split(",");
+                                    if (trainerSplit[2].isEmpty()){
+                                        trainerSplit[2] = "0.0";
+                                    }
+                                    ObjectTrainer trainerObj = new ObjectTrainer(Integer.valueOf(trainerSplit[0]),trainerSplit[1],
+                                            Float.valueOf(trainerSplit[2]),trainerSplit[3],trainerSplit[4],trainerSplit[5]);
+                                    trainers.add(trainerObj);
+                                }
+                                ScrollView trainer_list = findViewById(R.id.trainer_full_list);
+                                LinearLayout linearLayout_trainer = findViewById(R.id.trainer_display_list);
+                                // this is to inflate the trainer row
+                                for (int i = 0; i < trainers.size(); i++) {
+                                    View Trainer_constraint = LayoutInflater.from(context).inflate(R.layout.trainer_row, null);
+                                    //this is to get the text view from the trainer row to change the set text
+                                    TextView Trainer_name =Trainer_constraint.findViewById(R.id.Trainer_name_text);
+                                    LinearLayout trainer;
+                                    Trainer_name.setText("bombsas "+i);
+                                    Trainer_name.setTextSize(25);
+                                    linearLayout_trainer.addView(Trainer_constraint);
+                                }
                             }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        //everything has to be done here due to the on response is asynchronous
+
                     }
 
                 }, new Response.ErrorListener() {
@@ -191,5 +250,6 @@ public class TraineeTrainerProfile extends AppCompatActivity {
             }
         };
         queue.add(stringRequest);
+        return trainers;
     }
 }
