@@ -3,13 +3,13 @@ package com.example.application;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.Toast;
+        import android.content.pm.PackageManager;
+        import android.net.Uri;
+        import android.os.Bundle;
+        import android.provider.MediaStore;
+        import android.view.View;
+        import android.widget.ImageButton;
+        import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -27,7 +27,7 @@ public class TraineeTrim extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trainee_trim);
+        setContentView(R.layout.activity_main);
 
         ImageButton galleryButton = (ImageButton) findViewById(R.id.galleryButton);
         if (galleryButton != null) {
@@ -83,7 +83,7 @@ public class TraineeTrim extends AppCompatActivity {
     }
 
     private void startTrimActivity(@NonNull Uri uri) {
-        Intent intent = new Intent(this, Trimmer.class);
+        Intent intent = new Intent(this, TraineeTrim.class);
         intent.putExtra(EXTRA_VIDEO_PATH, FileUtils.getPath(this, uri));
         startActivity(intent);
     }

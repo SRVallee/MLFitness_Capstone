@@ -7,6 +7,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.MenuItem;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 
 public class TraineeProfile extends AppCompatActivity{
 
@@ -48,15 +51,25 @@ public class TraineeProfile extends AppCompatActivity{
 
         //Assigns values to the fields in the xml
         //String trainee_profile_username = user.getUsername();
-        String trainee_profile_username = "test username";
+        String trainee_profile_username = SocketFunctions.user.getUserName();
         trainee_profile_username_textview.setText(trainee_profile_username);
         //String trainee_profile_email = user.getEmail();
-        String trainee_profile_email = "test email";
+        String trainee_profile_email = SocketFunctions.user.getEmail();
         trainee_profile_email_textview.setText(trainee_profile_email);
 
         //Check line to get from db
-        int trainee_profile_image = R.drawable.ic_baseline_tag_faces_24;
-        userProfilePicture.setImageResource(trainee_profile_image);
+        try{
+            if(SocketFunctions.user.hasPfp()){
+                userProfilePicture.setImageBitmap(SocketFunctions.user.getPfp());
+            }else{
+                Picasso.get().load("http://162.246.157.128/MLFitness/pfps/"+ SocketFunctions.user.getId() +".jpg").into(userProfilePicture);
+                Drawable pfp = userProfilePicture.getDrawable();
+                SocketFunctions.user.setPfp(Bitmap.createBitmap(pfp.getIntrinsicWidth(), pfp.getIntrinsicHeight(), Bitmap.Config.ARGB_8888));
+            }
+        }catch (Exception e){
+            int trainee_profile_image = R.drawable.ic_baseline_tag_faces_24;
+            userProfilePicture.setImageResource(trainee_profile_image);
+        }
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);

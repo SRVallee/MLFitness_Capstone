@@ -41,5 +41,84 @@
     <color name="blue_p4">#3388FF</color>
     <color name="blue_p5">#55AAFF</color>
     <color name="blue_p6">#77CCFF</color>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="azure_blue">#007FFF</color>
+
+    <color name="azure_blue_1">#007FFF</color>
+    <color name="azure_blue_2">#009FFF</color>
+    <color name="azure_blue_3">#00AFFF</color>
+    <color name="teal_1">#FF03DAC5</color>
+    <color name="teal_2">#FF018786</color>
+
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="royal_blue">#002366</color>
+
+    <color name="miami_pink">#f890e7</color>
+    <color name="miami_blue">#0bd3d3</color>
+    <color name="miami_blue_1">#0DF3F3</color>
+    <color name="miami_blue_2">#0AB3A3</color>
+
+    <color name="cyan">#00B7EB</color>
+    <color name="cyan_1">#00D7EB</color>
+    <color name="cyan_2">#00E7EB</color>
+
+    <color name="carolina_blue">#4B9CD3</color>
+
+    <color name="dark_grey">#333333</color>
+    <color name="mid_grey">#555555</color>
+    <color name="light_grey">#a9a9a9</color>
+    <color name="off_white">#d0d0d0</color>
+
+    <color name="blue_p1">#0000FF</color>
+    <color name="blue_p2">#0044FF</color>
+    <color name="blue_p3">#0066FF</color>
+    <color name="blue_p4">#3388FF</color>
+    <color name="blue_p5">#55AAFF</color>
+    <color name="blue_p6">#77CCFF</color>
+
+    <!-- This is for the sendbird application -->
+    <color name="primary_500">#007FFF</color>
+    <color name="primary_400">#009FFF</color>
+    <color name="primary_300">#00AFFF</color>
+    <color name="primary_200">#55AAFF</color>
+    <color name="primary_100">#77CCFF</color>
+    <color name="secondary_500">#066858</color>
+    <color name="secondary_400">#027d69</color>
+    <color name="secondary_300">#259c72</color>
+    <color name="secondary_200">#69c085</color>
+    <color name="secondary_100">#a8e2ab</color>
+    <color name="error_500">#9d091e</color>
+    <color name="error_400">#bf0711</color>
+    <color name="error_300">#de360b</color>
+    <color name="error_200">#f66161</color>
+    <color name="error_100">#fdaaaa</color>
+    <color name="background_700">#000000</color>
+    <color name="background_600">#161616</color>
+    <color name="background_500">#2c2c2c</color>
+    <color name="background_400">#393939</color>
+    <color name="background_300">#bdbdbd</color>
+    <color name="background_200">#e0e0e0</color>
+    <color name="background_100">#eeeeee</color>
+    <color name="background_50">#ffffff</color>
+    <color name="overlay_01">#8c000000</color>
+    <color name="overlay_02">#51000000</color>
+    <color name="onlight_01">#e1000000</color>
+    <color name="onlight_02">#80000000</color>
+    <color name="onlight_03">#61000000</color>
+    <color name="onlight_04">#1e000000</color>
+    <color name="ondark_01">#e1ffffff</color>
+    <color name="ondark_02">#80ffffff</color>
+    <color name="ondark_03">#61ffffff</color>
+    <color name="ondark_04">#1effffff</color>
+    <color name="information">#adc9ff</color>
 
 </resources>
