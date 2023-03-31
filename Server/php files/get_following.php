@@ -2,7 +2,7 @@
 $id = $_POST['id'];
 $apiKey = $_POST['apiKey'];
 $conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness"); //connect
-$sql = "SELECT * from user where (user_id = '".$id."' and api_key = '".$apiKey."');";
+$sql = "SELECT user_id, api_key from user where (user_id = '".$id."' and api_key = '".$apiKey."');";
 $res = mysqli_query($conn, $sql);
 if(mysqli_num_rows($res) != 0){
     $sql = "SELECT * from relationships WHERE user_id = (".$id." or user_id_2 = ".$id.") and training_relationship = 1;";

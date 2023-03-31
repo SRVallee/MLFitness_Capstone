@@ -2,13 +2,13 @@
 $id = $_POST['id'];
 $id2 = $_POST['id2'];
 $apiKey = $_POST['apiKey'];
-$subscription = $_POST["type"];
+$subscription = $_POST["type"]; //0 for friends, 1 for trainer/trinee relationship
 
 if($id == $id2){
     echo "can't add yourself";
 }else{
     $conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness"); //connect
-    $sql = "SELECT * from user where (user_id = '".$id."' and api_key = '".$apiKey."') or user_id = ".$id2.";";
+    $sql = "SELECT user_id, api_key from user where (user_id = '".$id."' and api_key = '".$apiKey."');";
     $res = mysqli_query($conn, $sql);
     if(mysqli_num_rows($res) == 2){
         $row = mysqli_fetch_assoc($res);

@@ -5,13 +5,13 @@ $conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness")
 $sql = "SELECT user_id, api_key from user where (user_id = '".$id."' and api_key = '".$apiKey."');";
 $res = mysqli_query($conn, $sql);
 if(mysqli_num_rows($res) != 0){
-    $sql = "SELECT trainer_id from trainer;";
+    $sql = "SELECT user_id, username, name, email from user WHERE is_trainer = 0;";
     $res = mysqli_query($conn, $sql);
     $array = array();
     while($row = mysqli_fetch_assoc($res)){
-        $array[] = $row["trainer_id"];
+        $array[] = $row;
     }
-    $result = array("status" => "success", "trainers" => $array);
+    $result = array("status" => "success", "trainees" => $array);
 }else{
     $result = array("status" => "Denied");
 }

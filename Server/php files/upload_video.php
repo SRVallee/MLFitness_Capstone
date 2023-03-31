@@ -15,7 +15,7 @@ if (isset($_FILES['video'])) {
   $target_path =  $target_dir1 . "/" . $filename;
 
   $conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness"); //connect
-  $sql = "SELECT * from user where (user_id = '".$user_id."' and api_key = '".$apiKey."')";
+  $sql = "SELECT user_id, api_key from user where (user_id = '".$id."' and api_key = '".$apiKey."');";
   $res = mysqli_query($conn, $sql);
 
   if(mysqli_num_rows($res) != 0){
@@ -25,11 +25,12 @@ if (isset($_FILES['video'])) {
       $row = mysqli_fetch_assoc($res);
       try {
         if(move_uploaded_file($_FILES['video']['tmp_name'], $target_path)){
+          $result = array("status" => "success");
+
+          echo json_encode($result, JSON_PRETTY_PRINT);
+
           $command = escapeshellcmd("python3 /home/ubuntu/CapstoneFiles/MLFitness_Capstone/Server/ComputerVision/ServerEvalVideo.py ".$user_id." ".$row["model_name"]." ".$target_path);
           $output = shell_exec($command);
-
-          $result = array("status" => "success",     //return the user info
-          "output" => $output);
           
         }else{
           $result = array("status" => "Error saving video");

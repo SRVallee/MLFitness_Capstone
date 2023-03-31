@@ -6,7 +6,7 @@ $name = $_POST['name'];
 $email = $_POST['email'];        
 $isTrainer = $_POST['isTrainer'];
 $conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness"); //connect
-$sql = "SELECT * from user where (user_id = '".$id."' and api_key = '".$apiKey."')";
+$sql = "SELECT user_id, api_key from user where (user_id = '".$id."' and api_key = '".$apiKey."');";
 $res = mysqli_query($conn, $sql);
 if(mysqli_num_rows($res) != 0){
     $row = mysqli_fetch_assoc($res);
