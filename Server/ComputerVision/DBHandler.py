@@ -101,11 +101,13 @@ def main():
     
     lol = "TEST NOTES"
     
-    insert_exercise(con, "squatest1", "demoLoc", "modeLoc")
-    insert_exercise(con, "squatest2", "demoLoc", "modeLoc", trainer_id=6)
-    insert_exercise(con, "squatest3", "demoLoc", "modeLoc", trainer_id=6, notes=lol)
+    id1 = insert_exercise(con, "squatest1", "demoLoc", "modeLoc")
+    id2 = insert_exercise(con, "squatest2", "demoLoc", "modeLoc", trainer_id=6)
+    id3 = insert_exercise(con, "squatest3", "demoLoc", "modeLoc", trainer_id=6, notes=lol)
+    
+    print()
     
     # id = insert_workout(con, 5, 1, "2023-03-23", "lol",  exerciseID=2)
     # print(select_workout(con, str(id)))
     
-main()
+# main()
