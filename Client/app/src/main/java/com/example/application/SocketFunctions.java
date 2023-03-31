@@ -81,9 +81,9 @@ public class SocketFunctions {
     }
 
     public static void addExercise(Context context, JSONObject exerciseInfo) throws JSONException {
-        Exercise exercise = new Exercise(context, exerciseInfo.getInt("id"),
-                exerciseInfo.getString("name"),
-                exerciseInfo.getString("description"));
+        Exercise exercise = new Exercise(context, exerciseInfo.getInt("exercise_id"),
+                exerciseInfo.getString("exercise"),
+                exerciseInfo.getString("notes"));
 
         exercises.add(exercise);
     }
