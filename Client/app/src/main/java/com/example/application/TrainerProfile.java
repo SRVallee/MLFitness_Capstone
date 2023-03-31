@@ -48,13 +48,12 @@ public class TrainerProfile extends AppCompatActivity {
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Intent trainer_profile = getIntent();
-        ObjectTrainer trainer_obj = (ObjectTrainer) trainer_profile.getSerializableExtra("trainerObj");
-        Log.d("trainer name", "onCreate: "+trainer_obj.getTrainer_name());
-        Log.d("teinar id", "onCreate: "+trainer_obj.getId());
-        TextView trainer_name = findViewById(R.id.trainerProfileTitle);
-        trainer_name.setText(trainer_obj.getTrainer_name());
+
         if (SocketFunctions.user.isTrainer() == false) {
+            Intent trainer_profile = getIntent();
+            ObjectTrainer trainer_obj = (ObjectTrainer) trainer_profile.getSerializableExtra("trainerObj");
+            TextView trainer_name = findViewById(R.id.trainerProfileTitle);
+            trainer_name.setText(trainer_obj.getTrainer_name());
             navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
             navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
         }
