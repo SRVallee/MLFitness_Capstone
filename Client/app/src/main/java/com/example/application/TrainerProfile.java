@@ -24,7 +24,6 @@ public class TrainerProfile extends AppCompatActivity {
 
     private Boolean exit = false;
     private long pressedTime;
-    private int menuToChoose = R.menu.trainer_menu;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -80,7 +79,7 @@ public class TrainerProfile extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.upload: {
+                    case R.id.workouts: {
                         //Go to upload
                         Intent i = new Intent(getApplicationContext(), TrainerUpload.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -88,9 +87,9 @@ public class TrainerProfile extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.messages: {
+                    case R.id.message: {
                         //Go to messages
-                        Intent i = new Intent(getApplicationContext(), TrainerMessages.class);
+                        Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         //finish();
@@ -154,12 +153,6 @@ public class TrainerProfile extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(menuToChoose, menu);
-        return true;
-    }
 
     @Override
     public void onBackPressed() {

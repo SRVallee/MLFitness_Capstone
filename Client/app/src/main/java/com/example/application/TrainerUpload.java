@@ -67,13 +67,13 @@ public class TrainerUpload extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.upload: {
+                    case R.id.workouts: {
                         //Already selected
                         //Close drawer
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
-                    case R.id.messages: {
+                    case R.id.message: {
                         //Go to messages
                         Intent i = new Intent(getApplicationContext(), TrainerMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);

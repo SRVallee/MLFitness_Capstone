@@ -67,7 +67,7 @@ public class TrainerTraineeProfile extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.upload: {
+                    case R.id.workouts: {
                         //Go to upload
                         Intent i = new Intent(getApplicationContext(), TrainerUpload.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -75,9 +75,9 @@ public class TrainerTraineeProfile extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.messages: {
+                    case R.id.message: {
                         //Go to messages
-                        Intent i = new Intent(getApplicationContext(), TrainerMessages.class);
+                        Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         //finish();
