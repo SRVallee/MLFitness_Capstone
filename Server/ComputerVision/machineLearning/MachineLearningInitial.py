@@ -225,7 +225,7 @@ def autoRemoveOutliers(x_train, y_train):
     return new_x_train, new_y_train
 
 #
-def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
+def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0, trainer = None):
     
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
@@ -334,7 +334,10 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
     print(model.summary())
     #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
     currDir = str(os.path.dirname(__file__))
-    model_path = str(currDir) + "/ML_Trained_Models/"+ str(modelName)+"_trained"
+    if trainer:
+        model_path = str(currDir) + "/ML_Trained_Models/"+trainer +"/"+ str(modelName)+"_trained"
+    else:
+        model_path = str(currDir) + "/ML_Trained_Models/"+ str(modelName)+"_trained"
     print(model_path)
     model.save(model_path)
     
@@ -346,11 +349,10 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
     return model, X_test_np, y_test_np
 
 #
-def do_ml(df, importantAngles,modelName):
+def do_ml(df, importantAngles,modelName,trainer_id = None):
     
     # print(f"df.head: {df.head}")
-    
-    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierRem=0)
+    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierRem=0, trainer = trainer_id)
     
     test_loss, test_acc, test_prec, true_pos, true_neg, false_neg = model.evaluate(x_test, y_test)
     print("MODEL ACCURACY: ", test_acc)#accuracy = how often the model predicted correctly
