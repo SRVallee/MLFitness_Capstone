@@ -9,10 +9,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -24,6 +24,7 @@ public class TrainerProfile extends AppCompatActivity {
 
     private Boolean exit = false;
     private long pressedTime;
+    private int menuToChoose = R.menu.trainer_menu;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -34,14 +35,15 @@ public class TrainerProfile extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainer_profile);
-
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        Log.d("socket function", "onCreate in profile: "+SocketFunctions.user.isTrainer());
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -52,6 +54,17 @@ public class TrainerProfile extends AppCompatActivity {
         Log.d("teinar id", "onCreate: "+trainer_obj.getId());
         TextView trainer_name = findViewById(R.id.trainerProfileTitle);
         trainer_name.setText(trainer_obj.getTrainer_name());
+        if (SocketFunctions.user.isTrainer() == false) {
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
+        }
+        else{
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
+
+        }
+        invalidateOptionsMenu();
+        invalidateMenu();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -98,6 +111,13 @@ public class TrainerProfile extends AppCompatActivity {
                         finish();
                         break;
                     }
+                    case R.id.trainers:{
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
                     case R.id.friends: {
                         //Go to friends
                         Intent i = new Intent(getApplicationContext(), TrainerFriends.class);
@@ -133,6 +153,13 @@ public class TrainerProfile extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(menuToChoose, menu);
+        return true;
+    }
+
+    @Override
     public void onBackPressed() {
 
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -146,5 +173,6 @@ public class TrainerProfile extends AppCompatActivity {
             super.onBackPressed();
         }
     }
+
 }
 

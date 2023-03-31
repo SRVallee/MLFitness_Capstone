@@ -43,6 +43,17 @@ public class TrainerTraineeProfile extends AppCompatActivity {
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (SocketFunctions.user.isTrainer() == false) {
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
+        }
+        else{
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
+
+        }
+        invalidateOptionsMenu();
+        invalidateMenu();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -84,6 +95,13 @@ public class TrainerTraineeProfile extends AppCompatActivity {
                     case R.id.trainees: {
                         //Go to trainees
                         Intent i = new Intent(getApplicationContext(), TrainerTraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers:{
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();

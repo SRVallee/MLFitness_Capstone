@@ -92,9 +92,17 @@ public class TraineeTrainerProfile extends AppCompatActivity {
         getTrainers();
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (SocketFunctions.user.isTrainer() == false) {
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
+        }
+        else{
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
 
-
-
+        }
+        invalidateOptionsMenu();
+        invalidateMenu();
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -134,10 +142,19 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.trainers: {
-                        //Go to trainers
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                    case R.id.trainees: {
+                        //Go to trainees
+                        Intent i = new Intent(getApplicationContext(), TrainerTraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers:{
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.friends: {
@@ -241,7 +258,7 @@ public class TraineeTrainerProfile extends AppCompatActivity {
                                         @Override
                                         public void onClick(View v) {
                                             Integer position = Integer.parseInt(v.getTag().toString());
-
+                                            //count down timer just so that it shows gray on what you clicked
                                             CountDownTimer countdown = new CountDownTimer(1000, 1000) {
                                                 @Override
                                                 public void onTick(long millisUntilFinished) {
