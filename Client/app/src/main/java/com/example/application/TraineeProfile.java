@@ -78,6 +78,9 @@ public class TraineeProfile extends AppCompatActivity{
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (SocketFunctions.user.isTrainer() == false) {
+            String name = SocketFunctions.user.getName();
+            TextView textView = findViewById(R.id.TraineeProfileTitle);
+            textView.setText(name);
             navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
             navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
         }

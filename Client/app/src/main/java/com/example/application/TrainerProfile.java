@@ -58,6 +58,9 @@ public class TrainerProfile extends AppCompatActivity {
             navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
         }
         else{
+            String name = SocketFunctions.user.getName();
+            TextView trainer_name = findViewById(R.id.trainerProfileTitle);
+            trainer_name.setText(name);
             navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
             navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
 
