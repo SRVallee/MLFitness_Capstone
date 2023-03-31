@@ -5,23 +5,29 @@ import android.media.Image;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class User extends AppCompatActivity {
+import java.io.Serializable;
+
+public class User extends AppCompatActivity implements Serializable {
+
 
     private int id;
-    private String UserName;
+    private String userName;
     private String name;
     private String email;
     private Bitmap pfp;
     private Boolean isTrainer = false;
 
     public User(){
-        this(-1);
+        this(-1,null,null,null);
     }
 
-    public User(int id) {
+    public User(int id, String userName, String name, String email ) {
 
-        name = "Unnamed";
+
         this.id = id;
+        this.userName = userName;
+        this.name = name;
+        this.email = email;
     }
 
     public int getId() {
@@ -29,7 +35,7 @@ public class User extends AppCompatActivity {
     }
 
     public String getUserName() {
-        return UserName;
+        return userName;
     }
 
     public String getEmail() {
@@ -49,7 +55,7 @@ public class User extends AppCompatActivity {
     }
 
     public void setUserName(String userName) {
-        UserName = userName;
+        userName = userName;
     }
 
     public void setName(String name) {
