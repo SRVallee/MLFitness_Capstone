@@ -420,7 +420,7 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     print(currDir)
     # TODO: uncomment \/
     # tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir)+"/" + str(modelName)+"_diagram.png",show_shapes=True)
-    visualizer(trained_model, filename= str(currDir) +"/"+ str(modelName)+"_neural_network.png", view= False)
+    visualizer(trained_model, file_name= str(currDir) +"/"+ str(modelName)+"_neural_network.png", view= False)
     y_pred = trained_model.predict(x = new_df)
     y_pred = y_pred.tolist()
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
