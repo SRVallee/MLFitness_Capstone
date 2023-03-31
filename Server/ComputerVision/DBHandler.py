@@ -96,14 +96,15 @@ def main():
     if not select_exercise(con, "squat"):
         test_init(con)
     
-    sql = "SELECT MAX(workout_id) FROM workout"
-    int(select_one(con, sql, None)["MAX(workout_id)"])
+    sql = "SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='workout'"
+    workoutID = select_one(con, sql, None)["AUTO_INCREMENT"]
+    print(workoutID)
     
     lol = "TEST NOTES"
     
-    id1 = insert_exercise(con, "squatest1", "demoLoc", "modeLoc")
-    id2 = insert_exercise(con, "squatest2", "demoLoc", "modeLoc", trainer_id=6)
-    id3 = insert_exercise(con, "squatest3", "demoLoc", "modeLoc", trainer_id=6, notes=lol)
+    # id1 = insert_exercise(con, "squatest1", "demoLoc", "modeLoc")
+    # id2 = insert_exercise(con, "squatest2", "demoLoc", "modeLoc", trainer_id=6)
+    # id3 = insert_exercise(con, "squatest3", "demoLoc", "modeLoc", trainer_id=6, notes=lol)
     
     print()
     

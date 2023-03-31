@@ -300,7 +300,7 @@ def capture_feed(path, frame_rep_list, prediction, importantAngles, model_name, 
     
     conn = db.connect_to_db()
     
-    sql = "SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=workout"
+    sql = "SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='workout'"
     workoutID = db.select_one(conn, sql, None)["AUTO_INCREMENT"]
     conn.close()
     
