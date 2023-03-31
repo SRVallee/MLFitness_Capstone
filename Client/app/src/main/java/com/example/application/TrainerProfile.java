@@ -9,10 +9,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -34,24 +34,38 @@ public class TrainerProfile extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainer_profile);
-
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        Log.d("socket function", "onCreate in profile: "+SocketFunctions.user.isTrainer());
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Intent trainer_profile = getIntent();
-        ObjectTrainer trainer_obj = (ObjectTrainer) trainer_profile.getSerializableExtra("trainerObj");
-        Log.d("trainer name", "onCreate: "+trainer_obj.getTrainer_name());
-        Log.d("teinar id", "onCreate: "+trainer_obj.getId());
-        TextView trainer_name = findViewById(R.id.trainerProfileTitle);
-        trainer_name.setText(trainer_obj.getTrainer_name());
+
+        if (SocketFunctions.user.isTrainer() == false) {
+            Intent trainer_profile = getIntent();
+            ObjectTrainer trainer_obj = (ObjectTrainer) trainer_profile.getSerializableExtra("trainerObj");
+            TextView trainer_name = findViewById(R.id.trainerProfileTitle);
+            trainer_name.setText(trainer_obj.getTrainer_name());
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
+        }
+        else{
+            String name = SocketFunctions.user.getName();
+            TextView trainer_name = findViewById(R.id.trainerProfileTitle);
+            trainer_name.setText(name);
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
+
+        }
+        invalidateOptionsMenu();
+        invalidateMenu();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -65,7 +79,7 @@ public class TrainerProfile extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.upload: {
+                    case R.id.workouts: {
                         //Go to upload
                         Intent i = new Intent(getApplicationContext(), TrainerUpload.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -73,9 +87,9 @@ public class TrainerProfile extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.messages: {
+                    case R.id.message: {
                         //Go to messages
-                        Intent i = new Intent(getApplicationContext(), TrainerMessages.class);
+                        Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         //finish();
@@ -93,6 +107,13 @@ public class TrainerProfile extends AppCompatActivity {
                     case R.id.trainees: {
                         //Go to trainees
                         Intent i = new Intent(getApplicationContext(), TrainerTraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers:{
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -132,6 +153,7 @@ public class TrainerProfile extends AppCompatActivity {
         });
     }
 
+
     @Override
     public void onBackPressed() {
 
@@ -146,5 +168,6 @@ public class TrainerProfile extends AppCompatActivity {
             super.onBackPressed();
         }
     }
+
 }
 

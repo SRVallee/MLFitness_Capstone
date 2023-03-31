@@ -33,13 +33,25 @@
 
         </LinearLayout>
 
+        <ScrollView
+            android:id="@+id/trainee_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/trainee_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:headerLayout="@layout/header"
-        app:menu="@menu/trainer_menu"
+        app:menu="@menu/main_menu"
         android:id="@+id/nav_view"
         android:layout_gravity="start"/>
 
