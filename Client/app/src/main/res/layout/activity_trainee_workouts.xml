@@ -39,11 +39,6 @@
 
         </LinearLayout>
 
-        <Spinner
-            android:id="@+id/workoutSelector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
         <com.androidplot.xy.XYPlot
             style="@style/APDefacto.Light"
             android:id="@+id/plot"
