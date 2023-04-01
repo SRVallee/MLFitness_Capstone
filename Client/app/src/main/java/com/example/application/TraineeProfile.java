@@ -58,18 +58,7 @@ public class TraineeProfile extends AppCompatActivity{
         trainee_profile_email_textview.setText(trainee_profile_email);
 
         //Check line to get from db
-        try{
-            if(SocketFunctions.user.hasPfp()){
-                userProfilePicture.setImageBitmap(SocketFunctions.user.getPfp());
-            }else{
-                Picasso.get().load("http://162.246.157.128/MLFitness/pfps/"+ SocketFunctions.user.getId() +".jpg").into(userProfilePicture);
-                Drawable pfp = userProfilePicture.getDrawable();
-                SocketFunctions.user.setPfp(Bitmap.createBitmap(pfp.getIntrinsicWidth(), pfp.getIntrinsicHeight(), Bitmap.Config.ARGB_8888));
-            }
-        }catch (Exception e){
-            int trainee_profile_image = R.drawable.ic_baseline_tag_faces_24;
-            userProfilePicture.setImageResource(trainee_profile_image);
-        }
+
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -85,8 +74,28 @@ public class TraineeProfile extends AppCompatActivity{
             navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
         }
         else{
+            Intent trainee_profile = getIntent();
+            User trainee_obj = (User) trainee_profile.getSerializableExtra("traineeObj");
             navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
             navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
+            try{
+                if(trainee_obj.hasPfp()){
+                    userProfilePicture.setImageBitmap(trainee_obj.getPfp());
+                }else{
+                    Picasso.get().load("http://162.246.157.128/MLFitness/pfps/"+ trainee_obj.getId() +".jpg").into(userProfilePicture);
+                    Drawable pfp = userProfilePicture.getDrawable();
+                    trainee_obj.setPfp(Bitmap.createBitmap(pfp.getIntrinsicWidth(), pfp.getIntrinsicHeight(), Bitmap.Config.ARGB_8888));
+                }
+            }catch (Exception e){
+                int trainee_profile_image = R.drawable.ic_baseline_tag_faces_24;
+                userProfilePicture.setImageResource(trainee_profile_image);
+            }
+            TextView name = findViewById(R.id.TraineeProfileTitle);
+            TextView username = findViewById(R.id.userNameTraineeProfile);
+            TextView email = findViewById(R.id.userEmailTraineeProfile);
+            name.setText(trainee_obj.getName());
+            username.setText(trainee_obj.getUserName());
+            email.setText(trainee_obj.getEmail());
 
         }
         invalidateOptionsMenu();
