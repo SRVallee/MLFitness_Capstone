@@ -155,7 +155,7 @@ public class TraineeProfile extends AppCompatActivity{
                     case R.id.profile: {
                         //Already selected
                         if(SocketFunctions.user.isTrainer()){
-                            Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                            Intent i = new Intent(getApplicationContext(), TrainerProfile.class);
                             i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(i);
                             finish();
