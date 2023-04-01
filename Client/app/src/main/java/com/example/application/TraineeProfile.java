@@ -154,8 +154,15 @@ public class TraineeProfile extends AppCompatActivity{
                     }
                     case R.id.profile: {
                         //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        if(SocketFunctions.user.isTrainer()){
+                            Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(i);
+                            finish();
+                            break;
+                        }else {
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                        }
                         break;
                     }
                     case R.id.logout: {
