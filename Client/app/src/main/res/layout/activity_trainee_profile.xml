@@ -65,6 +65,21 @@
             android:clickable="true"
             android:onClick="goToEdit"/>
 
+        <ImageView
+            android:id="@+id/add_friend_trainee"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="65dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_circle"
+            android:padding="8dp"
+            android:src="@drawable/add_friend"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white"
+            android:clickable="true"
+            android:onClick="goToEdit"/>
+
         <TextView
             android:id="@+id/userNameTraineeProfile"
             android:layout_width="wrap_content"
