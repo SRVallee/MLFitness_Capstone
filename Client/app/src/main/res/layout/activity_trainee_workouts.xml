@@ -19,11 +19,6 @@
             android:layout_height="60dp"
             android:orientation="horizontal">
 
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/workoutSelector" />
-
             <TextView
                 android:id="@+id/workoutTiles"
                 android:layout_width="match_parent"
@@ -38,6 +33,13 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </LinearLayout>
+
+        <Spinner
+            android:id="@+id/workoutSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            tools:visibility="visible" />
 
         <com.androidplot.xy.XYPlot
             style="@style/APDefacto.Light"
