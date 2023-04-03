@@ -217,7 +217,7 @@ public class TraineeProfile extends AppCompatActivity{
                                 @Override
                                 public void onResponse(String response) {
                                     ArrayList<User> users = new ArrayList<>();
-                                    Log.d("Response subbed: ", response.toString());
+                                    Log.d("Response friended: ", response.toString());
                                     try {
                                         JSONObject jsonResponse = new JSONObject(response);
                                         String status = jsonResponse.getString("status");
@@ -302,7 +302,7 @@ public class TraineeProfile extends AppCompatActivity{
                             JSONObject jsonResponse = new JSONObject(response);
                             String status = jsonResponse.getString("status");
                             if (status.equals("success")) {
-                                Log.d("trainee array: ", jsonResponse.getString("relationships"));
+                                Log.d("this trainee friends: ", jsonResponse.getString("relationships"));
                                 JSONArray relationship = new JSONArray(jsonResponse.getString("relationships"));
                                 if (relationship.length() == 0){
                                     ImageView add_friend = findViewById(R.id.add_friend_trainee);
