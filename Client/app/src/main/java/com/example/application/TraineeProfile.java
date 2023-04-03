@@ -3,22 +3,37 @@ package com.example.application;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TraineeProfile extends AppCompatActivity{
 
@@ -96,6 +111,8 @@ public class TraineeProfile extends AppCompatActivity{
             name.setText(trainee_obj.getName());
             username.setText(trainee_obj.getUserName());
             email.setText(trainee_obj.getEmail());
+            is_subbed(trainee_obj);
+            onclickfriends(trainee_obj);
 
         }
         invalidateOptionsMenu();
@@ -133,21 +150,6 @@ public class TraineeProfile extends AppCompatActivity{
                     case R.id.setting: {
                         //Go to setting
                         Intent i = new Intent(getApplicationContext(), TraineeSettings.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
-                        break;
-                    }
-                    case R.id.trainees: {
-                        //Go to trainees
-                        Intent i = new Intent(getApplicationContext(), TrainerTraineeProfile.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
-                        break;
-                    }
-                    case R.id.trainers:{
-                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -192,6 +194,151 @@ public class TraineeProfile extends AppCompatActivity{
                 return false;
             }
         });
+    }
+    // this is for switching around what the button is for either adding friend removing friend or editing
+    //profile
+    private void onclickfriends(User trainee_obj) {
+        ConstraintLayout trainee_constraint = findViewById(R.id.trainee_constraint);
+        ImageView add_friend = findViewById(R.id.add_friend_trainee);
+        ImageView unfriend = findViewById(R.id.sub_friend_trainee);
+        ImageView edit_profile = findViewById(R.id.edit_trainee_profile_button);
+        if (add_friend.getVisibility() == View.VISIBLE){
+            add_friend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Context context = getApplicationContext();
+                    RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                    String url = "http://162.246.157.128/MLFitness/add_relationship.php";
+
+                    StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                            new Response.Listener<String>() {
+                                //this is async reyes didn't tell me NO ONE TOLD ME
+                                //this runs on a different thread than the main
+                                @Override
+                                public void onResponse(String response) {
+                                    ArrayList<User> users = new ArrayList<>();
+                                    Log.d("Response subbed: ", response.toString());
+                                    try {
+                                        JSONObject jsonResponse = new JSONObject(response);
+                                        String status = jsonResponse.getString("status");
+                                        if (status.equals("success")) {
+                                            Log.d("trainee friend array: ", jsonResponse.getString("relationships"));
+                                            JSONArray relationship = new JSONArray(jsonResponse.getString("relationships"));
+                                            if (relationship.length() == 0){
+                                                ImageView add_friend = findViewById(R.id.add_friend_trainee);
+                                                ImageView unfriend = findViewById(R.id.sub_friend_trainee);
+                                                ImageView edit_button = findViewById(R.id.edit_trainee_profile_button);
+                                                add_friend.setVisibility(View.VISIBLE);
+                                                unfriend.setVisibility(View.GONE);
+                                                edit_button.setVisibility(View.GONE);
+
+
+                                            }
+
+                                        }
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("User id: ", error.getLocalizedMessage());
+                        }
+                    }) {
+                        protected Map<String, String> getParams() {
+                            Map<String, String> paramV = new HashMap<>();
+                            paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                            paramV.put("apiKey", SocketFunctions.apiKey);
+                            paramV.put("id2",String.valueOf(trainee_obj.getId()));
+                            Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainee_obj.getId()));
+                            if(SocketFunctions.user.isTrainer() == true){
+                                paramV.put("type", "1");
+                            }
+                            else{
+                                paramV.put("type","0");
+                            }
+                            return paramV;
+                        }
+                    };
+                    queue.add(stringRequest);
+                }
+            });
+        } else if (unfriend.getVisibility() == View.VISIBLE) {
+            unfriend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        } else if (edit_profile.getVisibility() == View.VISIBLE) {
+
+            edit_profile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        }
+    }
+
+    private void is_subbed(User trainee_obj) {
+        Context context = getApplicationContext();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://162.246.157.128/MLFitness/get_relationships.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    //this is async reyes didn't tell me NO ONE TOLD ME
+                    //this runs on a different thread than the main
+                    @Override
+                    public void onResponse(String response) {
+                        ArrayList<User> users = new ArrayList<>();
+                        Log.d("Response subbed: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            if (status.equals("success")) {
+                                Log.d("trainee array: ", jsonResponse.getString("relationships"));
+                                JSONArray relationship = new JSONArray(jsonResponse.getString("relationships"));
+                                if (relationship.length() == 0){
+                                    ImageView add_friend = findViewById(R.id.add_friend_trainee);
+                                    ImageView unfriend = findViewById(R.id.sub_friend_trainee);
+                                    ImageView edit_button = findViewById(R.id.edit_trainee_profile_button);
+                                    add_friend.setVisibility(View.VISIBLE);
+                                    unfriend.setVisibility(View.GONE);
+                                    edit_button.setVisibility(View.GONE);
+
+
+                                }
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("id2",String.valueOf(trainee_obj.getId()));
+
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     public void goToEdit(View view) {

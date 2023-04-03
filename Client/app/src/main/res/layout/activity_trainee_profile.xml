@@ -36,6 +36,7 @@
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/trainee_constraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -51,7 +52,7 @@
             app:srcCompat="@drawable/ic_baseline_account_circle_24" />
 
         <ImageView
-            android:id="@+id/edit_profile_picture_button"
+            android:id="@+id/edit_trainee_profile_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginTop="65dp"
@@ -78,7 +79,22 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white"
             android:clickable="true"
-            android:onClick="goToEdit"/>
+            android:onClick="goToadd"/>
+
+        <ImageView
+            android:id="@+id/sub_friend_trainee"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="65dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_circle"
+            android:padding="8dp"
+            android:src="@drawable/sub_friend"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white"
+            android:clickable="true"
+            android:onClick="goTosub"/>
 
         <TextView
             android:id="@+id/userNameTraineeProfile"
