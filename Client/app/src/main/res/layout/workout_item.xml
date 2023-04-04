@@ -22,9 +22,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
         android:orientation="vertical"
+        android:paddingBottom="5dp"
         app:layout_constraintStart_toEndOf="@+id/txt_workoutNum"
         app:layout_constraintTop_toTopOf="parent">
 

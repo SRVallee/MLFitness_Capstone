@@ -66,21 +66,37 @@ public class WorkoutsListAdapter implements ListAdapter {
             TextView workoutDate=convertView.findViewById(R.id.txt_workoutDate);
             TextView workoutScore=convertView.findViewById(R.id.txt_workoutScore);
 
+            // if workout list was empty
             if (currWorkout.getUser_id() == -1){
                 workoutNum.setText("");
-                workoutName.setText("No workouts yet!");
+
+                String workoutTitle;
+                if (SocketFunctions.user.isTrainer()){
+                    workoutTitle = "No trainee workouts yet!";
+                } else {
+                    workoutTitle = "No workouts yet!";
+                }
+
+                workoutName.setText(workoutTitle);
                 workoutDate.setText("");
                 workoutScore.setText("");
-            } else {
+
+            } else { // workouts has elements in it
                 workoutNum.setText(String.valueOf(position + 1));
-                workoutName.setText(currWorkout.getExercise_name());
+
+                String workoutTitle;
+                if (SocketFunctions.user.isTrainer()){
+                    workoutTitle = currWorkout.getUser_id() + ": " + currWorkout.getExercise_name();
+                } else {
+                    workoutTitle = currWorkout.getExercise_name();
+                }
+
+                workoutName.setText(workoutTitle);
                 workoutDate.setText(currWorkout.getDate());
                 DecimalFormat df = new DecimalFormat("##.##");
                 Double currScore = currWorkout.getScore() * 100;
                 workoutScore.setText("Score: " + df.format(currScore) + "%");
             }
-
-
 
         }
         return convertView;
