@@ -7,10 +7,10 @@ public class Workout {
     private int user_id;
     private int exercise_id;
     private String exercise_name;
-    private float score;
+    private double score;
     private String date;
 
-    public Workout(int workout_id, int user_id, int exercise_id, float score, String date) {
+    public Workout(int workout_id, int user_id, int exercise_id, double score, String date) {
         this.workout_id = workout_id;
         this.user_id = user_id;
         this.exercise_id = exercise_id;
@@ -20,7 +20,7 @@ public class Workout {
         findExerciseName(exercise_id);
     }
 
-    public Workout(int workout_id, int user_id, String exercise_name, float score, String date) {
+    public Workout(int workout_id, int user_id, String exercise_name, double score, String date) {
         this.workout_id = workout_id;
         this.user_id = user_id;
         this.exercise_name = exercise_name;
@@ -80,11 +80,11 @@ public class Workout {
         findExerciseID(exercise_name);
     }
 
-    public float getScore() {
+    public double getScore() {
         return score;
     }
 
-    public void setScore(float score) {
+    public void setScore(double score) {
         this.score = score;
     }
 

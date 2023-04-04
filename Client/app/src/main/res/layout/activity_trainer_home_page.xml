@@ -38,10 +38,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:text="Trainees"
             android:textColor="@color/azure_blue"
             android:textSize="20dp"
-            android:textStyle="bold"
-            android:text="Disciples" />
+            android:textStyle="bold" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
@@ -69,16 +69,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:text="Uploaded Workouts"
             android:textColor="@color/azure_blue"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:text="uploaded Workouts" />
+            android:textStyle="bold" />
 
         <ScrollView
+            android:id="@+id/scrollWorkoutTrainer"
             android:layout_width="match_parent"
             android:layout_height="150sp">
 
             <LinearLayout
+                android:id="@+id/workoutsTrainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
@@ -89,16 +91,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:text="Trainee Submitted Workouts"
             android:textColor="@color/azure_blue"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:text="trainee submitted" />
+            android:textStyle="bold" />
 
         <ScrollView
+            android:id="@+id/scrollTraineeWorkouts_Trainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <LinearLayout
+                android:id="@+id/traineeWorkoutsTrainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
