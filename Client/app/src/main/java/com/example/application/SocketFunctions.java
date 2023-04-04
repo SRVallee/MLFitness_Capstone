@@ -26,6 +26,7 @@ public class SocketFunctions {
     static public String apiKey = null;
     static public ArrayList<Exercise> exercises = new ArrayList<>();
     static public Exercise selectedExercise;
+    static public ArrayList<Relationship> relationships = new ArrayList<>();
 
     /**
      * upload profile picture
