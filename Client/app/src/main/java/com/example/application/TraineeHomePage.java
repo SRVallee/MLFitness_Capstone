@@ -220,7 +220,7 @@ public class TraineeHomePage extends AppCompatActivity {
                                         id1.add(trainerObj);
                                     }
                                     if (!trainerObj2.equals(String.valueOf(SocketFunctions.user.getId()))) {
-                                        id1.add(trainerObj);
+                                        id1.add(trainerObj2);
                                     }
 
                                 }
@@ -263,46 +263,103 @@ public class TraineeHomePage extends AppCompatActivity {
         LinearLayout linearLayout_trainer = findViewById(R.id.trainer_home_linear);
         //this for loop is to add each trainer into the linearlayout
         for (int i = 0; i < id1.size(); i++) {
-            // this is to inflate the trainer row
-            View Trainer_user_disp = LayoutInflater.from(context).inflate(R.layout.home_user_display, null);
-            //this is to set the positions to get the item
-            Trainer_user_disp.setTag(i);
-            //this is to get the text view from the trainer row to change the set text
-            TextView Trainer_name =Trainer_user_disp.findViewById(R.id.trainer_home_name);
-            Trainer_name.setText(id1.get(i));
-            Trainer_name.setTextSize(20);
-            //this adds the view
-            linearLayout_trainer.addView(Trainer_user_disp,i);
-            //linearLayout_trainer.setOnClickListener(clickInLinearLayout());
-            //this is to set a onclick listener for each trainer row
-            Trainer_user_disp.setOnClickListener(new View.OnClickListener() {
+            int finalI = i;
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        //this is async reyes didn't tell me NO ONE TOLD ME
+                        //this runs on a different thread than the main
+                        @Override
+                        public void onResponse(String response) {
+                            ArrayList<ObjectTrainer> trainers = new ArrayList<>();
+                            Log.d("home trainer get: ", response.toString()+" pain "+ id1.get(finalI));
+                            try {
+                                JSONObject jsonResponse = new JSONObject(response);
+                                String status = jsonResponse.getString("status");
+                                if (status.equals("success")) {
+                                    Log.d("Array: ", jsonResponse.getString("trainers"));
+                                    for (int j = 0; j < jsonResponse.getJSONArray("trainers").length(); j++) {
+                                        String trainerlist;
+                                        trainerlist = jsonResponse.getJSONArray("trainers").getString(j);
+                                        String[] trainerSplit= trainerlist.split(",");
+                                        if (trainerSplit[2].isEmpty()){
+                                            trainerSplit[2] = "0.0";
+                                        }
+                                        ObjectTrainer trainerObj = new ObjectTrainer(Integer.valueOf(trainerSplit[0]),trainerSplit[1],
+                                                Float.valueOf(trainerSplit[2]),trainerSplit[3],trainerSplit[4],trainerSplit[5]);
+                                        trainers.add(trainerObj);
+                                    }
+                                    //this is for the interaction with  the scrollview
+                                    ScrollView trainer_list = findViewById(R.id.trainer_full_list);
+                                    LinearLayout linearLayout_trainer = findViewById(R.id.trainer_display_list);
+                                    //this for loop is to add each trainer into the linearlayout
+                                    for (int i = 0; i < trainers.size(); i++) {
+                                        // this is to inflate the trainer row
+                                        View Trainer_constraint = LayoutInflater.from(context).inflate(R.layout.trainer_row, null);
+                                        //this is to set the positions to get the item
+                                        Trainer_constraint.setTag(i);
+                                        //this is to get the text view from the trainer row to change the set text
+                                        TextView Trainer_name =Trainer_constraint.findViewById(R.id.Trainer_name_text);
+                                        Trainer_name.setText(trainers.get(i).getTrainer_name());
+                                        Trainer_name.setTextSize(25);
+                                        //this adds the view
+                                        linearLayout_trainer.addView(Trainer_constraint,i);
+                                        //linearLayout_trainer.setOnClickListener(clickInLinearLayout());
+                                        //this is to set a onclick listener for each trainer row
+                                        Trainer_constraint.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Integer position = Integer.parseInt(v.getTag().toString());
+                                                //count down timer just so that it shows gray on what you clicked
+                                                CountDownTimer countdown = new CountDownTimer(1000, 1000) {
+                                                    @Override
+                                                    public void onTick(long millisUntilFinished) {
+                                                        v.setBackgroundColor(getColor(R.color.light_grey));
+                                                    }
+
+                                                    @Override
+                                                    public void onFinish() {
+                                                        v.setBackgroundColor(getColor(R.color.white));
+                                                    }
+                                                };
+                                                countdown.start();
+                                                Log.d("in onclick", "onClick: "+position);
+                                                String trainer_name = trainers.get(position).getTrainer_name();
+                                                Log.d("name on row", "onClick: "+trainer_name);
+                                                Intent Trainer_profile = new Intent(getApplicationContext(), TrainerProfile.class);
+                                                Trainer_profile.putExtra("trainerObj", trainers.get(position));
+                                                startActivity(Trainer_profile);
+                                                finish();
+
+                                            }
+                                        });
+                                        Log.d("inside for loop", "onResponse: "+i);
+                                    }
+
+
+
+                                }
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                    }, new Response.ErrorListener() {
                 @Override
-                public void onClick(View v) {
-                    Integer position = Integer.parseInt(v.getTag().toString());
-                    //count down timer just so that it shows gray on what you clicked
-                    CountDownTimer countdown = new CountDownTimer(1000, 1000) {
-                        @Override
-                        public void onTick(long millisUntilFinished) {
-                            v.setBackgroundColor(getColor(R.color.light_grey));
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            v.setBackgroundColor(getColor(R.color.white));
-                        }
-                    };
-                    countdown.start();
-                    Log.d("in onclick", "onClick: "+position);
-                    String trainer_name = id1.get(position);
-                    Log.d("name on row", "onClick: "+trainer_name);
-                    Intent Trainer_profile = new Intent(getApplicationContext(), TrainerProfile.class);
-                    Trainer_profile.putExtra("trainerObj", id1.get(position));
-                    startActivity(Trainer_profile);
-                    finish();
-
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("User id: ", error.getLocalizedMessage());
                 }
-            });
-            Log.d("inside for loop", "onResponse: "+i);
+            }) {
+                protected Map<String, String> getParams() {
+                    Map<String, String> paramV = new HashMap<>();
+                    paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                    paramV.put("apiKey", SocketFunctions.apiKey);
+                    paramV.put("id2", id1.get(finalI));
+                    return paramV;
+                }
+            };
+            queue.add(stringRequest);
 
         }
     }

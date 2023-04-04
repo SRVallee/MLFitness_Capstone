@@ -261,7 +261,7 @@ public class TrainerProfile extends AppCompatActivity {
                                                     paramV.put("apiKey", SocketFunctions.apiKey);
                                                     //trainer
                                                     paramV.put("id2",String.valueOf(trainer_obj.getId()));
-                                                    Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainer_obj.getId()));
+                                                    Log.d("THE IDS friended", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainer_obj.getId()));
                                                     if(SocketFunctions.user.isTrainer() == false){
                                                         paramV.put("type", "1");
                                                     }
@@ -331,7 +331,7 @@ public class TrainerProfile extends AppCompatActivity {
                                                     paramV.put("apiKey", SocketFunctions.apiKey);
                                                     //trainer
                                                     paramV.put("id2",String.valueOf(trainer_obj.getId()));
-                                                    Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainer_obj.getId()));
+                                                    Log.d("THE IDS unfriend", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainer_obj.getId()));
                                                     if(SocketFunctions.user.isTrainer() == false){
                                                         paramV.put("type", "1");
                                                     }
@@ -365,7 +365,7 @@ public class TrainerProfile extends AppCompatActivity {
                 paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                 paramV.put("apiKey", SocketFunctions.apiKey);
                 paramV.put("id2",String.valueOf(trainer_obj.getId()));
-                paramV.put("type","2");
+                paramV.put("type","1");
                 return paramV;
             }
         };
