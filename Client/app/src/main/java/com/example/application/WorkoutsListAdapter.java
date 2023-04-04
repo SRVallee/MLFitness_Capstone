@@ -65,10 +65,19 @@ public class WorkoutsListAdapter implements ListAdapter {
             TextView workoutDate=convertView.findViewById(R.id.txt_workoutDate);
             TextView workoutScore=convertView.findViewById(R.id.txt_workoutScore);
 
-            workoutNum.setText(position);
-            workoutName.setText(currWorkout.getExercise_name());
-            workoutDate.setText(currWorkout.getDate());
-            workoutScore.setText(String.valueOf(currWorkout.getScore()));
+            if (currWorkout.getUser_id() == -1){
+                workoutNum.setText("");
+                workoutName.setText("No workouts yet!");
+                workoutDate.setText("");
+                workoutScore.setText("");
+            } else {
+                workoutNum.setText(position);
+                workoutName.setText(currWorkout.getExercise_name());
+                workoutDate.setText(currWorkout.getDate());
+                workoutScore.setText(String.valueOf(currWorkout.getScore()));
+            }
+
+
 
         }
         return convertView;
