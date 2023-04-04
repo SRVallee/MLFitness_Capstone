@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class WorkoutsListAdapter implements ListAdapter {
@@ -71,10 +72,12 @@ public class WorkoutsListAdapter implements ListAdapter {
                 workoutDate.setText("");
                 workoutScore.setText("");
             } else {
-                workoutNum.setText(position);
+                workoutNum.setText(String.valueOf(position + 1));
                 workoutName.setText(currWorkout.getExercise_name());
                 workoutDate.setText(currWorkout.getDate());
-                workoutScore.setText(String.valueOf(currWorkout.getScore()));
+                DecimalFormat df = new DecimalFormat("##.##");
+                Double currScore = currWorkout.getScore() * 100;
+                workoutScore.setText("Score: " + df.format(currScore) + "%");
             }
 
 

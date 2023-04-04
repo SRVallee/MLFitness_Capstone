@@ -75,12 +75,6 @@ public class TraineeHomePage extends AppCompatActivity {
 
         // get workouts from server
         workouts = getWorkouts();
-        if (workouts.isEmpty()){
-            Workout emptyWorkout = new Workout(-1, -1, -1, 0, "");
-            workouts.add(emptyWorkout);
-        }
-        WorkoutsListAdapter workoutsAdapter = new WorkoutsListAdapter(getApplicationContext(), workouts);
-        workoutsListView.setAdapter(workoutsAdapter);
 
         invalidateOptionsMenu();
         invalidateMenu();
@@ -194,6 +188,14 @@ public class TraineeHomePage extends AppCompatActivity {
                                         workout_obj.getJSONObject(i).getString("date"));
                                 workoutsList.add(workout);
                             }
+
+                            if (workoutsList.isEmpty()){
+                                Workout emptyWorkout = new Workout(-1, -1, -1, 0, "");
+                                workoutsList.add(emptyWorkout);
+                            }
+                            WorkoutsListAdapter workoutsAdapter = new WorkoutsListAdapter(getApplicationContext(), workoutsList);
+                            workoutsListView.setAdapter(workoutsAdapter);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -208,6 +210,7 @@ public class TraineeHomePage extends AppCompatActivity {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                 paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("user_id", String.valueOf(SocketFunctions.user.getId()));
                 return paramV;
             }
         };
