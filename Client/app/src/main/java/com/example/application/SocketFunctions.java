@@ -82,19 +82,28 @@ public class SocketFunctions {
     }
 
     public static ArrayList<Workout> getWorkouts(Context context, ListView list, int id){
-        ArrayList<Workout> workoutsList = new ArrayList<>();
-        RequestQueue queue = Volley.newRequestQueue(context);
         String url = "http://162.246.157.128/MLFitness/get_workouts.php";
+        return getWorkouts(context, list, id, url);
+    }
+
+    public static ArrayList<Workout> getWorkouts(Context context, ListView list, int id, String url){
+        ArrayList<Workout> workoutsList = new ArrayList<>();
+        workoutsList.add(null);
+        RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        ArrayList<Workout> workoutsList = new ArrayList<>();
                         Log.d("Response: ", response.toString());
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
                             String status = jsonResponse.getString("status");
                             Log.d("Workout array: ", jsonResponse.getString("workouts"));
-                            JSONArray workout_obj = new JSONArray(jsonResponse.getString("workouts")) ;
+                            JSONArray workout_obj = new JSONArray(jsonResponse.getString("workouts"));
+                            if (!workoutsList.isEmpty()) {
+                                workoutsList.remove(0);
+                            }
                             for (int i = 0; i < workout_obj.length(); i++) {
                                 Workout workout = new Workout(
                                         workout_obj.getJSONObject(i).getInt("workout_id"),
