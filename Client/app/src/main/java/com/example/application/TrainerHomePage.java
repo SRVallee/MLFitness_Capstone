@@ -66,8 +66,11 @@ public class TrainerHomePage extends AppCompatActivity {
         }
 
         trainerWorkouts = SocketFunctions.getWorkouts(getApplicationContext(), listTrainerWorkout, SocketFunctions.user.getId());
-        //TODO: get list of trainees and iterate through them
-//        traineeSubWorkouts = SocketFunctions.getWorkouts(getApplicationContext(), listTrainerWorkout, );
+        traineeSubWorkouts = SocketFunctions.getWorkouts(
+                getApplicationContext(),
+                listTrainerWorkout,
+                SocketFunctions.user.getId(),
+                "http://162.246.157.128/MLFitness/get_trainer_workouts.php");
 
         invalidateOptionsMenu();
         invalidateMenu();
