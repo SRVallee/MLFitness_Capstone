@@ -124,11 +124,19 @@ public class TraineeProfile extends AppCompatActivity{
                 switch (item.getItemId()) {
                     case R.id.home: {
                         //Go to homepage
-                        Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(i);
-                        finish();
-                        break;
+                        if(!SocketFunctions.user.isTrainer()){
+                            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+                            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(i);
+                            finish();
+                            break;
+                        }else {
+                            Intent i = new Intent(getApplicationContext(), TrainerHomePage.class);
+                            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(i);
+                            finish();
+                            break;
+                        }
                     }
                     case R.id.workouts: {
                         //Go to workouts
