@@ -1,6 +1,8 @@
 package com.example.application;
 
+
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -104,6 +106,7 @@ public class WorkoutsListAdapter implements ListAdapter {
         }
         return convertView;
     }
+
     @Override
     public int getItemViewType(int position) {
         return position;
