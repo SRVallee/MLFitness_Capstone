@@ -85,7 +85,21 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white"
             android:clickable="true"
-            android:onClick="goToEdit"/>
+            android:onClick="goToadd"/>
+        <ImageView
+            android:id="@+id/sub_friend_trainer"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_circle"
+            android:padding="8dp"
+            android:src="@drawable/sub_friend"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white"
+            android:clickable="true"
+            android:onClick="goTosub"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"

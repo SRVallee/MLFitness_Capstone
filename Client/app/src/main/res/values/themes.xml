@@ -36,6 +36,11 @@
 
     <!-- Light mode -->
     <!-- Screen background if light mode one -->
+
+    <style name="TOOLBAR">
+        <item name="android:background">@color/azure_blue</item>
+    </style>
+
     <style name="SCREEN">
         <item name="android:background">#FFF</item>
     </style>

@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
@@ -47,7 +49,7 @@ public class TrainerProfile extends AppCompatActivity {
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        // trainer page checks if user is trainer if not than thgis is for user to find trainer
         if (SocketFunctions.user.isTrainer() == false) {
             Intent trainer_profile = getIntent();
             ObjectTrainer trainer_obj = (ObjectTrainer) trainer_profile.getSerializableExtra("trainerObj");
@@ -62,6 +64,12 @@ public class TrainerProfile extends AppCompatActivity {
             trainer_name.setText(name);
             navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
             navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
+            ImageView add_friend = findViewById(R.id.add_friend_trainee);
+            ImageView unfriend = findViewById(R.id.sub_friend_trainee);
+            ImageView edit_button = findViewById(R.id.edit_trainee_profile_button);
+            add_friend.setVisibility(View.GONE);
+            unfriend.setVisibility(View.GONE);
+            edit_button.setVisibility(View.VISIBLE);
 
         }
         invalidateOptionsMenu();
