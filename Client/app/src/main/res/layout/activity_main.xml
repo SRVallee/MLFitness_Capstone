@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="40dp"
         android:gravity="center"
-        android:text="Kinesee Cricket"
+        android:text="Kinsee Cricket"
         android:textColor="@color/white"
         android:textSize="35dp"
         android:textStyle="bold"
@@ -24,14 +24,15 @@
 
     <ImageView
         android:id="@+id/imageViewLogoStartUp"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="407dp"
+        android:layout_height="427dp"
         android:layout_marginBottom="194dp"
-        android:background="@android:drawable/ic_menu_gallery"
+        android:background="@mipmap/ic_launcher_foreground"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startUpTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/startUpTitle"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
