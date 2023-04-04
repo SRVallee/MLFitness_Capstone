@@ -25,11 +25,11 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         button2 = (Button) findViewById(R.id.signUpButtonWelcome);
         button2.setOnClickListener(WelcomeScreen.this);
 
-        button3 = (Button) findViewById(R.id.tempB1);
-        button3.setOnClickListener(WelcomeScreen.this);
+        //button3 = (Button) findViewById(R.id.tempB1);
+        //button3.setOnClickListener(WelcomeScreen.this);
 
-        button4 = (Button) findViewById(R.id.tempB2);
-        button4.setOnClickListener(WelcomeScreen.this);
+        //button4 = (Button) findViewById(R.id.tempB2);
+        //button4.setOnClickListener(WelcomeScreen.this);
 
         if (Build.VERSION.SDK_INT >= 30){
             if (!Environment.isExternalStorageManager()){
@@ -58,15 +58,15 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
                 startActivity(i);
                 break;
             //Trainee temp
-            case R.id.tempB1:
-                i = new Intent(getApplicationContext(), TraineeHomePage.class);
-                startActivity(i);
-                break;
+            //case R.id.tempB1:
+            //    i = new Intent(getApplicationContext(), TraineeHomePage.class);
+            //    startActivity(i);
+            //    break;
             //Trainer temp
-            case R.id.tempB2:
-                i = new Intent(getApplicationContext(), TrainerHomePage.class);
-                startActivity(i);
-                break;
+            //case R.id.tempB2:
+            //    i = new Intent(getApplicationContext(), TrainerHomePage.class);
+            //    startActivity(i);
+            //    break;
             default:
                 break;
         }

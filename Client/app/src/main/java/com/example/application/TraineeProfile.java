@@ -424,20 +424,6 @@ public class TraineeProfile extends AppCompatActivity{
         finish();
     }
 
-    public void moreWorkouts(View view) {
-        Intent i;
-        i = new Intent(getApplicationContext(), TraineeWorkouts.class);
-        startActivity(i);
-        finish();
-    }
-
-    public void moreAwards(View view) {
-        Intent i;
-        i = new Intent(getApplicationContext(), TraineeEditProfile.class);
-        startActivity(i);
-        finish();
-    }
-
     @Override
     public void onBackPressed() {
 
