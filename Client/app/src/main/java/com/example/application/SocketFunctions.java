@@ -3,6 +3,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.ListView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -11,6 +12,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,5 +80,62 @@ public class SocketFunctions {
 
         exercises.add(exercise);
     }
+
+    public static ArrayList<Workout> getWorkouts(Context context, ListView list, int id){
+        ArrayList<Workout> workoutsList = new ArrayList<>();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://162.246.157.128/MLFitness/get_workouts.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            Log.d("Workout array: ", jsonResponse.getString("workouts"));
+                            JSONArray workout_obj = new JSONArray(jsonResponse.getString("workouts")) ;
+                            for (int i = 0; i < workout_obj.length(); i++) {
+                                Workout workout = new Workout(
+                                        workout_obj.getJSONObject(i).getInt("workout_id"),
+                                        workout_obj.getJSONObject(i).getInt("user_user_id"),
+                                        workout_obj.getJSONObject(i).getInt("exercise_exercise_id"),
+                                        workout_obj.getJSONObject(i).getDouble("score"),
+                                        workout_obj.getJSONObject(i).getString("date"));
+                                workoutsList.add(workout);
+                            }
+
+                            if (workoutsList.isEmpty()){
+                                Workout emptyWorkout = new Workout(-1, -1, -1, 0, "");
+                                workoutsList.add(emptyWorkout);
+                            }
+                            if (list != null) {
+                                WorkoutsListAdapter workoutsAdapter = new WorkoutsListAdapter(context, workoutsList, id);
+                                list.setAdapter(workoutsAdapter);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("user_id", String.valueOf(id));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
+        return workoutsList;
+    }
+
 }
 

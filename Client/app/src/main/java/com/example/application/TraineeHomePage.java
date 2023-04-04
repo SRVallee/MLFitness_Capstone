@@ -9,15 +9,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -41,8 +35,6 @@ public class TraineeHomePage extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
-
-    Context context = this;
 
     private Boolean exit = false;
     private long pressedTime;
@@ -71,7 +63,6 @@ public class TraineeHomePage extends AppCompatActivity {
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        display_trainers();
         if (SocketFunctions.user.isTrainer() == false) {
             navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
             navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
