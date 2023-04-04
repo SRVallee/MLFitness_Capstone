@@ -1,49 +1,36 @@
 package com.example.application;
 
-import static com.example.application.SocketFunctions.getWorkouts;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-public class TraineeHomePage extends AppCompatActivity {
+public class ChooseWorkout extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
 
+    ListView workoutsListView;
+    ArrayAdapter<Exercise> adapter;
+
+    ArrayList<Exercise> exercises = SocketFunctions.exercises;
+
+
     private Boolean exit = false;
     private long pressedTime;
-    private ListView workoutsListView;
-
-    private ArrayList<Workout> workouts;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -51,17 +38,19 @@ public class TraineeHomePage extends AppCompatActivity {
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trainee_home_page);
+        setContentView(R.layout.activity_choose_workout);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
-        workoutsListView = findViewById(R.id.listTrainee_eval);
+        workoutsListView = findViewById(R.id.list_chooseWorkouts);
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -76,8 +65,12 @@ public class TraineeHomePage extends AppCompatActivity {
 
         }
 
-        // get workouts from server
-        workouts = getWorkouts(getApplicationContext(), workoutsListView, SocketFunctions.user.getId());
+        adapter = new ArrayAdapter<>(
+                getApplicationContext(),
+                android.R.layout.simple_list_item_1,
+                exercises);
+        workoutsListView.setAdapter(adapter);
+
 
         invalidateOptionsMenu();
         invalidateMenu();
@@ -93,15 +86,15 @@ public class TraineeHomePage extends AppCompatActivity {
                         break;
                     }
                     case R.id.workouts: {
-                        //Go to workouts
-                        Intent i = new Intent(getApplicationContext(), TraineeWorkouts.class);
+                        //Go to upload
+                        Intent i = new Intent(getApplicationContext(), TrainerUpload.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
                         break;
                     }
                     case R.id.message: {
-                        //Go to message
+                        //Go to messages
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
@@ -111,7 +104,7 @@ public class TraineeHomePage extends AppCompatActivity {
                     }
                     case R.id.setting: {
                         //Go to setting
-                        Intent i = new Intent(getApplicationContext(), TraineeSettings.class);
+                        Intent i = new Intent(getApplicationContext(), TrainerSettings.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -142,7 +135,7 @@ public class TraineeHomePage extends AppCompatActivity {
                     }
                     case R.id.profile: {
                         //Go to profile
-                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        Intent i = new Intent(getApplicationContext(), TrainerProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -168,15 +161,9 @@ public class TraineeHomePage extends AppCompatActivity {
         });
     }
 
-    public void click_btnNewWorkout(View view){
-        Intent i = new Intent(getApplicationContext(), ChooseWorkout.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(i);
-        finish();
-    }
-
     @Override
     public void onBackPressed() {
+
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
@@ -192,5 +179,6 @@ public class TraineeHomePage extends AppCompatActivity {
             pressedTime = System.currentTimeMillis();
         }
         //super.onBackPressed();
+
     }
 }
