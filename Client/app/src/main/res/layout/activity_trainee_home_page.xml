@@ -45,10 +45,11 @@
         <HorizontalScrollView
             android:id="@+id/trainer_pfp_scroll"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="120dp"
             android:fillViewport="true">
 
             <LinearLayout
+                android:id="@+id/trainer_home_linear"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -112,6 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:layout_gravity="right"
+            android:onClick="click_btnNewWorkout"
             android:text="New workout" />
 
         <TextView

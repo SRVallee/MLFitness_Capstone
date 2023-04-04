@@ -103,6 +103,9 @@
             android:name=".TrainerProfile" >
         </activity>
         <activity
+            android:name=".ChooseWorkout" >
+        </activity>
+        <activity
             android:name=".LoadAllExistingVideos"
             android:noHistory="true">
         </activity>
