@@ -95,4 +95,9 @@ public class Workout {
     public void setDate(String date) {
         this.date = date;
     }
+
+    @Override
+    public String toString() {
+        return exercise_name + ' ' + date + " " + score;
+    }
 }
