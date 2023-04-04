@@ -23,7 +23,6 @@ public class WorkoutsListAdapter implements ListAdapter {
         return false;
     }
 
-}
     @Override
     public boolean isEnabled(int position) {
         return true;
@@ -61,9 +60,15 @@ public class WorkoutsListAdapter implements ListAdapter {
                 public void onClick(View v) {
                 }
             });
+            TextView workoutNum=convertView.findViewById(R.id.txt_workoutNum);
             TextView workoutName=convertView.findViewById(R.id.txt_workoutName);
+            TextView workoutDate=convertView.findViewById(R.id.txt_workoutDate);
+            TextView workoutScore=convertView.findViewById(R.id.txt_workoutScore);
 
+            workoutNum.setText(position);
             workoutName.setText(currWorkout.getExercise_name());
+            workoutDate.setText(currWorkout.getDate());
+            workoutScore.setText(String.valueOf(currWorkout.getScore()));
 
         }
         return convertView;
