@@ -101,7 +101,9 @@ public class SocketFunctions {
                             String status = jsonResponse.getString("status");
                             Log.d("Workout array: ", jsonResponse.getString("workouts"));
                             JSONArray workout_obj = new JSONArray(jsonResponse.getString("workouts"));
-                            workoutsList.remove(0);
+                            if (!workoutsList.isEmpty()) {
+                                workoutsList.remove(0);
+                            }
                             for (int i = 0; i < workout_obj.length(); i++) {
                                 Workout workout = new Workout(
                                         workout_obj.getJSONObject(i).getInt("workout_id"),
