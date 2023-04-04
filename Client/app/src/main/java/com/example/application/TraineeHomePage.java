@@ -76,7 +76,7 @@ public class TraineeHomePage extends AppCompatActivity {
         }
 
         // get workouts from server
-        workouts = getWorkouts(getApplicationContext(), workoutsListView);
+        workouts = getWorkouts(getApplicationContext(), workoutsListView, SocketFunctions.user.getId());
 
         invalidateOptionsMenu();
         invalidateMenu();

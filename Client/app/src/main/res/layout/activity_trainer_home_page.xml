@@ -74,17 +74,10 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <ScrollView
-            android:id="@+id/scrollWorkoutTrainer"
+        <ListView
+            android:id="@+id/list_trainerWorkouts"
             android:layout_width="match_parent"
-            android:layout_height="150sp">
-
-            <LinearLayout
-                android:id="@+id/workoutsTrainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </ScrollView>
+            android:layout_height="160dp" />
 
         <TextView
             android:id="@+id/trainee_submitted"
@@ -96,17 +89,10 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <ScrollView
-            android:id="@+id/scrollTraineeWorkouts_Trainer"
+        <ListView
+            android:id="@+id/list_traineeSubmitWorkouts"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:id="@+id/traineeWorkoutsTrainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </ScrollView>
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 

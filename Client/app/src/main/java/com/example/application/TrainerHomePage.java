@@ -9,15 +9,24 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+
+import java.util.ArrayList;
 
 public class TrainerHomePage extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+
+    ListView listTrainerWorkout;
+    ListView listTraineeWorkout;
+
+    ArrayList<Workout> trainerWorkouts;
+    ArrayList<Workout> traineeSubWorkouts;
 
     private Boolean exit = false;
     private long pressedTime;
@@ -39,6 +48,9 @@ public class TrainerHomePage extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        listTrainerWorkout = findViewById(R.id.list_trainerWorkouts);
+        listTraineeWorkout = findViewById(R.id.list_traineeSubmitWorkouts);
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -52,6 +64,14 @@ public class TrainerHomePage extends AppCompatActivity {
             navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
 
         }
+
+        trainerWorkouts = SocketFunctions.getWorkouts(getApplicationContext(), listTrainerWorkout, SocketFunctions.user.getId());
+        traineeSubWorkouts = SocketFunctions.getWorkouts(
+                getApplicationContext(),
+                listTrainerWorkout,
+                SocketFunctions.user.getId(),
+                "http://162.246.157.128/MLFitness/get_trainer_workouts.php");
+
         invalidateOptionsMenu();
         invalidateMenu();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

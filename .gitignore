@@ -416,3 +416,4 @@ FodyWeavers.xsd
 *.sln.iml
 *__pycache__
 *.pyc
+.idea/modules.xml
