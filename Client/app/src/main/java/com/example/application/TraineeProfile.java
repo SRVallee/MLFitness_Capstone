@@ -112,7 +112,7 @@ public class TraineeProfile extends AppCompatActivity{
             username.setText(trainee_obj.getUserName());
             email.setText(trainee_obj.getEmail());
             is_subbed(trainee_obj);
-            onclickfriends(trainee_obj);
+            //onclickfriends(trainee_obj);
 
         }
         invalidateOptionsMenu();
@@ -150,6 +150,21 @@ public class TraineeProfile extends AppCompatActivity{
                     case R.id.setting: {
                         //Go to setting
                         Intent i = new Intent(getApplicationContext(), TraineeSettings.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainees: {
+                        //Go to trainees
+                        Intent i = new Intent(getApplicationContext(), TrainerTraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers:{
+                        Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
@@ -195,95 +210,7 @@ public class TraineeProfile extends AppCompatActivity{
             }
         });
     }
-    // this is for switching around what the button is for either adding friend removing friend or editing
-    //profile
-    private void onclickfriends(User trainee_obj) {
-        ConstraintLayout trainee_constraint = findViewById(R.id.trainee_constraint);
-        ImageView add_friend = findViewById(R.id.add_friend_trainee);
-        ImageView unfriend = findViewById(R.id.sub_friend_trainee);
-        ImageView edit_profile = findViewById(R.id.edit_trainee_profile_button);
-        if (add_friend.getVisibility() == View.VISIBLE){
-            add_friend.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = getApplicationContext();
-                    RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-                    String url = "http://162.246.157.128/MLFitness/add_relationship.php";
 
-                    StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                            new Response.Listener<String>() {
-                                //this is async reyes didn't tell me NO ONE TOLD ME
-                                //this runs on a different thread than the main
-                                @Override
-                                public void onResponse(String response) {
-                                    ArrayList<User> users = new ArrayList<>();
-                                    Log.d("Response friended: ", response.toString());
-                                    try {
-                                        JSONObject jsonResponse = new JSONObject(response);
-                                        String status = jsonResponse.getString("status");
-                                        if (status.equals("success")) {
-                                            Log.d("trainee friend array: ", jsonResponse.getString("relationships"));
-                                            JSONArray relationship = new JSONArray(jsonResponse.getString("relationships"));
-                                            if (relationship.length() == 0){
-                                                ImageView add_friend = findViewById(R.id.add_friend_trainee);
-                                                ImageView unfriend = findViewById(R.id.sub_friend_trainee);
-                                                ImageView edit_button = findViewById(R.id.edit_trainee_profile_button);
-                                                add_friend.setVisibility(View.VISIBLE);
-                                                unfriend.setVisibility(View.GONE);
-                                                edit_button.setVisibility(View.GONE);
-
-
-                                            }
-
-                                        }
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d("User id: ", error.getLocalizedMessage());
-                        }
-                    }) {
-                        protected Map<String, String> getParams() {
-                            Map<String, String> paramV = new HashMap<>();
-                            paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
-                            paramV.put("apiKey", SocketFunctions.apiKey);
-                            paramV.put("id2",String.valueOf(trainee_obj.getId()));
-                            Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainee_obj.getId()));
-                            if(SocketFunctions.user.isTrainer() == true){
-                                paramV.put("type", "1");
-                            }
-                            else{
-                                paramV.put("type","0");
-                            }
-                            return paramV;
-                        }
-                    };
-                    queue.add(stringRequest);
-                }
-            });
-        } else if (unfriend.getVisibility() == View.VISIBLE) {
-            unfriend.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                }
-            });
-        } else if (edit_profile.getVisibility() == View.VISIBLE) {
-
-            edit_profile.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                }
-            });
-        }
-    }
 
     private void is_subbed(User trainee_obj) {
         Context context = getApplicationContext();
@@ -311,8 +238,133 @@ public class TraineeProfile extends AppCompatActivity{
                                     add_friend.setVisibility(View.VISIBLE);
                                     unfriend.setVisibility(View.GONE);
                                     edit_button.setVisibility(View.GONE);
+                                    add_friend.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Context context = getApplicationContext();
+                                            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                                            String url = "http://162.246.157.128/MLFitness/add_relationship.php";
+
+                                            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                                                    new Response.Listener<String>() {
+                                                        //this is async reyes didn't tell me NO ONE TOLD ME
+                                                        //this runs on a different thread than the main
+                                                        @Override
+                                                        public void onResponse(String response) {
+                                                            ArrayList<User> users = new ArrayList<>();
+                                                            Log.d("Response friended: ", response.toString());
+                                                            Log.d("before if", "da fuq ");
+                                                            if (response.toString().equals("success")) {
+
+                                                                ImageView add_friend = findViewById(R.id.add_friend_trainee);
+                                                                ImageView unfriend = findViewById(R.id.sub_friend_trainee);
+                                                                ImageView edit_button = findViewById(R.id.edit_trainee_profile_button);
+                                                                add_friend.setVisibility(View.GONE);
+                                                                Log.d("TO FRONT", "onResponse: "+"made it");
+                                                                unfriend.setVisibility(View.VISIBLE);
+                                                                unfriend.bringToFront();
+                                                                edit_button.setVisibility(View.GONE);
+                                                                is_subbed(trainee_obj);
 
 
+                                                            }
+
+
+                                                        }
+
+                                                    }, new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+                                                    Log.d("User id: ", error.getLocalizedMessage());
+                                                }
+                                            }) {
+                                                protected Map<String, String> getParams() {
+                                                    Map<String, String> paramV = new HashMap<>();
+                                                    paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                                                    paramV.put("apiKey", SocketFunctions.apiKey);
+                                                    paramV.put("id2",String.valueOf(trainee_obj.getId()));
+                                                    Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainee_obj.getId()));
+                                                    if(SocketFunctions.user.isTrainer() == true){
+                                                        paramV.put("type", "1");
+                                                    }
+                                                    else{
+                                                        paramV.put("type","0");
+                                                    }
+                                                    return paramV;
+                                                }
+                                            };
+                                            queue.add(stringRequest);
+                                        }
+                                    });
+
+
+                                }
+                                else{
+                                    ImageView add_friend = findViewById(R.id.add_friend_trainee);
+                                    ImageView unfriend = findViewById(R.id.sub_friend_trainee);
+                                    ImageView edit_button = findViewById(R.id.edit_trainee_profile_button);
+                                    add_friend.setVisibility(View.GONE);
+                                    unfriend.setVisibility(View.VISIBLE);
+                                    edit_button.setVisibility(View.GONE);
+                                    unfriend.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Context context = getApplicationContext();
+                                            Log.d("unfriend1", "onClick: ");
+                                            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                                            String url = "http://162.246.157.128/MLFitness/add_relationship.php";
+                                            Log.d("unfriend", "onClick: ");
+                                            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                                                    new Response.Listener<String>() {
+                                                        //this is async reyes didn't tell me NO ONE TOLD ME
+                                                        //this runs on a different thread than the main
+                                                        @Override
+                                                        public void onResponse(String response) {
+                                                            ArrayList<User> users = new ArrayList<>();
+                                                            Log.d("Response unfriended: ", response.toString());
+                                                            Log.d("before if un", "da fuq ");
+                                                            if (response.toString().equals("success")) {
+
+                                                                ImageView add_friend = findViewById(R.id.add_friend_trainee);
+                                                                ImageView unfriend = findViewById(R.id.sub_friend_trainee);
+                                                                ImageView edit_button = findViewById(R.id.edit_trainee_profile_button);
+                                                                add_friend.setVisibility(View.VISIBLE);
+                                                                Log.d("TO FRONT", "onResponse: "+"made it");
+                                                                unfriend.setVisibility(View.GONE);
+                                                                edit_button.setVisibility(View.GONE);
+                                                                is_subbed(trainee_obj);
+
+
+
+                                                            }
+
+
+                                                        }
+
+                                                    }, new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+                                                    Log.d("User id: ", error.getLocalizedMessage());
+                                                }
+                                            }) {
+                                                protected Map<String, String> getParams() {
+                                                    Map<String, String> paramV = new HashMap<>();
+                                                    paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                                                    paramV.put("apiKey", SocketFunctions.apiKey);
+                                                    paramV.put("id2",String.valueOf(trainee_obj.getId()));
+                                                    Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainee_obj.getId()));
+                                                    if(SocketFunctions.user.isTrainer() == true){
+                                                        paramV.put("type", "1");
+                                                    }
+                                                    else{
+                                                        paramV.put("type","0");
+                                                    }
+                                                    return paramV;
+                                                }
+                                            };
+                                            queue.add(stringRequest);
+                                        }
+                                    });
                                 }
 
                             }
@@ -334,13 +386,37 @@ public class TraineeProfile extends AppCompatActivity{
                 paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                 paramV.put("apiKey", SocketFunctions.apiKey);
                 paramV.put("id2",String.valueOf(trainee_obj.getId()));
-
+                paramV.put("type","2");
                 return paramV;
             }
         };
         queue.add(stringRequest);
     }
 
+
+    // this is for switching around what the button is for either adding friend removing friend or editing
+    //profile
+    private void onclickfriends(User trainee_obj) {
+        ConstraintLayout trainee_constraint = findViewById(R.id.trainee_constraint);
+        ImageView add_friend = findViewById(R.id.add_friend_trainee);
+        ImageView unfriend = findViewById(R.id.sub_friend_trainee);
+        ImageView edit_profile = findViewById(R.id.edit_trainee_profile_button);
+        is_subbed(trainee_obj);
+        if (add_friend.getVisibility() == View.VISIBLE){
+
+        } else if (unfriend.getVisibility() == View.VISIBLE) {
+            Log.d("unfriend vis", "onclickfriends: ");
+
+        } else if (edit_profile.getVisibility() == View.VISIBLE) {
+
+            edit_profile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        }
+    }
     public void goToEdit(View view) {
         Intent i;
         i = new Intent(getApplicationContext(), TraineeEditProfile.class);
