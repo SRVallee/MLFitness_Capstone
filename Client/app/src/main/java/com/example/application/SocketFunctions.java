@@ -81,7 +81,7 @@ public class SocketFunctions {
         exercises.add(exercise);
     }
 
-    public static ArrayList<Workout> getWorkouts(Context context, ListView list){
+    public static ArrayList<Workout> getWorkouts(Context context, ListView list, int id){
         ArrayList<Workout> workoutsList = new ArrayList<>();
         RequestQueue queue = Volley.newRequestQueue(context);
         String url = "http://162.246.157.128/MLFitness/get_workouts.php";
@@ -109,8 +109,10 @@ public class SocketFunctions {
                                 Workout emptyWorkout = new Workout(-1, -1, -1, 0, "");
                                 workoutsList.add(emptyWorkout);
                             }
-                            WorkoutsListAdapter workoutsAdapter = new WorkoutsListAdapter(context, workoutsList);
-                            list.setAdapter(workoutsAdapter);
+                            if (list != null) {
+                                WorkoutsListAdapter workoutsAdapter = new WorkoutsListAdapter(context, workoutsList, id);
+                                list.setAdapter(workoutsAdapter);
+                            }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -126,7 +128,7 @@ public class SocketFunctions {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                 paramV.put("apiKey", SocketFunctions.apiKey);
-                paramV.put("user_id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("user_id", String.valueOf(id));
                 return paramV;
             }
         };
