@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class TraineeHomePage extends AppCompatActivity {
 
@@ -64,8 +67,8 @@ public class TraineeHomePage extends AppCompatActivity {
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        if (SocketFunctions.user.isTrainer() == false) {
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        if (!SocketFunctions.user.isTrainer()) {
             navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
             navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
         }
@@ -155,7 +158,6 @@ public class TraineeHomePage extends AppCompatActivity {
                         //End all activities and go to welcome screen
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
                         break;
                     }
                     default: {
@@ -164,6 +166,13 @@ public class TraineeHomePage extends AppCompatActivity {
                 }
                 return false;
             }
+        });
+        workoutsListView.setClickable(true);
+        workoutsListView.setOnItemClickListener((adapterView, view, i, l) -> {
+            Intent intent = new Intent(getApplicationContext(), TraineeWorkoutFeedback.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+            finish();
         });
     }
 

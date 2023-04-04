@@ -88,7 +88,7 @@ public class SocketFunctions {
 
     public static ArrayList<Workout> getWorkouts(Context context, ListView list, int id, String url){
         ArrayList<Workout> workoutsList = new ArrayList<>();
-        workoutsList.add(null);
+
         RequestQueue queue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -101,9 +101,7 @@ public class SocketFunctions {
                             String status = jsonResponse.getString("status");
                             Log.d("Workout array: ", jsonResponse.getString("workouts"));
                             JSONArray workout_obj = new JSONArray(jsonResponse.getString("workouts"));
-                            if (!workoutsList.isEmpty()) {
-                                workoutsList.remove(0);
-                            }
+
                             for (int i = 0; i < workout_obj.length(); i++) {
                                 Workout workout = new Workout(
                                         workout_obj.getJSONObject(i).getInt("workout_id"),

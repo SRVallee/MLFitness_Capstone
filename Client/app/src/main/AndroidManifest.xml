@@ -54,6 +54,9 @@
             android:name=".TraineeWorkouts" >
         </activity>
         <activity
+            android:name=".TraineeWorkoutFeedback" >
+        </activity>
+        <activity
             android:name=".ForgotPassword" >
         </activity>
         <activity

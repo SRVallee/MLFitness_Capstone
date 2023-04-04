@@ -38,28 +38,13 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.workout_feedback);
 
         workoutTitle = findViewById(R.id.workout_feedback_title);
         reviewerName = findViewById(R.id.workout_feedback_by);
         feedback = findViewById(R.id.workout_feedback_text);
         videoFeedback = findViewById(R.id.workout_video);
         workoutSelect = findViewById(R.id.workout_feedback_select);
-
-        ArrayAdapter<Workout> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, workouts);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        workoutSelect.setAdapter(adapter);
-        workoutSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // Listener for exercise
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
 
 
     }

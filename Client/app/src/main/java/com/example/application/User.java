@@ -6,6 +6,7 @@ import android.media.Image;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class User extends AppCompatActivity implements Serializable {
 
@@ -80,5 +81,18 @@ public class User extends AppCompatActivity implements Serializable {
 
     public boolean hasPfp() {
         return (pfp != null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return id == user.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

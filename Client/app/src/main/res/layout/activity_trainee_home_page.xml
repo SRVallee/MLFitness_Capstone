@@ -127,7 +127,13 @@
         <ListView
             android:id="@+id/listTrainee_eval"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:cacheColorHint="#00000000"
+            android:divider="#adb8c2"
+            android:dividerHeight="1dp"
+            android:scrollingCache="false"
+            android:smoothScrollbar="true"/>
 
     </LinearLayout>
 

@@ -25,7 +25,7 @@ public class WorkoutsListAdapter implements ListAdapter {
     }
 
     public boolean areAllItemsEnabled() {
-        return false;
+        return true;
     }
 
     @Override
@@ -60,11 +60,6 @@ public class WorkoutsListAdapter implements ListAdapter {
         if(convertView==null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             convertView=layoutInflater.inflate(R.layout.workout_item, null);
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                }
-            });
             TextView workoutNum=convertView.findViewById(R.id.txt_workoutNum);
             TextView workoutName=convertView.findViewById(R.id.txt_workoutName);
             TextView workoutDate=convertView.findViewById(R.id.txt_workoutDate);
