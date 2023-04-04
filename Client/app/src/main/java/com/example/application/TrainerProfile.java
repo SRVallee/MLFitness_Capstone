@@ -245,11 +245,7 @@ public class TrainerProfile extends AppCompatActivity {
                                                                 unfriend.bringToFront();
                                                                 edit_button.setVisibility(View.GONE);
                                                                 is_subbed(trainer_obj);
-
-
                                                             }
-
-
                                                         }
 
                                                     }, new Response.ErrorListener() {
@@ -260,8 +256,10 @@ public class TrainerProfile extends AppCompatActivity {
                                             }) {
                                                 protected Map<String, String> getParams() {
                                                     Map<String, String> paramV = new HashMap<>();
+                                                    //trainee
                                                     paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                                                     paramV.put("apiKey", SocketFunctions.apiKey);
+                                                    //trainer
                                                     paramV.put("id2",String.valueOf(trainer_obj.getId()));
                                                     Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainer_obj.getId()));
                                                     if(SocketFunctions.user.isTrainer() == false){
@@ -328,8 +326,10 @@ public class TrainerProfile extends AppCompatActivity {
                                             }) {
                                                 protected Map<String, String> getParams() {
                                                     Map<String, String> paramV = new HashMap<>();
+                                                    //trainee
                                                     paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                                                     paramV.put("apiKey", SocketFunctions.apiKey);
+                                                    //trainer
                                                     paramV.put("id2",String.valueOf(trainer_obj.getId()));
                                                     Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainer_obj.getId()));
                                                     if(SocketFunctions.user.isTrainer() == false){
