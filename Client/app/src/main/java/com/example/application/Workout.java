@@ -16,6 +16,8 @@ public class Workout {
         this.exercise_id = exercise_id;
         this.score = score;
         this.date = date;
+
+        findExerciseName(exercise_id);
     }
 
     public Workout(int workout_id, int user_id, String exercise_name, float score, String date) {
@@ -24,6 +26,8 @@ public class Workout {
         this.exercise_name = exercise_name;
         this.score = score;
         this.date = date;
+
+        findExerciseID(exercise_name);
     }
 
     private void findExerciseName(int id){
@@ -64,6 +68,7 @@ public class Workout {
 
     public void setExercise_id(int exercise_id) {
         this.exercise_id = exercise_id;
+        findExerciseName(exercise_id);
     }
 
     public String getExercise_name() {
@@ -72,6 +77,7 @@ public class Workout {
 
     public void setExercise_name(String exercise_name) {
         this.exercise_name = exercise_name;
+        findExerciseID(exercise_name);
     }
 
     public float getScore() {

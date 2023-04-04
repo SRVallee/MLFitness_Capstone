@@ -63,7 +63,7 @@ public class WorkoutsListAdapter implements ListAdapter {
             });
             TextView workoutName=convertView.findViewById(R.id.txt_workoutName);
 
-            workoutName.setText(currWorkout.);
+            workoutName.setText(currWorkout.getExercise_name());
 
         }
         return convertView;
