@@ -276,7 +276,7 @@ public class TraineeHomePage extends AppCompatActivity {
                                 JSONObject jsonResponse = new JSONObject(response);
                                 String status = jsonResponse.getString("status");
                                 if (status.equals("success")) {
-                                    Log.d("Array: ", jsonResponse.getString("trainers"));
+                                    Log.d("trainer name: ", jsonResponse.getString("name"));
                                     for (int j = 0; j < jsonResponse.getJSONArray("trainers").length(); j++) {
                                         String trainerlist;
                                         trainerlist = jsonResponse.getJSONArray("trainers").getString(j);
