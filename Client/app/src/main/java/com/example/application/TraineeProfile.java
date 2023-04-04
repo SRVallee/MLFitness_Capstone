@@ -12,10 +12,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -40,6 +44,7 @@ public class TraineeProfile extends AppCompatActivity{
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -220,6 +225,8 @@ public class TraineeProfile extends AppCompatActivity{
     }
 
 
+
+
     private void is_subbed(User trainee_obj) {
         Context context = getApplicationContext();
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
@@ -288,11 +295,13 @@ public class TraineeProfile extends AppCompatActivity{
                                             }) {
                                                 protected Map<String, String> getParams() {
                                                     Map<String, String> paramV = new HashMap<>();
-                                                    paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                                                    //trainee
+                                                    paramV.put("id",String.valueOf(SocketFunctions.user.getId()));
                                                     paramV.put("apiKey", SocketFunctions.apiKey);
-                                                    paramV.put("id2",String.valueOf(trainee_obj.getId()));
+                                                    //trainer
+                                                    paramV.put("id2", String.valueOf(trainee_obj.getId()));
                                                     Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainee_obj.getId()));
-                                                    if(SocketFunctions.user.isTrainer() == true){
+                                                    if(SocketFunctions.user.isTrainer() == false){
                                                         paramV.put("type", "1");
                                                     }
                                                     else{
@@ -357,11 +366,13 @@ public class TraineeProfile extends AppCompatActivity{
                                             }) {
                                                 protected Map<String, String> getParams() {
                                                     Map<String, String> paramV = new HashMap<>();
+                                                    //trainee
                                                     paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                                                     paramV.put("apiKey", SocketFunctions.apiKey);
+                                                    //trainer
                                                     paramV.put("id2",String.valueOf(trainee_obj.getId()));
                                                     Log.d("THE IDS", "getParams: "+String.valueOf(SocketFunctions.user.getId())+" pain " +String.valueOf(trainee_obj.getId()));
-                                                    if(SocketFunctions.user.isTrainer() == true){
+                                                    if(SocketFunctions.user.isTrainer() == false){
                                                         paramV.put("type", "1");
                                                     }
                                                     else{
