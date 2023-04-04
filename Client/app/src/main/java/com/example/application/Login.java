@@ -110,6 +110,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                                 Log.d("User id: ", "successful login");
                                 Intent i;
                                 getGeneralExercises();
+                                getRelationships();
 
                                 USER_ID = SocketFunctions.user.getEmail();
                                 USER_NICKNAME = SocketFunctions.user.getName();
@@ -268,6 +269,54 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                 paramV.put("apiKey", SocketFunctions.apiKey);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+
+    /**
+     * Gets Relationships of the user to save on a public arrayList
+     */
+    private void getRelationships(){
+        Context context = getApplicationContext();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://162.246.157.128/MLFitness/get_relationships.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            if (status.equals("success")) {
+                                Log.d("Array: ", jsonResponse.getString("exercises"));
+                            }
+                            JSONArray relationships = new JSONArray(jsonResponse.getString("exercises"));
+                            for (int i = 0; i < relationships.length(); i++) {
+                                SocketFunctions.relationships.add( new Relationship(relationships.getJSONObject(i)));
+                            }
+                            Log.d("relationships: ", SocketFunctions.relationships.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("relationships error ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("id2", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("type", "2");
                 return paramV;
             }
         };
