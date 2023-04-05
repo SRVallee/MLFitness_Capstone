@@ -103,7 +103,10 @@
             android:name=".TrainerProfile" >
         </activity>
         <activity
-            android:name=".ChooseWorkout" >
+            android:name=".ChooseExercise" >
+        </activity>
+        <activity
+            android:name=".ExercisePage" >
         </activity>
         <activity
             android:name=".LoadAllExistingVideos"
