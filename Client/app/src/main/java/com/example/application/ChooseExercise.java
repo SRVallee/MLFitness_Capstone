@@ -194,18 +194,13 @@ public class ChooseExercise extends AppCompatActivity {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            //Close Application
-            if (pressedTime + 2000 > System.currentTimeMillis()) {
-                Intent i = new Intent(Intent.ACTION_MAIN);
-                i.addCategory(Intent.CATEGORY_HOME);
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(i);
-            } else {
-                Toast.makeText(getBaseContext(), "Press back again to exit", Toast.LENGTH_SHORT).show();
-            }
-            pressedTime = System.currentTimeMillis();
+            //Go to homepage
+            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(i);
+            finish();
+            super.onBackPressed();
         }
-        //super.onBackPressed();
 
     }
 }

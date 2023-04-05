@@ -237,4 +237,19 @@ public class ExercisePage extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    public void onBackPressed() {
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            //Go to homepage
+            Intent i = new Intent(getApplicationContext(), ChooseExercise.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(i);
+            finish();
+            super.onBackPressed();
+        }
+    }
+
 }
