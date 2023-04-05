@@ -44,7 +44,7 @@ public class WorkoutsListAdapter implements ListAdapter {
     }
     @Override
     public Object getItem(int position) {
-        return position;
+        return workoutsList.get(position);
     }
     @Override
     public long getItemId(int position) {
