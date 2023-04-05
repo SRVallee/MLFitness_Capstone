@@ -221,7 +221,7 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
         switch (v.getId()) {
             //Go to review feedback
             case R.id.reviewFeedback:
-                i = new Intent(getApplicationContext(), Login.class);
+                i = new Intent(getApplicationContext(), TraineeWorkoutFeedback.class);
                 startActivity(i);
                 break;
             //Go to upload

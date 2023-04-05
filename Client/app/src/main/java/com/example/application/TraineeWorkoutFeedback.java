@@ -138,7 +138,11 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
                             Log.d("Feedback: ", jsonResponse.getString("feedback"));
                             JSONObject feedbackJSON = jsonResponse.getJSONObject("feedback");
                             feedback.setText(feedbackJSON.getString("feedback"));
+                            reviewerName.setText("Feedback by ");
 
+                        } else {
+                            feedback.setText(status);
+                            reviewerName.setText("");
                         }
 
                     } catch (JSONException e) {
