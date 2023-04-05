@@ -46,6 +46,7 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
         videoFeedback = findViewById(R.id.workout_video);
         workoutSelect = findViewById(R.id.workout_feedback_select);
 
+        getWorkouts();
 
     }
 
@@ -71,9 +72,9 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
                             Log.d("Array: ", jsonResponse.getString("workouts"));
                             for (int i = 0; i < jsonResponse.getJSONArray("workouts").length(); i++) {
                                 JSONObject workoutJSON = jsonResponse.getJSONArray("workouts").getJSONObject(i);
-                                workouts.add(new Workout(workoutJSON.getInt("workout"),
-                                        workoutJSON.getInt("user_id"),
-                                        workoutJSON.getInt("exercise_id"),
+                                workouts.add(new Workout(workoutJSON.getInt("workout_id"),
+                                        workoutJSON.getInt("user_user_id"),
+                                        workoutJSON.getInt("exercise_exercise_id"),
                                         Float.parseFloat( workoutJSON.getString("score")),
                                         workoutJSON.getString("date")));
                             }
@@ -125,7 +126,11 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
                             Log.d("Feedback: ", jsonResponse.getString("feedback"));
                             JSONObject feedbackJSON = jsonResponse.getJSONObject("feedback");
                             feedback.setText(feedbackJSON.getString("feedback"));
+                            reviewerName.setText("Feedback by ");
 
+                        } else {
+                            feedback.setText(status);
+                            reviewerName.setText("");
                         }
 
                     } catch (JSONException e) {
