@@ -8,22 +8,37 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class ChooseWorkout extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ChooseExercise extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
 
-    ListView workoutsListView;
+    ListView exerciseListView;
     ArrayAdapter<Exercise> adapter;
 
     ArrayList<Exercise> exercises = SocketFunctions.exercises;
@@ -45,11 +60,11 @@ public class ChooseWorkout extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choose_workout);
+        setContentView(R.layout.activity_choose_exercise);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
-        workoutsListView = findViewById(R.id.list_chooseWorkouts);
+        exerciseListView = findViewById(R.id.list_chooseWorkouts);
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
@@ -69,7 +84,20 @@ public class ChooseWorkout extends AppCompatActivity {
                 getApplicationContext(),
                 android.R.layout.simple_list_item_1,
                 exercises);
-        workoutsListView.setAdapter(adapter);
+        exerciseListView.setAdapter(adapter);
+
+        // go to exercise page after choosing exercise
+        exerciseListView.setClickable(true);
+        exerciseListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                Exercise exerciseItem = (Exercise) exerciseListView.getItemAtPosition(position);
+                SocketFunctions.selectedExercise = exerciseItem;
+                Intent intent = new Intent(getApplicationContext(), ExercisePage.class);
+                intent.putExtra("exercise", exerciseItem.getId());
+                startActivity(intent);
+            }
+        });
 
 
         invalidateOptionsMenu();
@@ -167,18 +195,13 @@ public class ChooseWorkout extends AppCompatActivity {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            //Close Application
-            if (pressedTime + 2000 > System.currentTimeMillis()) {
-                Intent i = new Intent(Intent.ACTION_MAIN);
-                i.addCategory(Intent.CATEGORY_HOME);
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(i);
-            } else {
-                Toast.makeText(getBaseContext(), "Press back again to exit", Toast.LENGTH_SHORT).show();
-            }
-            pressedTime = System.currentTimeMillis();
+            //Go to homepage
+            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(i);
+            finish();
+            super.onBackPressed();
         }
-        //super.onBackPressed();
 
     }
 }

@@ -186,7 +186,7 @@ public class TraineeHomePage extends AppCompatActivity {
     }
 
     public void click_btnNewWorkout(View view){
-        Intent i = new Intent(getApplicationContext(), ChooseWorkout.class);
+        Intent i = new Intent(getApplicationContext(), ChooseExercise.class);
         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(i);
         finish();
