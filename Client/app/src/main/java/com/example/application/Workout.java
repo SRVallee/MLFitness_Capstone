@@ -98,6 +98,6 @@ public class Workout {
 
     @Override
     public String toString() {
-        return exercise_name + ' ' + date + " " + score;
+        return exercise_name + ' ' + date;
     }
 }
