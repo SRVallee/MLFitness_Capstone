@@ -109,6 +109,9 @@
             android:name=".ExercisePage" >
         </activity>
         <activity
+            android:name=".TrainerFeedback" >
+        </activity>
+        <activity
             android:name=".LoadAllExistingVideos"
             android:noHistory="true">
         </activity>
