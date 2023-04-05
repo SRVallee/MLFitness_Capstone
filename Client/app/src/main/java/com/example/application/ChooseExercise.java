@@ -92,6 +92,7 @@ public class ChooseExercise extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Exercise exerciseItem = (Exercise) exerciseListView.getItemAtPosition(position);
+                SocketFunctions.selectedExercise = exerciseItem;
                 Intent intent = new Intent(getApplicationContext(), ExercisePage.class);
                 intent.putExtra("exercise", exerciseItem.getId());
                 startActivity(intent);
