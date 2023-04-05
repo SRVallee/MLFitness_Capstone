@@ -417,3 +417,5 @@ FodyWeavers.xsd
 *__pycache__
 *.pyc
 .idea/modules.xml
+Client/local.properties
+Client/.idea/workspace.xml
