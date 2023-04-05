@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +19,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ExercisePage extends AppCompatActivity {
@@ -25,22 +41,35 @@ public class ExercisePage extends AppCompatActivity {
     private Button submitButton;
     private TextView description, exerciseName, trainerName;
 
+    private int exerciseID;
+    private Exercise exercise;
+
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.exercise_page);
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        if (bundle!=null){
+            exerciseID = (int) bundle.get("exercise");
+        }
 
         exerciseName = findViewById(R.id.exercise_page_title);
         description = findViewById(R.id.exercise_page_description);
         demoVideoView = findViewById(R.id.demoVideoView);
         trainerName = findViewById(R.id.exercise_page_uploader);
 
-        exerciseName.setText(SocketFunctions.selectedExercise.getName());
-        description.setText(SocketFunctions.selectedExercise.getDescription());
-        trainerName.setText(SocketFunctions.selectedExercise.getTrainerName());
+//        exerciseName.setText(SocketFunctions.selectedExercise.getName());
+//        description.setText(SocketFunctions.selectedExercise.getDescription());
+//        trainerName.setText(SocketFunctions.selectedExercise.getTrainerName());
+
+        getExercise();
+        description.setMovementMethod(new ScrollingMovementMethod());
 
 
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -58,6 +87,7 @@ public class ExercisePage extends AppCompatActivity {
             navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
 
         }
+
             navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -146,6 +176,59 @@ public class ExercisePage extends AppCompatActivity {
             }
         });
     }
+
+    public void getExercise(){
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://162.246.157.128/MLFitness/get_exercise_info.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            Log.d("Exercise: ", jsonResponse.getString("name"));
+
+                            String name = jsonResponse.getString("name");
+                            String desc = jsonResponse.getString("description");
+                            int trainerID = -1;
+                            if (!jsonResponse.getString("trainer_id").equals("null")){
+                                trainerID = jsonResponse.getInt("trainer_id");
+                            }
+
+                             Exercise currExercise = new Exercise(
+                                     getApplicationContext(),
+                                     exerciseID,
+                                     name,
+                                     desc,
+                                     trainerID);
+
+                             exercise = currExercise;
+                             exerciseName.setText(currExercise.getName());
+                             description.setText(currExercise.getDescription());
+                             trainerName.setText("Trainer: " + currExercise.getTrainerName());
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("exercise_id", String.valueOf(exerciseID));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
 
     public void goToUpload(View view){
         Intent intent = new Intent(this, TraineeUpload.class);

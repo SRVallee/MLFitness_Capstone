@@ -18,8 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -33,7 +31,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -187,7 +184,7 @@ public class TraineeHomePage extends AppCompatActivity {
     }
 
     public void click_btnNewWorkout(View view){
-        Intent i = new Intent(getApplicationContext(), ChooseWorkout.class);
+        Intent i = new Intent(getApplicationContext(), ChooseExercise.class);
         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(i);
         finish();
