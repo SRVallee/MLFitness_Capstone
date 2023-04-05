@@ -94,7 +94,7 @@ public class TrainerFeedback extends AppCompatActivity {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
                 paramV.put("apiKey", SocketFunctions.apiKey);
-                paramV.put("workout_id", String.valueOf(workout_id));
+                paramV.put("workout_id", String.valueOf(workoutID));
                 paramV.put("feedback", feedback);
                 return paramV;
             }
