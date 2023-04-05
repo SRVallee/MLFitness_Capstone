@@ -76,8 +76,8 @@ public class TrainerFeedback extends AppCompatActivity {
                         JSONObject jsonResponse = new JSONObject(response);
                         String status = jsonResponse.getString("status");
                         if (status.equals("success")) {
-                            Log.d("Feedback: ", jsonResponse.getString("feedback"));
-                            JSONObject feedbackJSON = jsonResponse.getJSONObject("feedback");
+//                            Log.d("Feedback: ", jsonResponse.getString("feedback"));
+//                            JSONObject feedbackJSON = jsonResponse.getJSONObject("feedback");
                             //feedback.setText(feedbackJSON.getString("feedback"));
                             //reviewerName.setText("Feedback by ");
 
