@@ -178,8 +178,10 @@ public class TraineeHomePage extends AppCompatActivity {
         });
         workoutsListView.setClickable(true);
         workoutsListView.setOnItemClickListener((adapterView, view, i, l) -> {
+            Workout workoutItem = (Workout) workoutsListView.getAdapter().getItem(i);
             Intent intent = new Intent(getApplicationContext(), TraineeWorkoutFeedback.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            intent.putExtra("workout_id", workoutItem.getWorkout_id());
             startActivity(intent);
             finish();
         });

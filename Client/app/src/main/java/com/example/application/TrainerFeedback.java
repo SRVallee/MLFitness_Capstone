@@ -67,7 +67,7 @@ public class TrainerFeedback extends AppCompatActivity {
     public void sendFeet(String feedback) {
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = "http://162.246.157.128/MLFitness/get_workouts.php";
+        String url = "http://162.246.157.128/MLFitness/new_feedback.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 response -> {
@@ -82,7 +82,7 @@ public class TrainerFeedback extends AppCompatActivity {
                             //reviewerName.setText("Feedback by ");
 
                         } else {
-                            //feedback.setText(status);
+//                            Log.d("S", "");
                             //reviewerName.setText("");
                         }
 

@@ -193,6 +193,7 @@ public class TrainerHomePage extends AppCompatActivity {
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra("workout_id", workoutItem.getWorkout_id());
                 startActivity(intent);
+                finish();
             }
         });
     }

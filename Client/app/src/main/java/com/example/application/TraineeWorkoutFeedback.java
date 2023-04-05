@@ -44,12 +44,20 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
     private TextView workoutTitle, reviewerName, feedback;
     private VideoView videoFeedback;
     private Spinner workoutSelect;
+
+    private int workoutID;
     private ArrayList<Workout> workouts = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.workout_feedback);
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        if (bundle!=null){
+            workoutID = (int) bundle.get("workout_id");
+        }
 
         workoutTitle = findViewById(R.id.workout_feedback_title);
         reviewerName = findViewById(R.id.workout_feedback_by);
@@ -93,6 +101,14 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
                                     android.R.layout.simple_spinner_item, workouts);
                             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                             workoutSelect.setAdapter(adapter);
+                            int index = 0;
+                            for (int i = 0; i < workouts.size(); i++) {
+                                if (workouts.get(i).getWorkout_id() == workoutID){
+                                    index = i;
+                                    break;
+                                }
+                            }
+                            workoutSelect.setSelection(index);
                             workoutSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // Listener for exercise
                                 @Override
                                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
