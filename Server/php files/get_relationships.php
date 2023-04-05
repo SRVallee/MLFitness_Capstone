@@ -13,16 +13,16 @@ if($id == $id2){
 $res = mysqli_query($conn, $sql);
 if((mysqli_num_rows($res) == 2 && $id != $id2) || (mysqli_num_rows($res) == 1 && $id == $id2)){
     if($type == 0 or $type == 1){
-        $sql = "SELECT * from relationships WHERE user_id = (".$id2." or user_id_2 = ".$id2.") and training_relationship = ".$type.";";
+        $sql = "SELECT * from relationships WHERE (user_id = ".$id2." or user_id_2 = ".$id2.") and training_relationship = ".$type.";";
     }else{
-        $sql = "SELECT * from relationships WHERE user_id = (".$id2." or user_id_2 = ".$id2.");";
+        $sql = "SELECT * from relationships WHERE (user_id = ".$id2." or user_id_2 = ".$id2.");";
     }
     $res = mysqli_query($conn, $sql);
     $array = array();
     while($row = mysqli_fetch_assoc($res)){
         $array[] = $row;
     }
-    $result = array("status" => "success", "relationships" => $array);
+    $result = array("status" => "success", "relationships" => $array, "test" => $sql);
     
 }else{
     $result = array("status" => "Denied");
