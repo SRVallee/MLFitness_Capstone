@@ -1,5 +1,8 @@
 package com.example.application;
 
+import static com.example.application.SocketFunctions.getWorkouts;
+import static com.example.application.SocketFunctions.user;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,10 +17,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.util.TimeUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -35,9 +40,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class TraineeProfile extends AppCompatActivity{
 
@@ -50,7 +59,8 @@ public class TraineeProfile extends AppCompatActivity{
     User trainee_obj;
     ImageView userProfilePicture;
 
-
+    private ListView workoutsListView;
+    private ArrayList<Workout> workouts;
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -64,6 +74,11 @@ public class TraineeProfile extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_profile);
+
+        double[] helpTwo = new double[6];
+
+        workoutsListView = findViewById(R.id.recentWorkoutList);
+        workouts = getWorkouts(getApplicationContext(), workoutsListView, SocketFunctions.user.getId());
 
         //Set objects in the page
         //Once db is implemented change from test/example cases to the version that get the data from the db
@@ -79,8 +94,6 @@ public class TraineeProfile extends AppCompatActivity{
         //String trainee_profile_email = user.getEmail();
         String trainee_profile_email = SocketFunctions.user.getEmail();
         trainee_profile_email_textview.setText(trainee_profile_email);
-
-        //Check line to get from db
 
 
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -142,6 +155,8 @@ public class TraineeProfile extends AppCompatActivity{
             //onclickfriends(trainee_obj);
 
         }
+
+
         invalidateOptionsMenu();
         invalidateMenu();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -245,9 +260,6 @@ public class TraineeProfile extends AppCompatActivity{
             }
         });
     }
-
-
-
 
     private void is_subbed(User trainee_obj) {
         Context context = getApplicationContext();
@@ -355,6 +367,7 @@ public class TraineeProfile extends AppCompatActivity{
                                 edit_button.setVisibility(View.GONE);
                                 is_subbed(trainee_obj);
 
+    ListView workoutsListView;
 
                             }
 
