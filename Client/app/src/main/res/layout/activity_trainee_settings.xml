@@ -73,7 +73,8 @@
                 android:gravity="center"
                 android:paddingStart="150dp"
                 android:layout_gravity="center"
-                android:id="@+id/night_mode_switch"/>
+                android:id="@+id/night_mode_switch"
+                android:theme="@style/SCBSwitch"/>
 
 
         </LinearLayout>
@@ -118,7 +119,8 @@
                 android:gravity="center"
                 android:paddingStart="150dp"
                 android:layout_gravity="center"
-                android:id="@+id/notification_switch"/>
+                android:id="@+id/notification_switch"
+                android:theme="@style/SCBSwitch"/>
 
 
         </LinearLayout>

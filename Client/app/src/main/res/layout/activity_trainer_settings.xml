@@ -74,7 +74,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:paddingStart="150dp" />
+                android:paddingStart="150dp"
+                android:theme="@style/SCBSwitch"/>
 
 
         </LinearLayout>
@@ -119,7 +120,8 @@
                 android:gravity="center"
                 android:paddingStart="150dp"
                 android:layout_gravity="center"
-                android:id="@+id/trainer_notification_switch"/>
+                android:id="@+id/trainer_notification_switch"
+                android:theme="@style/SCBSwitch"/>
 
 
         </LinearLayout>
