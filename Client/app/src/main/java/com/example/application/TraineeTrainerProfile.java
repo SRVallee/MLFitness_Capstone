@@ -1,5 +1,7 @@
 package com.example.application;
 
+import static com.example.application.SocketFunctions.user;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -199,11 +201,20 @@ public class TraineeTrainerProfile extends AppCompatActivity {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             //Go to homepage
-            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(i);
-            finish();
-            super.onBackPressed();
+            if (user.isTrainer()) {
+                Intent i = new Intent(getApplicationContext(), TrainerHomePage.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(i);
+                finish();
+                super.onBackPressed();
+            }
+            else{
+                Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(i);
+                finish();
+                super.onBackPressed();
+            }
         }
     }
 
