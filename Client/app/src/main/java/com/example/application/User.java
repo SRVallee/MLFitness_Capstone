@@ -22,9 +22,7 @@ public class User extends AppCompatActivity implements Serializable {
         this(-1,null,null,null);
     }
 
-    public User(int id, String userName, String name, String email ) {
-
-
+    public User(int id, String userName, String name, String email) {
         this.id = id;
         this.userName = userName;
         this.name = name;
