@@ -8,6 +8,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,6 +31,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -293,7 +297,8 @@ public class TrainerHomePage extends AppCompatActivity {
                                     //this is to set the positions to get the item
                                     Trainer_constraint.setTag(finalI1);
                                     //this is to get the text view from the trainer row to change the set text
-                                    TextView Trainer_name =Trainer_constraint.findViewById(R.id.trainer_home_name);
+                                    TextView Trainer_name = Trainer_constraint.findViewById(R.id.trainer_home_name);
+                                    ImageView Trainer_pfp = Trainer_constraint.findViewById(R.id.Userpfp);
                                     Trainer_name.setText(jsonResponse.getString("name"));
                                     Trainer_name.setTextSize(25);
                                     //this adds the view

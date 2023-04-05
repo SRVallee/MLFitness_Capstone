@@ -1,6 +1,7 @@
 package com.example.application;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 
 import java.io.Serializable;
 
@@ -12,6 +13,9 @@ public class ObjectTrainer implements Serializable {
     private String Trainer_username;
     private String Trainer_name;
     private String Trainer_email;
+
+    private Bitmap pfp;
+
     private float rating;
 
 
@@ -69,6 +73,18 @@ public class ObjectTrainer implements Serializable {
 
     public void setRating(float rating) {
         this.rating = rating;
+    }
+
+    public boolean hasPfp() {
+        return (pfp != null);
+    }
+
+    public Bitmap getPfp() {
+        return pfp;
+    }
+
+    public void setPfp(Bitmap pfp) {
+        this.pfp = pfp;
     }
 
 }

@@ -152,7 +152,6 @@ public class TraineeProfile extends AppCompatActivity{
             username.setText(trainee_obj.getUserName());
             email.setText(trainee_obj.getEmail());
             is_subbed(trainee_obj);
-            //onclickfriends(trainee_obj);
 
         }
 
