@@ -484,7 +484,7 @@ public class TraineeUpload extends AppCompatActivity {
                 public void onFailure(Call<String> call, Throwable t) {
                     setUploadingIcon(false);
                     Log.d("Video Upload:", t.getLocalizedMessage());
-                    Toast toast = Toast.makeText(getApplicationContext(), "CONNECTION ERROR", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(getApplicationContext(), "evaluation will be finish ina couple minutes", Toast.LENGTH_SHORT);
                     toast.show();
                 }
             });

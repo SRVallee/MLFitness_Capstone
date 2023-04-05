@@ -210,14 +210,29 @@ public class TrainerProfile extends AppCompatActivity {
 
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
+                            boolean friend = false;
                             String status = jsonResponse.getString("status");
                             if (status.equals("success")) {
                                 Log.d("this trainee friends: ", jsonResponse.getString("relationships"));
                                 JSONArray relationship = new JSONArray(jsonResponse.getString("relationships"));
-                                if (relationship.length() == 0){
-                                    ImageView add_friend = findViewById(R.id.add_friend_trainer);
-                                    ImageView unfriend = findViewById(R.id.sub_friend_trainer);
-                                    ImageView edit_button = findViewById(R.id.edit_profile_trainer);
+                                for (int i = 0; i < relationship.length(); i++) {
+                                    JSONObject trainer_relate = relationship.getJSONObject(i);
+                                    String user_1 = trainer_relate.get("user_id").toString();
+                                    String user_2 = trainer_relate.get("user_id_2").toString();
+                                    if(user_1.equals(Integer.toString(user.getId()))){
+                                        friend = true;
+                                        break;
+                                    }
+                                    if(user_2.equals(Integer.toString(user.getId()))){
+                                        friend = true;
+                                        break;
+                                    }
+
+                                }
+                                ImageView add_friend = findViewById(R.id.add_friend_trainer);
+                                ImageView unfriend = findViewById(R.id.sub_friend_trainer);
+                                ImageView edit_button = findViewById(R.id.edit_profile_trainer);
+                                if (!friend){
                                     add_friend.setVisibility(View.VISIBLE);
                                     unfriend.setVisibility(View.GONE);
                                     edit_button.setVisibility(View.GONE);
@@ -280,9 +295,6 @@ public class TrainerProfile extends AppCompatActivity {
 
                                 }
                                 else{
-                                    ImageView add_friend = findViewById(R.id.add_friend_trainer);
-                                    ImageView unfriend = findViewById(R.id.sub_friend_trainer);
-                                    ImageView edit_button = findViewById(R.id.edit_profile_trainer);
                                     add_friend.setVisibility(View.GONE);
                                     unfriend.setVisibility(View.VISIBLE);
                                     edit_button.setVisibility(View.GONE);
