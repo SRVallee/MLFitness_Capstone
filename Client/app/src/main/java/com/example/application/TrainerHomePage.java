@@ -188,8 +188,10 @@ public class TrainerHomePage extends AppCompatActivity {
         listTraineeWorkout.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getApplicationContext(), TraineeWorkoutFeedback.class);
+                Workout workoutItem = (Workout) listTraineeWorkout.getItemAtPosition(i);
+                Intent intent = new Intent(getApplicationContext(), TrainerFeedback.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                intent.putExtra("workout_id", workoutItem.getWorkout_id());
                 startActivity(intent);
             }
         });

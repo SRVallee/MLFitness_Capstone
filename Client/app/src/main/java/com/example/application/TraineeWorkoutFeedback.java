@@ -14,6 +14,7 @@ import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -210,5 +211,16 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
     }
 
 
-}
 
+    @Override
+    public void onBackPressed() {
+        //Go to homepage
+        Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
+        finish();
+        super.onBackPressed();
+
+    }
+
+}

@@ -32,12 +32,20 @@ public class TrainerFeedback extends AppCompatActivity {
     private TextView workoutTitle, reviewerName;
 
     private VideoView videoFeedback;
+
+    private int workoutID;
     private ArrayList<Workout> workouts = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainer_feetback);
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        if (bundle!=null){
+            workoutID = (int) bundle.get("workout_id");
+        }
 
         workoutTitle = findViewById(R.id.feetBackTitle);
         reviewerName = findViewById(R.id.workout_feedback_by);
