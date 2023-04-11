@@ -73,10 +73,17 @@ public class SocketFunctions {
         }
     }
 
+    /**
+     * used only for general exercises as it doesn't take a trainer parameter
+     * @param context
+     * @param exerciseInfo
+     * @throws JSONException
+     */
     public static void addExercise(Context context, JSONObject exerciseInfo) throws JSONException {
         Exercise exercise = new Exercise(context, exerciseInfo.getInt("exercise_id"),
                 exerciseInfo.getString("exercise"),
-                exerciseInfo.getString("notes"));
+                exerciseInfo.getString("notes"),
+                exerciseInfo.getString("demo_location"));
 
         exercises.add(exercise);
     }

@@ -9,20 +9,21 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="a comment">
+    <list default="true" id="4283c97f-7892-406f-bdd0-fb208f7e10e7" name="Changes" comment="get video not working">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/ApiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/ApiService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Login.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeWorkouts.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeWorkouts.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_trainee_workouts.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_trainee_workouts.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/Exercise.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/ExercisePage.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/ExercisePage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/SocketFunctions.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/SocketFunctions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeWorkoutFeedback.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/application/TraineeWorkoutFeedback.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[C:\Users\wheri\.android\avd\Pixel_5_API_30.avd]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[GZQL1838IAL60202508]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -45,6 +46,7 @@
       <list>
         <option value="layoutResourceFile" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -55,7 +57,14 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
-    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -70,6 +79,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="ShowUsagesActions.previewPropertyKey" value="true" />
     <property name="cidr.known.project.marker" value="true" />
     <property name="dart.analysis.tool.window.visible" value="false" />
     <property name="show.migrate.to.gradle.popup" value="false" />
@@ -235,7 +245,119 @@
       <option name="project" value="LOCAL" />
       <updated>1680145116873</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="final restoring">
+      <created>1680149588115</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1680149588115</updated>
+    </task>
+    <task id="LOCAL-00015" summary="get exercises changed">
+      <created>1680237042992</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1680237042992</updated>
+    </task>
+    <task id="LOCAL-00016" summary="going to profile from trainer fixed">
+      <created>1680322537302</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1680322537302</updated>
+    </task>
+    <task id="LOCAL-00017" summary="going to profile from trainer fixed">
+      <created>1680322612713</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1680322612713</updated>
+    </task>
+    <task id="LOCAL-00018" summary="going to profile from trainee fixed">
+      <created>1680324047691</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1680324047691</updated>
+    </task>
+    <task id="LOCAL-00019" summary="oops">
+      <created>1680324445533</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1680324445533</updated>
+    </task>
+    <task id="LOCAL-00020" summary="removed unused spinner">
+      <created>1680326034094</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1680326034094</updated>
+    </task>
+    <task id="LOCAL-00021" summary="plot workout scores">
+      <created>1680407095001</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1680407095001</updated>
+    </task>
+    <task id="LOCAL-00022" summary="workout feedback">
+      <created>1680582919345</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1680582919345</updated>
+    </task>
+    <task id="LOCAL-00023" summary="get relationships at login">
+      <created>1680587845842</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1680587845842</updated>
+    </task>
+    <task id="LOCAL-00024" summary="fixed relationship arrayList">
+      <created>1680588999060</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1680588999060</updated>
+    </task>
+    <task id="LOCAL-00025" summary="workout feedback">
+      <created>1680600637564</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1680600637564</updated>
+    </task>
+    <task id="LOCAL-00026" summary="redirect to workout feedback">
+      <created>1680601894360</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1680601894360</updated>
+    </task>
+    <task id="LOCAL-00027" summary="redirect to workout feedback actually working now">
+      <created>1680606684206</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1680606684206</updated>
+    </task>
+    <task id="LOCAL-00028" summary="redirect to workout feedback actually working now">
+      <created>1680662261177</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1680662261177</updated>
+    </task>
+    <task id="LOCAL-00029" summary="get video not working">
+      <created>1680675955005</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1680675955005</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -260,7 +382,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="retrieving data wip" />
     <MESSAGE value="idk if It'll break" />
     <MESSAGE value="jsonArray example" />
     <MESSAGE value="Fixed navigation bar in trainer page" />
@@ -273,6 +394,19 @@
     <MESSAGE value="exercise page" />
     <MESSAGE value="upload video now sends exercise id for evaluation" />
     <MESSAGE value="a comment" />
-    <option name="LAST_COMMIT_MESSAGE" value="a comment" />
+    <MESSAGE value="final restoring" />
+    <MESSAGE value="get exercises changed" />
+    <MESSAGE value="going to profile from trainer fixed" />
+    <MESSAGE value="going to profile from trainee fixed" />
+    <MESSAGE value="oops" />
+    <MESSAGE value="removed unused spinner" />
+    <MESSAGE value="plot workout scores" />
+    <MESSAGE value="get relationships at login" />
+    <MESSAGE value="fixed relationship arrayList" />
+    <MESSAGE value="workout feedback" />
+    <MESSAGE value="redirect to workout feedback" />
+    <MESSAGE value="redirect to workout feedback actually working now" />
+    <MESSAGE value="get video not working" />
+    <option name="LAST_COMMIT_MESSAGE" value="get video not working" />
   </component>
 </project>

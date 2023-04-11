@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
@@ -24,9 +25,14 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.sendbird.android.shadow.com.google.gson.annotations.SerializedName;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -177,53 +183,20 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-    private void getVideo(int workout_id){
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .build();
+    private void getVideo(int workout_id){ //I know anyone with the link can see the video, but I couldn't make it work
+        int workoutId = ((Workout) workoutSelect.getSelectedItem()).getWorkout_id();
+        int userId = ((Workout) workoutSelect.getSelectedItem()).getUser_id();
+        String exerciseName = ((Workout) workoutSelect.getSelectedItem()).getExercise_name();
+        String videoUrl = BASE_URL + "PostProcessedVideos/Users/"+ userId +"/"+exerciseName+"/"+workoutId+".mp4";
 
-        ApiService apiService = retrofit.create(ApiService.class);
+        Uri videoUri = Uri.parse(videoUrl);
 
-        JSONObject info = new JSONObject();
-        try {
-            info.put("id", String.valueOf(SocketFunctions.user.getId()));
-            info.put("apiKey", SocketFunctions.apiKey);
-            info.put("workout_id", String.valueOf(workout_id));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        videoFeedback.stopPlayback();
 
-        Call<ResponseBody> call = apiService.getVideoStreamWorkout(info.toString());
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response){
-                if (response.isSuccessful()) {
-                    // Get the response body
-                    ResponseBody responseBody = response.body();
-                    if (responseBody != null) {
-                        // Create an input stream from the response body
-                        InputStream inputStream = responseBody.byteStream();
+        videoFeedback.setZOrderOnTop(true);
+        videoFeedback.setVideoURI(videoUri);
 
-                        // Set the input stream to the VideoView
-
-                        videoFeedback.setVideoURI(Uri.parse(inputStream.toString()));
-
-                        // Start the video playback
-                        videoFeedback.start();
-                    }
-                } else {
-                    // Handle unsuccessful response
-                    // ...
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // Handle network error
-                // ...
-            }
-        });
+        videoFeedback.start();
     }
 
 

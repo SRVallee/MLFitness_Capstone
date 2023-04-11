@@ -24,7 +24,7 @@ public class Exercise {
     private String name, description, trainerName;
 
 
-    public Exercise(Context context, int id, String name, String description, int trainer){
+    public Exercise(Context context, int id, String name, String description,String demo, int trainer){
         this.id = id;
         this.name = name;
         this.description = description;
@@ -36,7 +36,7 @@ public class Exercise {
         }
     }
 
-    public Exercise(Context context, int id, String name, String description){
+    public Exercise(Context context, int id, String name, String description, String demo){
         this.id = id;
         this.name = name;
         this.description = description;

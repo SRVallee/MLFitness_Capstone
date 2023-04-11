@@ -191,6 +191,7 @@ public class ExercisePage extends AppCompatActivity {
 
                             String name = jsonResponse.getString("name");
                             String desc = jsonResponse.getString("description");
+                            String demo = jsonResponse.getString("demo_location");
                             int trainerID = -1;
                             if (!jsonResponse.getString("trainer_id").equals("null")){
                                 trainerID = jsonResponse.getInt("trainer_id");
@@ -201,6 +202,7 @@ public class ExercisePage extends AppCompatActivity {
                                      exerciseID,
                                      name,
                                      desc,
+                                     demo,
                                      trainerID);
 
                              exercise = currExercise;

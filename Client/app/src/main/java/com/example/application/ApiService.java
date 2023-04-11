@@ -21,10 +21,14 @@ public interface ApiService {
     @Multipart
     @POST("get_video.php")
     @Streaming
-    Call<ResponseBody> getVideoStreamExercise(@Part("info") String info);
+    Call<ResponseBody> getVideoStreamExercise(@Part("id") String id,
+                                              @Part("apiKey") String apiKey,
+                                              @Part("exercise_id") String exercise_id);
 
     @Multipart
     @POST("get_video.php")
     @Streaming
-    Call<ResponseBody> getVideoStreamWorkout(@Part("info") String info);
+    Call<ResponseBody> getVideoStreamWorkout(@Part("id") String id,
+                                             @Part("apiKey") String apiKey,
+                                             @Part("workout_id") String workout_id);
 }
