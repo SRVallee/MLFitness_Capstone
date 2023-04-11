@@ -1,6 +1,7 @@
 package com.example.application;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -119,6 +120,7 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
                                 @Override
                                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                                     getFeedBack(((Workout) workoutSelect.getSelectedItem()).getWorkout_id());
+                                    getVideo(((Workout) workoutSelect.getSelectedItem()).getWorkout_id());
                                 }
 
                                 @Override
@@ -197,6 +199,9 @@ public class TraineeWorkoutFeedback extends AppCompatActivity {
         videoFeedback.setVideoURI(videoUri);
 
         videoFeedback.start();
+
+        // loop video
+        videoFeedback.setOnCompletionListener(mp -> videoFeedback.start());
     }
 
 

@@ -21,7 +21,7 @@ import java.util.Objects;
 public class Exercise {
 
     private int id, trainerId;
-    private String name, description, trainerName;
+    private String name, description, trainerName, demoLocation;
 
 
     public Exercise(Context context, int id, String name, String description,String demo, int trainer){
@@ -29,8 +29,9 @@ public class Exercise {
         this.name = name;
         this.description = description;
         this.trainerId = trainer;
+        this.demoLocation = demo;
         if(trainerId == -1){
-            trainerName = "Public";
+            trainerName = "Kinsee";
         }else {
             getTrainerInfo(context);
         }
@@ -42,6 +43,7 @@ public class Exercise {
         this.description = description;
         this.trainerId = -1;
         this.trainerName = "Kinsee";
+        this.demoLocation = demo;
     }
 
     public String getName() {
@@ -66,6 +68,10 @@ public class Exercise {
 
     public String getTrainerName() {
         return trainerName;
+    }
+
+    public String getDemoLocation() {
+        return demoLocation;
     }
 
     /**

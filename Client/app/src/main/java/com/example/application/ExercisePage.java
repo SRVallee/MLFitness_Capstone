@@ -1,6 +1,8 @@
 package com.example.application;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
@@ -209,6 +211,8 @@ public class ExercisePage extends AppCompatActivity {
                              exerciseName.setText(currExercise.getName());
                              description.setText(currExercise.getDescription());
                              trainerName.setText("Trainer: " + currExercise.getTrainerName());
+                             SocketFunctions.selectedExercise = currExercise;
+                             getVideoDemo();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -252,6 +256,22 @@ public class ExercisePage extends AppCompatActivity {
             finish();
             super.onBackPressed();
         }
+    }
+
+    private void getVideoDemo(){
+        String videoUrl = "http://162.246.157.128/MLFitness/Demos/"+ SocketFunctions.selectedExercise.getDemoLocation();
+
+        Uri videoUri = Uri.parse(videoUrl);
+
+        demoVideoView.stopPlayback();
+
+        demoVideoView.setZOrderOnTop(true);
+        demoVideoView.setVideoURI(videoUri);
+
+        demoVideoView.start();
+
+        // loop video
+        demoVideoView.setOnCompletionListener(mp -> demoVideoView.start());
     }
 
 }

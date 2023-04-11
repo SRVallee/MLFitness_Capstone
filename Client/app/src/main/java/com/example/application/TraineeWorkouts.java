@@ -253,7 +253,6 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
     }
 
     public void getWorkouts() {
-        ArrayList<ObjectTrainer> trainers = new ArrayList<>();
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         String url = "http://162.246.157.128/MLFitness/get_workouts.php";
