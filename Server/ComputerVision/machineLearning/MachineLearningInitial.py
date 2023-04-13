@@ -225,7 +225,7 @@ def autoRemoveOutliers(x_train, y_train):
     return new_x_train, new_y_train
 
 #
-def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
+def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0, trainer = None):
     
     labels = df.pop('GoodForm').values.tolist()
     print(f"y(df.pop): {labels}. \nLen is :{len(labels)}\n")
@@ -258,7 +258,7 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
         currFile = os.path.dirname(__file__)
         parent = os.path.dirname(currFile)
         
-        filename = str(parent) + "\\dataframes\\" + modelName + "_tt.csv"
+        filename = str(parent) + "/dataframes/" + modelName + "_tt.csv"
         merged_df.to_csv(filename, index=False)
     
     print(f"Shape of training set before outlier removal:{X_train.shape}")
@@ -309,7 +309,7 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
         currFile = os.path.dirname(__file__)
         parent = os.path.dirname(currFile)
         
-        filename = str(parent) + "\\dataframes\\" + modelName + "_tt_Rem.csv"
+        filename = str(parent) + "/dataframes/" + modelName + "_tt_Rem.csv"
         merged_df.to_csv(filename, index=False)
     print(f"this is X_train after: {X_train}")
     #tf.random.set_seed(42)
@@ -334,23 +334,25 @@ def train_model(df, importantAngles, modelName, rounds=50, outlierRem=0):
     print(model.summary())
     #tf.keras.utils.plot_model(model, to_file='model_1.png',show_shapes=True)
     currDir = str(os.path.dirname(__file__))
-    model_path = str(currDir) + "\\ML_Trained_Models\\"+ str(modelName)+"_trained"
+    if trainer:
+        model_path = str(currDir) + "/ML_Trained_Models/"+trainer +"/"+ str(modelName)+"_trained"
+    else:
+        model_path = str(currDir) + "/ML_Trained_Models/"+ str(modelName)+"_trained"
     print(model_path)
     model.save(model_path)
     
     # dump scaler
     if USE_SCALER:
-        scaler_path = str(currDir) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
+        scaler_path = str(currDir) +"/scalers/"+ str(modelName)+"_scaler.pkl"
         pickle.dump(scaler, open(scaler_path, 'wb'))
     
     return model, X_test_np, y_test_np
 
 #
-def do_ml(df, importantAngles,modelName):
+def do_ml(df, importantAngles,modelName,trainer_id = None):
     
     # print(f"df.head: {df.head}")
-    
-    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierRem=0)
+    model, x_test, y_test = train_model(df,importantAngles,modelName, outlierRem=0, trainer = trainer_id)
     
     test_loss, test_acc, test_prec, true_pos, true_neg, false_neg = model.evaluate(x_test, y_test)
     print("MODEL ACCURACY: ", test_acc)#accuracy = how often the model predicted correctly
@@ -405,11 +407,11 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     currDir = str(os.path.dirname(__file__))
     
     new_df = np.array(df)
-    print(new_df)
+    # print(new_df)
     acutal_frame_num = []
     #scaler
     if USE_SCALER:
-        scaler_path = str(currDir) +"\\scalers\\"+ str(modelName)+"_scaler.pkl"
+        scaler_path = str(currDir) +"/scalers/"+ str(modelName)+"_scaler.pkl"
         acutal_frame_num = [] # this was for the scalar but scalar causes the points to be inaccurrate
         scaler = pickle.load(open(scaler_path,'rb'))
         new_df = scaler.transform(new_df)
@@ -417,12 +419,12 @@ def vid_ml_eval(modelName, trained_model, df, extracted, reps,imp_angles):
     print(trained_model.summary())
     print(currDir)
     # TODO: uncomment \/
-    # tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir)+"\\" + str(modelName)+"_diagram.png",show_shapes=True)
-    visualizer(trained_model, filename= str(currDir) +"\\"+ str(modelName)+"_neural_network.png", view= False)
+    # tf.keras.utils.plot_model(trained_model, to_file= str(vidsDir)+"/" + str(modelName)+"_diagram.png",show_shapes=True)
+    visualizer(trained_model, file_name= str(currDir) +"/"+ str(modelName)+"_neural_network.png", view= False)
     y_pred = trained_model.predict(x = new_df)
     y_pred = y_pred.tolist()
     print(f"\n\nthis is the prediction for each rep: {y_pred}")
-    print(f"this is the actual frame numbers [up, down, up, degree]: {reps}")
+    # print(f"this is the actual frame numbers [up, down, up, degree]: {reps}")
     # for confidence in range(reps):
     #     y_pred_list.append(confidence[1])
     return reps, acutal_frame_num, y_pred
