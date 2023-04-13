@@ -10,8 +10,10 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -21,6 +23,12 @@ import android.app.Activity;
 import android.graphics.*;
 import android.os.Bundle;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.androidplot.util.PixelUtils;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.XYSeries;
@@ -33,6 +41,9 @@ import java.util.*;
 
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.logging.Handler;
 
 public class TraineeWorkouts extends AppCompatActivity implements View.OnClickListener{
@@ -43,6 +54,8 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
 
     private Boolean exit = false;
     private long pressedTime;
+    private Spinner s;
+    private ArrayList<JSONObject> workouts = new ArrayList<>();
 
     Button button1, button2;
 
@@ -68,6 +81,23 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (SocketFunctions.user.isTrainer() == false) {
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
+        }
+        else{
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
+
+        }
+
+        //Initialize XYPlot reference
+        plot = (XYPlot) findViewById(R.id.plot);
+        // Set the range of the y-axis to be between 0 and 100
+        plot.setRangeBoundaries(0, BoundaryMode.FIXED, 100, BoundaryMode.FIXED);
+
+        invalidateOptionsMenu();
+        invalidateMenu();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -92,7 +122,8 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
@@ -103,8 +134,15 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
                         finish();
                         break;
                     }
-                    case R.id.trainers: {
-                        //Go to trainers
+                    case R.id.trainees: {
+                        //Go to trainees
+                        Intent i = new Intent(getApplicationContext(), TrainerTraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers:{
                         Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
@@ -146,64 +184,24 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-        String[] arraySpinner = new String[] {
-                "Push ups", "Sit ups", "Squats", "Help", "I", "Want to", "Sleep"
-        };
-        Spinner s = findViewById(R.id.workoutSelector);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, arraySpinner);
+        s = findViewById(R.id.workoutSelector);
+        ArrayAdapter<Exercise> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, SocketFunctions.exercises);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         s.setAdapter(adapter);
-
-        //Initialize XYPlot reference
-        plot = (XYPlot) findViewById(R.id.plot);
-
-        //This is for demo purposes, once we have data for the workouts then we will uses them here
-        //Create a couple arrays of y-values to plot
-        final Number[] domainLabels = {1, 2, 3, 6, 7, 8, 9, 10, 13, 14};
-        Number[] series1Numbers = {1, 4, 2, 8, 4, 16, 8, 32, 16, 64};
-        Number[] series2Numbers = {5, 2, 10, 5, 20, 10, 40, 20, 80, 40};
-
-        //Turn the above arrays into XYSeries
-        //(Y_VALS_ONLY means use the element index as the x value)
-        XYSeries series1 = new SimpleXYSeries(
-                Arrays.asList(series1Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Series1");
-        XYSeries series2 = new SimpleXYSeries(
-                Arrays.asList(series2Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Series2");
-
-        //Create formatters to use for drawing a series using LineAndPointRenderer
-        //and configure them from xml:
-        LineAndPointFormatter series1Format =
-                new LineAndPointFormatter(this, R.xml.line_point_formatter_with_labels);
-        LineAndPointFormatter series2Format =
-                new LineAndPointFormatter(this, R.xml.line_point_formatter_with_labels_2);
-
-        //Add an "dash" effect to the series2 line:
-        series2Format.getLinePaint().setPathEffect(new DashPathEffect(new float[] {
-
-                // always use DP when specifying pixel sizes, to keep things consistent across devices:
-                PixelUtils.dpToPix(20),
-                PixelUtils.dpToPix(15)}, 0));
-
-        //Add some smoothing to the lines:
-        series1Format.setInterpolationParams(
-                new CatmullRomInterpolator.Params(10, CatmullRomInterpolator.Type.Centripetal));
-        series2Format.setInterpolationParams(
-                new CatmullRomInterpolator.Params(10, CatmullRomInterpolator.Type.Centripetal));
-
-        //Add a new series' to the xyplot:
-        plot.addSeries(series1, series1Format);
-        plot.addSeries(series2, series2Format);
-
-        plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new Format() {
+        s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){ // Listener for exercise
             @Override
-            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-                int i = Math.round(((Number) obj).floatValue());
-                return toAppendTo.append(domainLabels[i]);
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                try {
+                    plotGraph();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+
             @Override
-            public Object parseObject(String source, ParsePosition pos) {
-                return null;
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //has to be here
             }
         });
 
@@ -212,6 +210,7 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
 
         button2 = (Button) findViewById(R.id.submitWorkouts);
         button2.setOnClickListener(TraineeWorkouts.this);
+        getWorkouts();
     }
 
     @Override
@@ -222,7 +221,7 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
         switch (v.getId()) {
             //Go to review feedback
             case R.id.reviewFeedback:
-                i = new Intent(getApplicationContext(), Login.class);
+                i = new Intent(getApplicationContext(), TraineeWorkoutFeedback.class);
                 startActivity(i);
                 break;
             //Go to upload
@@ -252,4 +251,100 @@ public class TraineeWorkouts extends AppCompatActivity implements View.OnClickLi
             super.onBackPressed();
         }
     }
+
+    public void getWorkouts() {
+
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://162.246.157.128/MLFitness/get_workouts.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            if (status.equals("success")) {
+                                Log.d("Array: ", jsonResponse.getString("workouts"));
+                                for (int i = 0; i < jsonResponse.getJSONArray("workouts").length(); i++) {
+                                    workouts.add(jsonResponse.getJSONArray("workouts").getJSONObject(i));
+                                }
+                                plotGraph();
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("user_id", String.valueOf(SocketFunctions.user.getId()));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
+    }
+
+    private void plotGraph() throws JSONException {
+
+        plot.clear();
+        ArrayList<Double> scores = new ArrayList<>();
+        //Create a couple arrays of y-values to plot
+        for (JSONObject workout:workouts){
+            if(((Exercise)s.getSelectedItem()).getId() == workout.getInt("exercise_exercise_id")){
+                scores.add(workout.getDouble("score")*100);
+            }
+        }
+
+        if(scores.isEmpty()){
+            return;
+        }
+        Log.d("scores", scores.toString());
+        final Number[] domainLabels = {1, 2, 3, 6, 7, 8, 9, 10, 13, 14};
+
+        //Turn the above arrays into XYSeries
+        //(Y_VALS_ONLY means use the element index as the x value)
+        XYSeries scoresWithDate = new SimpleXYSeries(
+                scores, SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "score");
+        Log.d("scores with date", String.valueOf(scoresWithDate.size()));
+
+        //Create formatters to use for drawing a series using LineAndPointRenderer
+        //and configure them from xml:
+        LineAndPointFormatter series1Format =
+                new LineAndPointFormatter(this, R.xml.line_point_formatter_with_labels);
+
+        //Add some smoothing to the lines:
+        if(scores.size() > 3) {
+            series1Format.setInterpolationParams(
+                    new CatmullRomInterpolator.Params(10, CatmullRomInterpolator.Type.Centripetal));
+        }
+        //Add a new series' to the xyplot:
+        plot.addSeries(scoresWithDate, series1Format);
+
+        plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new Format() {
+            @Override
+            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+                int i = Math.round(((Number) obj).floatValue());
+                return toAppendTo.append(domainLabels[i]);
+            }
+            @Override
+            public Object parseObject(String source, ParsePosition pos) {
+                return null;
+            }
+        });
+
+        plot.redraw();
+    }
+
 }

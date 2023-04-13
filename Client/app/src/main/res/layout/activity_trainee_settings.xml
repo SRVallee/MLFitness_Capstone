@@ -72,7 +72,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingStart="150dp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:id="@+id/night_mode_switch"
+                android:theme="@style/SCBSwitch"/>
 
 
         </LinearLayout>
@@ -116,7 +118,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingStart="150dp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:id="@+id/notification_switch"
+                android:theme="@style/SCBSwitch"/>
 
 
         </LinearLayout>
@@ -124,122 +128,40 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:orientation="horizontal"
-            android:background="@drawable/ic_rounding_grey"
-            android:paddingHorizontal="20dp"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginTop="5dp">
+            android:background="@drawable/ic_rounding_grey"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp">
 
             <ImageView
+                android:id="@+id/langLogo"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:id="@+id/persLogo"
-                android:background="@drawable/ic_baseline_person_outline_24"
-                android:padding="12dp"
+                android:layout_gravity="center"
+                android:background="@drawable/ic_baseline_logout_24"
                 android:backgroundTint="@color/azure_blue"
-                android:layout_gravity="center"/>
+                android:padding="12dp" />
 
             <TextView
-                android:id="@+id/PrivAccTitle"
+                android:id="@+id/logoutTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:drawableRight="@drawable/ic_baseline_arrow_forward_ios_24"
+                android:drawablePadding="150dp"
                 android:gravity="center"
                 android:paddingStart="20dp"
-                android:text="Private Account"
+                android:text="Logout"
                 android:textColor="@color/azure_blue"
                 android:textSize="20dp"
                 android:textStyle="bold"
+                android:clickable="true"
+                android:onClick="logoutFromSettings"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="150dp"
-                android:layout_gravity="center" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal"
-            android:background="@drawable/ic_rounding_grey"
-            android:paddingHorizontal="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="20dp">
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:id="@+id/textLogo"
-                android:background="@drawable/ic_baseline_text_fields_24"
-                android:padding="12dp"
-                android:layout_gravity="center"/>
-
-            <TextView
-                android:id="@+id/textTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:paddingStart="20dp"
-                android:text="Font"
-                android:textColor="@color/azure_blue"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:drawableRight="@drawable/ic_baseline_arrow_forward_ios_24"
-                android:drawablePadding="200dp"/>
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal"
-            android:background="@drawable/ic_rounding_grey"
-            android:paddingHorizontal="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="5dp">
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:id="@+id/langLogo"
-                android:background="@drawable/ic_baseline_language_24"
-                android:padding="12dp"
-                android:layout_gravity="center"/>
-
-            <TextView
-                android:id="@+id/langTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:paddingStart="20dp"
-                android:text="Languages"
-                android:textColor="@color/azure_blue"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:drawableRight="@drawable/ic_baseline_arrow_forward_ios_24"
-                android:drawablePadding="140dp"/>
-
-
-
 
 
         </LinearLayout>

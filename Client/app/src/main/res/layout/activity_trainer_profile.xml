@@ -8,20 +8,33 @@
     android:id="@+id/drawer_layout"
     tools:context=".TrainerProfile"
     android:background="@color/white">
-
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
+
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+
+            <ImageView
+                android:id="@+id/trainer_profile_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border_list"
+                android:minHeight="150dp"
+                app:srcCompat="@drawable/ic_baseline_account_circle_24" />
 
             <TextView
                 android:id="@+id/trainerProfileTitle"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border_list"
                 android:gravity="center"
                 android:text="Profile"
                 android:textColor="@color/azure_blue"
@@ -31,15 +44,69 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Workouts added"
+                android:textColor="@color/azure_blue"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+
         </LinearLayout>
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/edit_profile_trainer"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_circle"
+            android:padding="8dp"
+            android:src="@drawable/ic_baseline_edit_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white"
+            android:clickable="true"
+            android:onClick="goToEdit"/>
 
+        <ImageView
+            android:id="@+id/add_friend_trainer"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_circle"
+            android:padding="8dp"
+            android:src="@drawable/add_friend"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white"
+            android:clickable="true"
+            android:onClick="goToadd"/>
+
+        <ImageView
+            android:id="@+id/sub_friend_trainer"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/bg_circle"
+            android:padding="8dp"
+            android:src="@drawable/sub_friend"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white"
+            android:clickable="true"
+            android:onClick="goTosub"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:headerLayout="@layout/header"
-        app:menu="@menu/trainer_menu"
+        app:menu="@menu/main_menu"
         android:id="@+id/nav_view"
         android:layout_gravity="start"/>
 

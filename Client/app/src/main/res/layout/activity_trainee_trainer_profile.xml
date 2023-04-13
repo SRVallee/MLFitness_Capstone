@@ -35,11 +35,21 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView5"
+        <ScrollView
+            android:id="@+id/trainer_full_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:id="@+id/trainer_display_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+            </LinearLayout>
+        </ScrollView>
+
 
     </LinearLayout>
 

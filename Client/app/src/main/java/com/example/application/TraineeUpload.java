@@ -31,10 +31,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -80,7 +82,7 @@ public class TraineeUpload extends AppCompatActivity {
 
     TextView uploadingText;
     ProgressBar uploadIcon;
-
+    Spinner exerciseSpinner;
     Uri videoURI;
 
 
@@ -110,6 +112,13 @@ public class TraineeUpload extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_upload);
 
+        exerciseSpinner = findViewById(R.id.workout_upload_select);
+        ArrayAdapter<Exercise> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, SocketFunctions.exercises);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        exerciseSpinner.setAdapter(adapter);
+
+        exerciseSpinner.setSelection(SocketFunctions.exercises.indexOf(SocketFunctions.selectedExercise));
         videoPreviewer = findViewById(R.id.videoView2);
 
         //RecyclerView recyclerView = findViewById(R.id.videoListViewer);
@@ -158,6 +167,17 @@ public class TraineeUpload extends AppCompatActivity {
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (SocketFunctions.user.isTrainer() == false) {
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
+        }
+        else{
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
+
+        }
+        invalidateOptionsMenu();
+        invalidateMenu();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -184,7 +204,8 @@ public class TraineeUpload extends AppCompatActivity {
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
@@ -195,8 +216,15 @@ public class TraineeUpload extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.trainers: {
-                        //Go to trainers
+                    case R.id.trainees: {
+                        //Go to trainees
+                        Intent i = new Intent(getApplicationContext(), TrainerTraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers:{
                         Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
@@ -417,6 +445,7 @@ public class TraineeUpload extends AppCompatActivity {
 
     private void uploadVideo() throws IOException {
         if (videoURI != null) {
+            int exercise_id = ((Exercise) exerciseSpinner.getSelectedItem()).getId();
             setUploadingIcon(true);
             InputStream inputStream = getContentResolver().openInputStream(videoURI);
             byte[] bytes = getBytes(inputStream);
@@ -429,7 +458,7 @@ public class TraineeUpload extends AppCompatActivity {
                     .build();
             ApiService apiService = retrofit.create(ApiService.class);
             int trainerId = 0; //TODO set to trainer the video belongs to.
-            Call<String> call = apiService.uploadVideo(requestBody, String.valueOf(SocketFunctions.user.getId()), SocketFunctions.apiKey, String.valueOf(trainerId));
+            Call<String> call = apiService.uploadVideo(requestBody, String.valueOf(SocketFunctions.user.getId()), SocketFunctions.apiKey, String.valueOf(exercise_id));
             call.enqueue(new Callback<String>() {
 
                 @Override
@@ -455,7 +484,7 @@ public class TraineeUpload extends AppCompatActivity {
                 public void onFailure(Call<String> call, Throwable t) {
                     setUploadingIcon(false);
                     Log.d("Video Upload:", t.getLocalizedMessage());
-                    Toast toast = Toast.makeText(getApplicationContext(), "CONNECTION ERROR", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(getApplicationContext(), "evaluation will be finish ina couple minutes", Toast.LENGTH_SHORT);
                     toast.show();
                 }
             });
@@ -475,9 +504,8 @@ public class TraineeUpload extends AppCompatActivity {
             });
 
     public void trimButtonPressed(View view) {
-        Intent i = new Intent(getApplicationContext(), TraineeTrim.class);
+        Intent i = new Intent(getApplicationContext(), Trimmer.class);
         startActivity(i);
-        finish();
     }
 
     /***

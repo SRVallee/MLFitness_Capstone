@@ -8,93 +8,89 @@
     android:id="@+id/drawer_layout"
     tools:context=".TraineeWorkouts"
     android:background="@color/white">
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="60dp"
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/workoutTiles"
+                android:layout_width="201dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="Workouts"
+                android:textColor="@color/azure_blue"
+                android:textSize="35dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:orientation="horizontal">
-
-                <Spinner
-                    android:id="@+id/workoutSelector"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <TextView
-                    android:id="@+id/workoutTiles"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="Workouts"
-                    android:textColor="@color/azure_blue"
-                    android:textSize="35dp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </LinearLayout>
-
-            <com.androidplot.xy.XYPlot
-                android:id="@+id/plot"
-                style="@style/APDefacto.Light"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_margin="20dp"
-                app:domainTitle="Months"
-                app:lineLabelRotationBottom="-45"
-                app:lineLabels="left|bottom"
-                app:rangeTitle="Score"
-                app:title="Workouts" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/reviewFeedback"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@id/submitWorkouts"
-                    android:layout_marginHorizontal="20dp"
-                    android:background="@drawable/ic_rounding"
-                    android:backgroundTint="#30ffffff"
-                    android:text="Review Feedback"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.4"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/submitWorkouts"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:background="@drawable/ic_rounding"
-                    android:backgroundTint="#30ffffff"
-                    android:text="Submit Workouts"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.4"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-            </RelativeLayout>
-
+                android:layout_height="match_parent"
+                android:id="@+id/workoutSelector" />
 
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <Spinner
+            android:id="@+id/workoutSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
+        <com.androidplot.xy.XYPlot
+            style="@style/APDefacto.Light"
+            android:id="@+id/plot"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_margin="20dp"
+            app:title="Workouts"
+            app:rangeTitle="Score"
+            app:domainTitle="Months"
+            app:lineLabels="left|bottom"
+            app:lineLabelRotationBottom="-45" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reviewFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/ic_rounding"
+            android:backgroundTint="#30ffffff"
+            android:text="Review Feedback"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.4"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/submitWorkouts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/ic_rounding"
+            android:backgroundTint="#30ffffff"
+            android:text="Submit Workouts"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.4"
+            app:layout_constraintStart_toStartOf="parent" />
+
+
+    </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"

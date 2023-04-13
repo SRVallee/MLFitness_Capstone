@@ -2,6 +2,7 @@ package com.example.application;
 
 import static androidx.core.content.ContextCompat.startActivity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import com.sendbird.uikit.SendBirdUIKit;
 import com.sendbird.uikit.adapter.SendBirdUIKitAdapter;
 import com.sendbird.uikit.interfaces.UserInfo;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,14 +33,11 @@ import java.util.Map;
 
 public class SignUp extends AppCompatActivity {
 
-
     String USER_ID;
     String USER_NICKNAME;
     String USER_PROFILE_URL;
-
     String username, name, email, passwordOne, passwordTwo;
     EditText usernameSignup, nameSignup, emailSignup, passwordOneSignup, passwordTwoSignup;
-
     boolean isTrainee, isTrainer;
     Chip traineeChipSignup, trainerChipSignup;
 
@@ -53,7 +52,6 @@ public class SignUp extends AppCompatActivity {
         emailSignup = findViewById(R.id.emailEditText);
         passwordOneSignup = findViewById(R.id.passwordEditText);
         passwordTwoSignup = findViewById(R.id.passwordReEditText);
-
 
         traineeChipSignup = findViewById(R.id.traineeChip);
         trainerChipSignup = findViewById(R.id.trainerChip);
@@ -164,8 +162,12 @@ public class SignUp extends AppCompatActivity {
                                 SocketFunctions.user.setTrainer(isTrainer);
                                 SocketFunctions.apiKey = jsonResponse.getString("api_key");
                                 Log.d("User id: ", "was returned");
+
+                                getGeneralExercises();
+
                                 Intent i;
-                                USER_ID = SocketFunctions.user.getEmail();
+                                int tempInt = SocketFunctions.user.getId();
+                                USER_ID = String.valueOf(tempInt);
                                 USER_NICKNAME = SocketFunctions.user.getName();
                                 //Once profile pictures are implemented change this
                                 USER_PROFILE_URL = "";
@@ -278,6 +280,95 @@ public class SignUp extends AppCompatActivity {
         };
         queue.add(stringRequest);
 
+    }
+
+    private void getGeneralExercises(){
+        Context context = getApplicationContext();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://162.246.157.128/MLFitness/get_general_exercises.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            if (status.equals("success")) {
+                                Log.d("Array: ", jsonResponse.getString("exercises"));
+                            }
+                            JSONArray exercises = new JSONArray(jsonResponse.getString("exercises"));
+                            for (int i = 0; i < exercises.length(); i++) {
+                                SocketFunctions.addExercise(context, exercises.getJSONObject(i));
+                            }
+                            Log.d("exercises: ", SocketFunctions.exercises.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    /**
+     * Gets Relationships of the user to save on a public arrayList
+     */
+    private void getRelationships(){
+        Context context = getApplicationContext();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://162.246.157.128/MLFitness/get_relationships.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            if (status.equals("success")) {
+                                Log.d("Array: ", jsonResponse.getString("exercises"));
+                            }
+                            JSONArray relationships = new JSONArray(jsonResponse.getString("exercises"));
+                            for (int i = 0; i < relationships.length(); i++) {
+                                SocketFunctions.relationships.add( new Relationship(relationships.getJSONObject(i)));
+                            }
+                            Log.d("relationships: ", SocketFunctions.relationships.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("relationships error ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("id2", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("type", "2");
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     private boolean emailIsValid(String email){
