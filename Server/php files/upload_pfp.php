@@ -1,8 +1,8 @@
 <?php
 $id = $_POST['id'];
 $apiKey = $_POST['apiKey'];
-$conn = mysqli_connect("localhost", "root", "MLFitness@123", "ml_fitness"); //connect
-$sql = "select * from user where (user_id = '".$id."' and api_key = '".$apiKey."')";
+$conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness"); //connect
+$sql = "SELECT user_id, api_key from user where (user_id = '".$id."' and api_key = '".$apiKey."');";
 $res = mysqli_query($conn, $sql);
 if(mysqli_num_rows($res) != 0){
     $row = mysqli_fetch_assoc($res);    

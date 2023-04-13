@@ -2,10 +2,10 @@
 $email = $_POST['email'];
 $password = $_POST['password'];
 $result = array();
-$conn = mysqli_connect("localhost", "root", "MLFitness@123", "ml_fitness"); //connect
+$conn = mysqli_connect("localhost", "root", "FitnessPassword@123", "ml_fitness"); //connect
 
 if($conn){                                                       //if connection
-    $sql = "select * from user where email = '".$email."'";
+    $sql = "SELECT * from user where email = '".$email."'";
     $res = mysqli_query($conn, $sql);                             //get user with email
     if(mysqli_num_rows($res) != 0){                               //if user exists      
         $row = mysqli_fetch_assoc($res);
@@ -26,6 +26,8 @@ if($conn){                                                       //if connection
         $result = array("status" => "User not found");
     }
 
+}else{
+    $result = array("status" => "Connection to database failed");
 }
 
 echo json_encode($result, JSON_PRETTY_PRINT);

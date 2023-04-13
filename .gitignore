@@ -139,6 +139,9 @@ ipch/
 # Visual Studio Trace Files
 *.e2e
 
+# Android Profiling
+*.hprof
+.vscode/settings.json
 # TFS 2012 Local Workspace
 $tf/
 
@@ -426,6 +429,7 @@ Server/ComputerVision/binomialFitting/__pycache__/KeyframeExtraction.cpython-39.
 Server/ComputerVision/binomialFitting/__pycache__/PoseUtilities.cpython-39.pyc
 #Server/ComputerVision/dataframes/*
 Server/ComputerVision/ML_Trained_Models/*
+
 Client/.gradle/7.4/gc.properties
 Client/.gradle/7.4/checksums/checksums.lock
 Client/.gradle/7.4/dependencies-accessors/dependencies-accessors.lock
