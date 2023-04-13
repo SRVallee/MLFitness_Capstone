@@ -41,28 +41,56 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/selectButton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="80dp"
             android:background="@drawable/ic_rounding"
             android:backgroundTint="#30ffffff"
-            android:text="STORAGE"
             android:onClick="storageButtonPressed"
-            app:layout_constraintBottom_toTopOf="@id/recordButton"
+            android:text="STORAGE"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/upload_video_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginEnd="120dp"
+            android:layout_marginBottom="80dp"
+            android:background="@drawable/ic_rounding"
+            android:backgroundTint="#30ffffff"
+            android:onClick="onUploadPressed"
+            android:text="UPLOAD"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/selectButton" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/recordButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginStart="120dp"
+            android:layout_marginBottom="80dp"
+            android:background="@drawable/ic_rounding"
+            android:backgroundTint="#30ffffff"
+            android:onClick="recordVideoButtonPressed"
+            android:text="RECORD"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/selectButton" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/trimButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="62dp"
+            android:layout_marginBottom="2dp"
             android:background="@drawable/ic_rounding"
             android:backgroundTint="#30ffffff"
-            android:text="RECORD"
-            android:onClick="recordVideoButtonPressed"
+            android:text="TRIM"
+            android:onClick="trimButtonPressed"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -70,14 +98,51 @@
         <VideoView
             android:id="@+id/videoView2"
             android:layout_width="272dp"
-            android:layout_height="446dp"
+            android:layout_height="386dp"
             android:layout_marginStart="70dp"
             android:layout_marginEnd="70dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="100dp"
             app:layout_constraintBottom_toTopOf="@+id/selectButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/recordTitle" />
+
+        <Spinner
+            android:id="@+id/workout_upload_select"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="30dp"
+            app:layout_constraintTop_toBottomOf="@+id/videoView2" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="120dp"
+            android:layout_marginEnd="120dp"
+            android:outlineAmbientShadowColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/uploading_video_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:shadowColor="@color/cyan_2"
+            android:shadowRadius="10"
+            android:text="Uploading Video"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -31,6 +32,60 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </LinearLayout>
+        <TextView
+            android:id="@+id/followed_trainers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Your Trainers"
+            android:textColor="@color/azure_blue"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:id="@+id/trainer_pfp_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:id="@+id/trainer_home_linear"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:onClick="click_btnNewWorkout"
+            android:text="New workout" />
+
+        <TextView
+            android:id="@+id/user_evaluations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Previous Workouts"
+            android:textColor="@color/azure_blue"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+        <ListView
+            android:id="@+id/listTrainee_eval"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:cacheColorHint="#00000000"
+            android:divider="#adb8c2"
+            android:dividerHeight="1dp"
+            android:scrollingCache="false"
+            android:smoothScrollbar="true"/>
 
     </LinearLayout>
 

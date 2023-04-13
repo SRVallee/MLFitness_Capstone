@@ -9,6 +9,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,9 +20,21 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FriendsPage extends AppCompatActivity {
 
@@ -144,7 +157,8 @@ public class FriendsPage extends AppCompatActivity {
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
@@ -197,19 +211,50 @@ public class FriendsPage extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onBackPressed() {
+    private void getFriends(){
+        ArrayList<User> friends = new ArrayList<>();
 
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            //Go to homepage
-            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(i);
-            finish();
-            super.onBackPressed();
-        }
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://162.246.157.128/MLFitness/get_relationships.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String status = jsonResponse.getString("status");
+                            Log.d("Workout array: ", jsonResponse.getString("workouts"));
+                            JSONArray user_obj = new JSONArray(jsonResponse.getString("workouts"));
+
+                            for (int i = 0; i < user_obj.length(); i++) {
+                                User user = new User(
+                                        user_obj.getJSONObject(i).getInt("user_id"),
+                                        user_obj.getJSONObject(i).getString("username"),
+                                        user_obj.getJSONObject(i).getString("name"),
+                                        user_obj.getJSONObject(i).getString("email"));
+                                friends.add(user);
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("User id: ", error.getLocalizedMessage());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("id", String.valueOf(SocketFunctions.user.getId()));
+                paramV.put("apiKey", SocketFunctions.apiKey);
+                paramV.put("id2", String.valueOf(SocketFunctions.user.getId()));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
 
     }
 
@@ -240,5 +285,21 @@ public class FriendsPage extends AppCompatActivity {
     private void updateUseList(ArrayList<User> newList){
         useList.clear();
         useList.addAll(newList);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            //Go to homepage
+            Intent i = new Intent(getApplicationContext(), TraineeHomePage.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(i);
+            finish();
+            super.onBackPressed();
+        }
+
     }
 }

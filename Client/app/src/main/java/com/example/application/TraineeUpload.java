@@ -1,5 +1,9 @@
 package com.example.application;
 
+import static android.content.ContentValues.TAG;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -13,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -26,26 +31,59 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
+import com.gowtham.library.utils.LogMessage;
+import com.gowtham.library.utils.TrimVideo;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class TraineeUpload extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     ActionBarDrawerToggle drawerToggle;
+    Button recordButton;
+    Button storageButton;
+    Button uploadButton;
+
+    TextView uploadingText;
+    ProgressBar uploadIcon;
+    Spinner exerciseSpinner;
+    Uri videoURI;
 
 
     VideoView videoPreviewer;
@@ -74,6 +112,13 @@ public class TraineeUpload extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trainee_upload);
 
+        exerciseSpinner = findViewById(R.id.workout_upload_select);
+        ArrayAdapter<Exercise> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, SocketFunctions.exercises);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        exerciseSpinner.setAdapter(adapter);
+
+        exerciseSpinner.setSelection(SocketFunctions.exercises.indexOf(SocketFunctions.selectedExercise));
         videoPreviewer = findViewById(R.id.videoView2);
 
         //RecyclerView recyclerView = findViewById(R.id.videoListViewer);
@@ -109,10 +154,30 @@ public class TraineeUpload extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        storageButton = findViewById(R.id.selectButton); //why
+        recordButton = findViewById(R.id.recordButton);
+        uploadButton = findViewById(R.id.upload_video_button);
+
+        uploadingText = findViewById(R.id.uploading_video_text);
+        uploadIcon = findViewById(R.id.progressBar);
+
+        setUploadingIcon(false);
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (SocketFunctions.user.isTrainer() == false) {
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(true);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(false);
+        }
+        else{
+            navigationView.getMenu().findItem(R.id.trainers).setVisible(false);
+            navigationView.getMenu().findItem(R.id.trainees).setVisible(true);
+
+        }
+        invalidateOptionsMenu();
+        invalidateMenu();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -139,7 +204,8 @@ public class TraineeUpload extends AppCompatActivity {
                         Intent i = new Intent(getApplicationContext(), TraineeMessages.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
-                        finish();
+                        //finish();
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     }
                     case R.id.setting: {
@@ -150,8 +216,15 @@ public class TraineeUpload extends AppCompatActivity {
                         finish();
                         break;
                     }
-                    case R.id.trainers: {
-                        //Go to trainers
+                    case R.id.trainees: {
+                        //Go to trainees
+                        Intent i = new Intent(getApplicationContext(), TrainerTraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
+                        break;
+                    }
+                    case R.id.trainers:{
                         Intent i = new Intent(getApplicationContext(), TraineeTrainerProfile.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
@@ -160,16 +233,18 @@ public class TraineeUpload extends AppCompatActivity {
                     }
                     case R.id.friends: {
                         //Go to friends
-                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        Intent i = new Intent(getApplicationContext(), FriendsPage.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(i);
                         finish();
                         break;
                     }
                     case R.id.profile: {
-                        //Already selected
-                        //Close drawer
-                        drawerLayout.closeDrawer(GravityCompat.START);
+                        //Go to profile
+                        Intent i = new Intent(getApplicationContext(), TraineeProfile.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(i);
+                        finish();
                         break;
                     }
                     case R.id.logout: {
@@ -340,7 +415,9 @@ public class TraineeUpload extends AppCompatActivity {
         startActivityForResult(intent, 5);
     }
 
-    Uri videoURI;
+
+
+
 
     // startActivityForResult is used to receive the result, which is the selected video.
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -349,7 +426,7 @@ public class TraineeUpload extends AppCompatActivity {
             videoURI = data.getData();
             //progressDialog.setTitle("Uploading...");
             //progressDialog.show();
-            uploadVideo();
+
             String video = String.valueOf(videoURI);
             Log.d("video",""+videoURI);
             videoPreviewer.setMediaController(new MediaController(this));
@@ -366,20 +443,82 @@ public class TraineeUpload extends AppCompatActivity {
         return mimeTypeMap.getExtensionFromMimeType(r.getType(videoURI));
     }
 
-    private void uploadVideo() {
+    private void uploadVideo() throws IOException {
         if (videoURI != null) {
-            // save the selected video
+            int exercise_id = ((Exercise) exerciseSpinner.getSelectedItem()).getId();
+            setUploadingIcon(true);
+            InputStream inputStream = getContentResolver().openInputStream(videoURI);
+            byte[] bytes = getBytes(inputStream);
+            RequestBody requestBody = RequestBody.create(bytes, MediaType.parse(getContentResolver().getType(videoURI)));
+            OkHttpClient client = new OkHttpClient.Builder().build();
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("http://162.246.157.128/MLFitness/")
+                    .client(client)
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .build();
+            ApiService apiService = retrofit.create(ApiService.class);
+            int trainerId = 0; //TODO set to trainer the video belongs to.
+            Call<String> call = apiService.uploadVideo(requestBody, String.valueOf(SocketFunctions.user.getId()), SocketFunctions.apiKey, String.valueOf(exercise_id));
+            call.enqueue(new Callback<String>() {
+
+                @Override
+                public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+                    Log.d("Video upload: ", response.toString());
+                    String messageResponse = response.body().toString();
+                    if (messageResponse.equals("success")) {
+                        setUploadingIcon(false);
+
+                        Log.d("Video Upload:", messageResponse);
+                        Toast toast = Toast.makeText(getApplicationContext(), "Video Uploaded!", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                    else{
+                        Log.d("Video Upload:", messageResponse);
+                        setUploadingIcon(false);
+                        Toast toast = Toast.makeText(getApplicationContext(), messageResponse, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    setUploadingIcon(false);
+                    Log.d("Video Upload:", t.getLocalizedMessage());
+                    Toast toast = Toast.makeText(getApplicationContext(), "evaluation will be finish ina couple minutes", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
         }
+    }
+
+    ActivityResultLauncher<Intent> startForResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK &&
+                        result.getData() != null) {
+                    Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
+                    Log.d(TAG, "Trimmed path:: " + uri);
+
+                } else
+                    LogMessage.v("videoTrimResultLauncher data is null");
+            });
+
+    public void trimButtonPressed(View view) {
+        Intent i = new Intent(getApplicationContext(), Trimmer.class);
+        startActivity(i);
     }
 
     /***
      * This function is to handle if the back button is selected.
-     * - First, if the drawer is open it will close it.
-     * - Second, if the drawer is closed, closes the activity and goes to the home page.
+     * - First, if a video is being uploaded it will ignore it.
+     * - Then, if the drawer is open it will close it.
+     * - Else if the drawer is closed, closes the activity and goes to the home page.
      * ***/
     @Override
     public void onBackPressed() {
-
+        if(uploadingText.getVisibility() == View.VISIBLE){
+            return;
+        }
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
@@ -390,5 +529,62 @@ public class TraineeUpload extends AppCompatActivity {
             finish();
             super.onBackPressed();
         }
+    }
+
+    /**
+     * This function is to handle the user request of uploading a video
+     * @param view the button
+     * @throws IOException if something goes wrong
+     */
+    public void onUploadPressed(View view) throws IOException {
+        if (videoURI != null) {
+            uploadVideo();
+        }else{
+            Toast toast = Toast.makeText(getApplicationContext(), "No Video Selected", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
+    /**
+     * Should be called When a video starts being uploaded or finishes.
+     * @param show boolean for showing (true) or stop showing (false) the upload icon
+     */
+    private void setUploadingIcon(Boolean show){
+        if (show){
+            navigationView.setClickable(false);
+            storageButton.setClickable(false);
+            recordButton.setClickable(false);
+            uploadButton.setClickable(false);
+
+            uploadingText.setVisibility(View.VISIBLE);
+            uploadIcon.setVisibility(View.VISIBLE);
+        }else{
+            navigationView.setClickable(true);
+            storageButton.setClickable(true);
+            recordButton.setClickable(true);
+            uploadButton.setClickable(true);
+
+            uploadingText.setVisibility(View.GONE);
+            uploadIcon.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * This method reads the bytes from the InputStream and writes them to a ByteArrayOutputStream,
+     * which is then converted to a byte array and returned.
+     * @param inputStream
+     * @return byte array
+     * @throws IOException
+     */
+    private byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
     }
 }

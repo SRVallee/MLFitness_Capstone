@@ -3,23 +3,30 @@ package com.example.application;
 import android.graphics.Bitmap;
 import android.media.Image;
 
-public class User {
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+public class User extends AppCompatActivity implements Serializable {
+
 
     private int id;
-    private String UserName;
+    private String userName;
     private String name;
     private String email;
     private Bitmap pfp;
     private Boolean isTrainer = false;
 
     public User(){
-        this(-1);
+        this(-1,null,null,null);
     }
 
-    public User(int id) {
-
-        name = "Unnamed";
+    public User(int id, String userName, String name, String email) {
         this.id = id;
+        this.userName = userName;
+        this.name = name;
+        this.email = email;
     }
 
     public int getId() {
@@ -27,7 +34,7 @@ public class User {
     }
 
     public String getUserName() {
-        return UserName;
+        return userName;
     }
 
     public String getEmail() {
@@ -47,7 +54,7 @@ public class User {
     }
 
     public void setUserName(String userName) {
-        UserName = userName;
+        userName = userName;
     }
 
     public void setName(String name) {
@@ -71,6 +78,19 @@ public class User {
     }
 
     public boolean hasPfp() {
-        return pfp != null;
+        return (pfp != null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return id == user.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

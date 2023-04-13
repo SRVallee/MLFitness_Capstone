@@ -6,6 +6,18 @@
 # IGNORE VSCODE stuff
 .vscode
 
+# Project specific files
+Server/ComputerVision/__pycache__/mp_drawing_modified.cpython-39.pyc
+ComputerVision/binomialFitting/__pycache__/__init__.cpython-39.pyc
+Server/ComputerVision/binomialFitting/__pycache__/KeyframeExtraction.cpython-39.pyc
+Server/ComputerVision/binomialFitting/__pycache__/PoseUtilities.cpython-39.pyc
+Server/ComputerVision/dataframes/*.csv
+Server/ComputerVision/machineLearning/ML_Trained_Models/
+Server/ComputerVision/machineLearning/scalers/
+
+Client/.gradle
+
+
 # User-specific files
 *.rsuser
 *.suo
@@ -13,6 +25,8 @@
 *.userosscache
 *.sln.docstates
 *.pyc
+*.pkl
+*.csv
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -405,19 +419,26 @@ FodyWeavers.xsd
 *.sln.iml
 *__pycache__
 *.pyc
+
+.idea/modules.xml
+Client/local.properties
+Client/.idea/workspace.xml
 Server/ComputerVision/__pycache__/mp_drawing_modified.cpython-39.pyc
 ComputerVision/binomialFitting/__pycache__/__init__.cpython-39.pyc
 Server/ComputerVision/binomialFitting/__pycache__/KeyframeExtraction.cpython-39.pyc
 Server/ComputerVision/binomialFitting/__pycache__/PoseUtilities.cpython-39.pyc
 #Server/ComputerVision/dataframes/*
 Server/ComputerVision/ML_Trained_Models/*
-Client/.gradle/vcs-1/gc.properties
-Client/.gradle/buildOutputCleanup/cache.properties
-Client/.gradle/buildOutputCleanup/buildOutputCleanup.lock
-Client/.gradle/7.4/fileHashes/fileHashes.lock
-Client/.gradle/7.4/fileChanges/last-build.bin
-Client/.gradle/7.4/executionHistory/executionHistory.lock
-Client/.gradle/7.4/dependencies-accessors/gc.properties
-Client/.gradle/7.4/dependencies-accessors/dependencies-accessors.lock
-Client/.gradle/7.4/checksums/checksums.lock
+
 Client/.gradle/7.4/gc.properties
+Client/.gradle/7.4/checksums/checksums.lock
+Client/.gradle/7.4/dependencies-accessors/dependencies-accessors.lock
+Client/.gradle/7.4/dependencies-accessors/gc.properties
+Client/.gradle/7.4/executionHistory/executionHistory.lock
+Client/.gradle/7.4/fileChanges/last-build.bin
+Client/.gradle/7.4/fileHashes/fileHashes.lock
+Client/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+Client/.gradle/buildOutputCleanup/cache.properties
+Client/.gradle/vcs-1/gc.properties
+*.pyc
+
